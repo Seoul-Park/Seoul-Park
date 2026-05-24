@@ -436,7 +436,7 @@
             <select id="categorySelect" class="district-select" aria-label="주차장 종류">
               <option value="public">공영주차장</option>
               <option value="shared" disabled>공유주차장 (준비 중)</option>
-              <option value="residential" disabled>거주자우선주차장 (준비 중)</option>
+              <option value="residential">거주자우선주차장</option>
             </select>
           </span>
         </div>
@@ -483,7 +483,7 @@
     </div>
   </div>
 
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e872457ee4739baa130378d4b3042ea&libraries=services&autoload=false"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e872457ee4739baa130378d4b3042ea&libraries=services,clusterer&autoload=false"></script>
   <script>
     // ───────────── 유틸 ─────────────
     function escapeHtml(str) {
@@ -523,7 +523,17 @@
       return `${availHtml}<span class="total">/${total}면</span>`;
     }
 
-    function makeMarkerImage() {
+    function makeMarkerImage(category) {
+      if (category === 'residential') {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+          <circle cx="9" cy="9" r="6" fill="#10B981" stroke="white" stroke-width="2.5"/>
+        </svg>`;
+        return new kakao.maps.MarkerImage(
+          'data:image/svg+xml;base64,' + btoa(svg),
+          new kakao.maps.Size(18, 18),
+          { offset: new kakao.maps.Point(9, 9) }
+        );
+      }
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
         <defs><filter id="s" x="-30%" y="-10%" width="160%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.3"/></filter></defs>
         <g filter="url(#s)">
@@ -609,7 +619,7 @@
       const tag = isSpecial
         ? (lot.applyMethod && lot.applyMethod.includes('방문차량') ? '방문' : '시간제')
         : null;
-      const stripPrefix = new RegExp('^서울\\s*' + districtName + '\\s*');
+      const stripPrefix = new RegExp('^서울(?:특별시|시)?\\s*' + districtName + '\\s*');
       const distHtml = lot._distance != null
         ? `<span class="li-distance">${formatDistance(lot._distance)}</span>` : '';
       const telHtml = lot.tel ? `<span class="li-tel">${formatTel(lot.tel)}</span>` : '';
@@ -678,10 +688,12 @@
 
         const state = {
           markers: [], chipOverlays: [],
+          clusterer: null,
           openCardOverlay: null,
           lotById: new Map(),
           lots: [],
           districtCode: null,
+          category: 'public',
           mapEmptyEl: null,
           origin: null,         // { name, lat, lng, overlay }
           destination: null,    // { name, lat, lng, overlay }
@@ -696,6 +708,7 @@
           state.markers.forEach(m => m.setMap(null));
           state.chipOverlays.forEach(o => o.setMap(null));
           state.markers = []; state.chipOverlays = [];
+          if (state.clusterer) { state.clusterer.clear(); }
           state.lotById.clear(); state.lots = [];
           if (state.mapEmptyEl) { state.mapEmptyEl.remove(); state.mapEmptyEl = null; }
           clearRoute();
@@ -1202,12 +1215,18 @@
             return;
           }
 
+          const cat = state.category;
+          const dataUrl = cat === 'residential'
+            ? `./data/residential/${code}.json?_=${Date.now()}`
+            : `./data/lots/${code}.json?_=${Date.now()}`;
+
           let dataset, realtime;
           try {
-            const [dRes, rRes] = await Promise.all([
-              fetch(`./data/lots/${code}.json?_=${Date.now()}`),
-              fetch(`./data/realtime.json?_=${Date.now()}`).catch(() => null),
-            ]);
+            const fetches = [fetch(dataUrl)];
+            if (cat === 'public') {
+              fetches.push(fetch(`./data/realtime.json?_=${Date.now()}`).catch(() => null));
+            }
+            const [dRes, rRes] = await Promise.all(fetches);
             if (!dRes.ok) throw new Error('HTTP ' + dRes.status);
             dataset = await dRes.json();
             if (rRes && rRes.ok) {
@@ -1225,53 +1244,83 @@
               const rt = l.realtimeKey ? realtimeLots[l.realtimeKey] : null;
               return {
                 ...l,
-                _id: `${code}-${i}`,
+                _id: `${code}-${cat}-${i}`,
                 availableSpaces: rt ? rt.available : null,
                 realtimeUpdatedAt: rt ? rt.updatedAt : null,
               };
             });
 
-          subEl.innerHTML = `시간주차 가능 <b>${visibleLots.length}</b>곳 · ${escapeHtml(dataset.operator || district.operator || '')}`;
+          const catLabel = cat === 'residential' ? '거주자우선주차' : '시간주차 가능';
+          subEl.innerHTML = `${catLabel} <b>${visibleLots.length}</b>곳 · ${escapeHtml(dataset.operator || dataset.source || district.operator || '')}`;
           updatedAtEl.textContent = dataset.updatedAt || '-';
 
-          const markerImg = makeMarkerImage();
-          const lookups = visibleLots.map(lot => new Promise(resolve => {
-            new kakao.maps.services.Geocoder().addressSearch(lot.address, (result, status) => {
-              if (status === kakao.maps.services.Status.OK) {
-                resolve({ ...lot, lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
-              } else {
-                console.warn('주소 변환 실패:', lot.name, lot.address);
-                resolve(null);
-              }
+          const markerImg = makeMarkerImage(cat);
+          // 위경도가 데이터에 있으면 지오코딩 스킵
+          const lookups = visibleLots.map(lot => {
+            if (lot.lat != null && lot.lng != null) {
+              return Promise.resolve(lot);
+            }
+            return new Promise(resolve => {
+              new kakao.maps.services.Geocoder().addressSearch(lot.address, (result, status) => {
+                if (status === kakao.maps.services.Status.OK) {
+                  resolve({ ...lot, lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
+                } else {
+                  console.warn('주소 변환 실패:', lot.name, lot.address);
+                  resolve(null);
+                }
+              });
             });
-          }));
+          });
 
           const results = await Promise.all(lookups);
-          if (state.districtCode !== code) return;
+          if (state.districtCode !== code || state.category !== cat) return;
 
           const valid = results.filter(r => r !== null);
           const bounds = new kakao.maps.LatLngBounds();
+          const useClusterer = cat === 'residential' && valid.length > 30;
 
+          if (useClusterer) {
+            state.clusterer = new kakao.maps.MarkerClusterer({
+              map, averageCenter: true, minLevel: 4,
+              styles: [{
+                width: '36px', height: '36px',
+                background: '#10B981', color: 'white',
+                borderRadius: '50%', textAlign: 'center',
+                lineHeight: '36px', fontWeight: '700', fontSize: '13px',
+                border: '2px solid white',
+                boxShadow: '0 2px 8px rgba(16,185,129,0.4)',
+              }],
+            });
+          }
+
+          const clusteredMarkers = [];
           valid.forEach(lot => {
             lot._coords = new kakao.maps.LatLng(lot.lat, lot.lng);
             state.lotById.set(lot._id, lot);
             state.lots.push(lot);
 
             const marker = new kakao.maps.Marker({
-              map, position: lot._coords, title: lot.name, image: markerImg
+              position: lot._coords, title: lot.name, image: markerImg
             });
-            const chipOverlay = new kakao.maps.CustomOverlay({
-              content: buildChip(lot), position: lot._coords,
-              yAnchor: 2.6, zIndex: 3
-            });
-            chipOverlay.setMap(map);
+            if (!useClusterer) marker.setMap(map);
             kakao.maps.event.addListener(marker, 'click', () => setDestination({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
 
+            // 칩은 공영주차장만 (거주자우선은 너무 많아서 생략)
+            if (cat === 'public') {
+              const chipOverlay = new kakao.maps.CustomOverlay({
+                content: buildChip(lot), position: lot._coords,
+                yAnchor: 2.6, zIndex: 3
+              });
+              chipOverlay.setMap(map);
+              state.chipOverlays.push(chipOverlay);
+            }
+
             state.markers.push(marker);
-            state.chipOverlays.push(chipOverlay);
+            if (useClusterer) clusteredMarkers.push(marker);
             bounds.extend(lot._coords);
           });
 
+          if (useClusterer) state.clusterer.addMarkers(clusteredMarkers);
           if (valid.length > 0) map.setBounds(bounds);
           renderList(district.name);
 
@@ -1284,9 +1333,8 @@
         }
 
         selectEl.addEventListener('change', e => loadDistrict(e.target.value));
-        // 카테고리 변경 (현재는 공영만 활성; 공유·거주자우선은 disabled라 선택 자체가 안 됨)
         document.getElementById('categorySelect').addEventListener('change', e => {
-          // 향후 카테고리별 데이터 로드 분기 추가 위치
+          state.category = e.target.value;
           loadDistrict(state.districtCode || initialCode);
         });
         window.addEventListener('hashchange', () => {
