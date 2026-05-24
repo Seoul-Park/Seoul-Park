@@ -1,0 +1,386 @@
+{
+  "source": "https://www.gurosisul.or.kr/mod.asp?m=business&s=a02",
+  "district": "구로구",
+  "operator": "구로구시설관리공단",
+  "updatedAt": "2026-05-24",
+  "lots": [
+    {
+      "name": "고척동 삼덕마을",
+      "address": "서울 구로구 고척동 241-21",
+      "operationType": "추첨제",
+      "applyMethod": "매년1월초 신청 (3월 1일 재배정)",
+      "spaces": 16,
+      "grade": "5급지",
+      "hourly": "월주차전용 (시간주차불가)",
+      "hourlyAvailable": false,
+      "monthly": {
+        "day": "불가",
+        "night": "불가",
+        "all": "50,000원"
+      },
+      "hours": "월주차전용(무인)",
+      "mapLink": "https://kko.to/sb1_-86LyR",
+      "category": "monthly-only"
+    },
+    {
+      "name": "가리봉동 (주민센터)",
+      "address": "서울 구로구 우마2길 35",
+      "operationType": "추첨제",
+      "applyMethod": "매년3월초 신청 (5월 1일 재배정)",
+      "spaces": 47,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "50,000원",
+        "night": "20,000원",
+        "all": "70,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/Qh0FSc7Ar",
+      "category": "normal"
+    },
+    {
+      "name": "구로4동",
+      "address": "서울 구로구 구로동로26길 54",
+      "operationType": "추첨제",
+      "applyMethod": "매년3월초 신청 (5월 1일 재배정)",
+      "spaces": 198,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "50,000원",
+        "night": "25,000원",
+        "all": "75,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/Hg-0UVy-N",
+      "category": "normal"
+    },
+    {
+      "name": "구로3동",
+      "address": "서울 구로구 도림로6길 30",
+      "operationType": "추첨제",
+      "applyMethod": "매년5월초 신청 (7월 1일 재배정)",
+      "spaces": 20,
+      "grade": "5급지",
+      "hourly": "월주차전용 (시간주차불가)",
+      "hourlyAvailable": false,
+      "monthly": {
+        "day": "30,000원",
+        "night": "20,000원",
+        "all": "50,000원"
+      },
+      "hours": "월주차전용(무인)",
+      "mapLink": "http://kko.to/8JzOERfoh",
+      "category": "monthly-only"
+    },
+    {
+      "name": "고척근린시장",
+      "address": "서울 구로구 고척동 253-124",
+      "operationType": "추첨제",
+      "applyMethod": "매년5월초 신청 (7월 1일 재배정)",
+      "spaces": 20,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "60,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "https://kko.kakao.com/r840SU0ffg",
+      "category": "normal"
+    },
+    {
+      "name": "하늘공원",
+      "address": "서울 구로구 벚꽃로 370",
+      "operationType": "추첨제",
+      "applyMethod": "매년7월초 신청 (9월 1일 재배정)",
+      "spaces": 198,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "55,000원",
+        "night": "25,000원",
+        "all": "80,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/KAKunZHG8",
+      "category": "normal"
+    },
+    {
+      "name": "고척1동",
+      "address": "서울 구로구 중앙로8길 16",
+      "operationType": "추첨제",
+      "applyMethod": "매년 7월초 신청 (9월 1일 재배정)",
+      "spaces": 125,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "40,000원",
+        "night": "25,000원",
+        "all": "65,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/W_FHlVhrJ",
+      "category": "normal"
+    },
+    {
+      "name": "고척동소규모",
+      "address": "서울 구로구 고척동 241-348",
+      "operationType": "추첨제",
+      "applyMethod": "매년10월초 신청 (12월 1일 재배정)",
+      "spaces": 16,
+      "grade": "5급지",
+      "hourly": "월주차전용 (시간주차불가)",
+      "hourlyAvailable": false,
+      "monthly": {
+        "day": "불가",
+        "night": "불가",
+        "all": "50,000원"
+      },
+      "hours": "월주차전용(무인)",
+      "mapLink": "https://kko.to/NLhgkv5o0a",
+      "category": "monthly-only"
+    },
+    {
+      "name": "구로2동소공원",
+      "address": "서울 구로구 구로동로42길 48-4",
+      "operationType": "추첨제",
+      "applyMethod": "매년10월초 신청 (12월 1일 재배정)",
+      "spaces": 104,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "70,000원",
+        "night": "30,000원",
+        "all": "100,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "https://kko.kakao.com/LGZedWuu_A",
+      "category": "normal"
+    },
+    {
+      "name": "구로리공원 지하",
+      "address": "서울 구로구 구로중앙로 13",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 1년 이상 대기필요",
+      "spaces": 203,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "75,000원",
+        "night": "30,000원",
+        "all": "105,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/r3hiUkKaa",
+      "category": "normal"
+    },
+    {
+      "name": "구로5동",
+      "address": "서울 구로구 구로5동 549-73",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 6개월 이상 대기필요",
+      "spaces": 81,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "40,000원",
+        "night": "25,000원",
+        "all": "65,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/J2IgJNAhd",
+      "category": "normal"
+    },
+    {
+      "name": "구로2동",
+      "address": "서울 구로구 구로동로28길 81",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 3년 이상 대기필요",
+      "spaces": 81,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "40,000원",
+        "night": "25,000원",
+        "all": "65,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/nbZI95DwS",
+      "category": "normal"
+    },
+    {
+      "name": "개봉1동마을 (남부순환로옆)",
+      "address": "서울 구로구 개봉동 105-6",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 3년 이상 대기필요",
+      "spaces": 58,
+      "grade": "5급지",
+      "hourly": "5분당 50원 (1시간 600원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "30,000원",
+        "night": "20,000원",
+        "all": "50,000원"
+      },
+      "hours": "24시간 (근무자13시~21시)",
+      "mapLink": "http://kko.to/qtvxGgHcX",
+      "category": "normal"
+    },
+    {
+      "name": "오류1동텃골",
+      "address": "서울 구로구 경인로15길 22",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 6개월 이상 대기필요",
+      "spaces": 84,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "40,000원",
+        "night": "25,000원",
+        "all": "65,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/kw9wRbffc",
+      "category": "normal"
+    },
+    {
+      "name": "개봉1동노외 (주민센터)",
+      "address": "서울 구로구 경인로33길 51",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 1년 이상 대기필요",
+      "spaces": 134,
+      "grade": "4급지",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "50,000원",
+        "night": "25,000원",
+        "all": "75,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/Wyu47jY-i",
+      "category": "normal"
+    },
+    {
+      "name": "고척근린공원 지하",
+      "address": "서울 구로구 고척로45길 1",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 6개월 이상 대기필요",
+      "spaces": 199,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "80,000원",
+        "night": "32,000원",
+        "all": "112,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/s-VqQFifY",
+      "category": "normal"
+    },
+    {
+      "name": "고척리본타운",
+      "address": "서울 구로구 고척로52나길 25",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 3개월 이상 대기필요",
+      "spaces": 66,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "80,000원",
+        "night": "32,000원",
+        "all": "112,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/sUlGQpGpt",
+      "category": "normal"
+    },
+    {
+      "name": "구로아트밸리 지하",
+      "address": "서울 구로구 가마산로25길 21",
+      "operationType": "대기순번제",
+      "applyMethod": "신청후 10개월 이상 대기필요",
+      "spaces": 245,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "80,000원",
+        "night": "32,000원",
+        "all": "112,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "http://kko.to/RoGiEXhNL",
+      "category": "normal"
+    },
+    {
+      "name": "구로 미래도서관",
+      "address": "서울 구로구 새말로 111",
+      "operationType": "대기순번제",
+      "applyMethod": "신청 후 1개월 이상 대기필요",
+      "spaces": 52,
+      "grade": "3급지",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "100,000원",
+        "night": "40,000원",
+        "all": "140,000원"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "https://kko.to/eG4PQt6WtI",
+      "category": "normal"
+    },
+    {
+      "name": "개봉고가",
+      "address": "서울 구로구 개봉동 403-10",
+      "operationType": "대기순번제",
+      "applyMethod": "신청불가 (시간제 전용)",
+      "spaces": 20,
+      "grade": "4",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "24시간(무인)",
+      "mapLink": "https://kko.kakao.com/Kfa_n3UP3F",
+      "category": "special"
+    },
+    {
+      "name": "구로구청",
+      "address": "서울 구로구 가마산로 245",
+      "operationType": "대기순번제",
+      "applyMethod": "신청불가 (방문차량주차)",
+      "spaces": 135,
+      "grade": "-",
+      "hourly": "30분당 1,000원 (1시간 2,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "56,000원",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "유료:평일 8시반 ~ 18시 무료:평일야간/토요일/",
+      "mapLink": "http://kko.to/oG4HWk6Xy",
+      "category": "special"
+    }
+  ]
+}

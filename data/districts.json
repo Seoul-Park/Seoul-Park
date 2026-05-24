@@ -1,0 +1,30 @@
+{
+  "updatedAt": "2026-05-25",
+  "districts": [
+    { "code": "gangnam",     "name": "강남구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "gangdong",    "name": "강동구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "gangbuk",     "name": "강북구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "gangseo",     "name": "강서구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "gwanak",      "name": "관악구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "gwangjin",    "name": "광진구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "guro",        "name": "구로구",   "operator": "구로구시설관리공단", "operatorUrl": "https://www.gurosisul.or.kr", "sourceUrl": "https://www.gurosisul.or.kr/mod.asp?m=business&s=a02", "active": true },
+    { "code": "geumcheon",   "name": "금천구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "nowon",       "name": "노원구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "dobong",      "name": "도봉구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "dongdaemun",  "name": "동대문구", "operator": null, "sourceUrl": null, "active": false },
+    { "code": "dongjak",     "name": "동작구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "mapo",        "name": "마포구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "seodaemun",   "name": "서대문구", "operator": null, "sourceUrl": null, "active": false },
+    { "code": "seocho",      "name": "서초구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "seongdong",   "name": "성동구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "seongbuk",    "name": "성북구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "songpa",      "name": "송파구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "yangcheon",   "name": "양천구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "yeongdeungpo","name": "영등포구", "operator": null, "sourceUrl": null, "active": false },
+    { "code": "yongsan",     "name": "용산구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "eunpyeong",   "name": "은평구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "jongno",      "name": "종로구",   "operator": null, "sourceUrl": null, "active": false },
+    { "code": "junggu",      "name": "중구",     "operator": null, "sourceUrl": null, "active": false },
+    { "code": "jungnang",    "name": "중랑구",   "operator": null, "sourceUrl": null, "active": false }
+  ]
+}

@@ -2,153 +2,997 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>구로구 공영주차장 (시간주차)</title>
+  <title>서울시 공영주차장 지도</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --brand: #3182F6;
+      --brand-dark: #1B64DA;
+      --brand-soft: #EEF4FF;
+      --green: #10B981;
+      --green-soft: #ECFDF5;
+      --red: #DC2626;
+      --red-soft: #FEF2F2;
+      --bg: #FFFFFF;
+      --bg-subtle: #F4F6F8;
+      --text: #1A1F36;
+      --text-muted: #6B7280;
+      --text-dim: #9CA3AF;
+      --border: #E5E7EB;
+      --border-soft: #F1F3F5;
+      --warn-bg: #FFF4E5;
+      --warn-text: #C2410C;
+      --shadow-sm: 0 1px 3px rgba(17,24,39,0.08);
+      --shadow: 0 4px 16px rgba(17, 24, 39, 0.08), 0 1px 4px rgba(17, 24, 39, 0.06);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font-family: inherit; }
     #app { display: flex; flex-direction: column; height: 100vh; }
-    header { background: #2c3e50; color: white; padding: 12px 20px; }
-    h1 { font-size: 18px; margin-bottom: 4px; }
-    .subtitle { font-size: 12px; opacity: 0.8; }
-    .legend { display: flex; gap: 16px; margin-top: 8px; font-size: 12px; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dot-normal { background: #e74c3c; }
-    .dot-special { background: #3498db; }
-    #map { flex: 1; }
-    .infowindow { padding: 12px; min-width: 220px; font-size: 13px; line-height: 1.6; }
-    .infowindow h3 { font-size: 15px; margin-bottom: 6px; color: #2c3e50; }
-    .infowindow .addr { color: #7f8c8d; font-size: 12px; margin-bottom: 8px; }
-    .infowindow .row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
-    .infowindow .label { color: #95a5a6; }
-    .infowindow .value { font-weight: 600; color: #2c3e50; }
-    .infowindow .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: white; margin-bottom: 6px; }
-    .badge-normal { background: #e74c3c; }
-    .badge-special { background: #3498db; }
-    #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; font-size: 14px; }
+
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 14px;
+      z-index: 100; flex-shrink: 0;
+    }
+    .logo {
+      width: 36px; height: 36px;
+      background: var(--brand); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 18px;
+      flex-shrink: 0;
+    }
+    .titles { flex: 1; min-width: 0; }
+    .title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .title-row h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+    .district-select-wrap { position: relative; display: inline-block; }
+    .district-select {
+      appearance: none; -webkit-appearance: none;
+      background: var(--brand-soft); color: var(--brand);
+      font-size: 13px; font-weight: 700;
+      padding: 4px 26px 4px 12px;
+      border: 0; border-radius: 8px;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: -0.01em;
+    }
+    .district-select:hover { background: #E0EAFF; }
+    .district-select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+    .district-select-wrap::after {
+      content: '▾'; position: absolute;
+      right: 9px; top: 50%; transform: translateY(-50%);
+      color: var(--brand); font-size: 10px;
+      pointer-events: none;
+    }
+    .titles .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .titles .sub b { color: var(--brand); font-weight: 700; }
+    .updated {
+      font-size: 11px; color: var(--text-dim);
+      padding: 4px 10px; background: var(--bg-subtle); border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .main { flex: 1; display: flex; min-height: 0; }
+    aside.list-panel {
+      width: 340px; background: var(--bg);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    /* Search panel */
+    .search-panel {
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .search-row {
+      display: flex; align-items: center;
+      background: var(--bg-subtle);
+      border-radius: 10px;
+      padding: 0 6px 0 10px;
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .search-row .icon {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .search-row.origin .icon { color: var(--green); }
+    .search-row.dest .icon { color: var(--red); }
+    .search-row input {
+      flex: 1; border: 0; background: transparent;
+      padding: 9px 8px;
+      font-size: 13px; font-family: inherit;
+      color: var(--text); min-width: 0;
+    }
+    .search-row input:focus { outline: none; }
+    .search-row input::placeholder { color: var(--text-dim); }
+    .search-row .btn-mini {
+      border: 0; background: transparent;
+      padding: 4px 8px; cursor: pointer;
+      font-size: 11px; font-weight: 600;
+      color: var(--brand); flex-shrink: 0;
+      border-radius: 6px;
+    }
+    .search-row .btn-mini:hover { background: var(--brand-soft); }
+    .search-row .btn-clear {
+      width: 20px; height: 20px;
+      border: 0; background: var(--border);
+      border-radius: 50%; cursor: pointer;
+      color: var(--text-muted);
+      display: none; align-items: center; justify-content: center;
+      font-size: 12px; line-height: 1; padding: 0;
+      flex-shrink: 0;
+    }
+    .search-row.has-value .btn-clear { display: flex; }
+    .search-row.has-value .btn-mini { display: none; }
+    .ac-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-top: 4px;
+      max-height: 240px; overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+    .ac-dropdown.show { display: block; }
+    .ac-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .ac-item:last-child { border-bottom: 0; }
+    .ac-item:hover, .ac-item.focused { background: var(--bg-subtle); }
+    .ac-item .ac-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .ac-item .ac-addr { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .ac-empty { padding: 12px; text-align: center; color: var(--text-muted); font-size: 12px; }
+
+    .nav-buttons {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .nav-btn {
+      padding: 9px 0;
+      border: 0; border-radius: 8px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .nav-btn:active { transform: scale(0.98); }
+    .nav-btn.kakao { background: #FEE500; color: #191919; }
+    .nav-btn.tmap { background: #EB1F4F; color: white; }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* List */
+    .list-area { flex: 1; overflow-y: auto; min-height: 0; }
+    .list-header {
+      padding: 12px 16px 8px;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-muted); letter-spacing: 0.02em;
+      position: sticky; top: 0; background: var(--bg); z-index: 2;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .list-header .sort-label {
+      font-size: 11px; color: var(--brand); font-weight: 700;
+    }
+    .list-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+    .list-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .list-item:hover { background: var(--bg-subtle); }
+    .list-item.active {
+      background: var(--brand-soft);
+      box-shadow: inset 3px 0 0 var(--brand);
+    }
+    .list-item .li-name {
+      font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .li-distance {
+      font-size: 11px; font-weight: 700; color: var(--brand);
+      background: var(--brand-soft); padding: 2px 8px; border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .list-item .li-addr { font-size: 12px; color: var(--text-muted); }
+    .list-item .li-meta {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      margin-top: 2px;
+    }
+    .li-chip {
+      display: inline-flex; align-items: center;
+      padding: 3px 8px;
+      background: var(--brand-soft); color: var(--brand);
+      font-size: 11px; font-weight: 700; border-radius: 6px;
+    }
+    .li-spaces { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .avail { font-weight: 700; color: var(--brand); }
+    .avail.full { color: var(--red); }
+    .avail.unknown { color: var(--text-dim); font-weight: 500; }
+    .total { color: var(--text-muted); }
+    .li-tag {
+      padding: 2px 6px; background: var(--warn-bg); color: var(--warn-text);
+      font-size: 10px; font-weight: 600; border-radius: 4px;
+    }
+
+    #map { flex: 1; position: relative; background: #f0f3f5; }
+    #status {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; padding: 14px 20px; border-radius: 12px;
+      box-shadow: var(--shadow); z-index: 10; font-size: 14px;
+      color: var(--text-muted);
+    }
+    .map-empty {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; z-index: 5;
+      padding: 32px 28px; background: white; border-radius: 16px;
+      box-shadow: var(--shadow); max-width: 360px;
+    }
+    .map-empty .icon { font-size: 32px; margin-bottom: 8px; }
+    .map-empty .title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .map-empty .msg { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* Endpoint markers (origin/destination) */
+    .endpoint-marker {
+      display: flex; flex-direction: column; align-items: center;
+      user-select: none; pointer-events: none;
+    }
+    .endpoint-marker .badge {
+      padding: 4px 10px; border-radius: 14px;
+      font-size: 11px; font-weight: 700; color: white;
+      box-shadow: var(--shadow);
+      white-space: nowrap;
+    }
+    .endpoint-marker.origin .badge { background: var(--green); }
+    .endpoint-marker.dest .badge { background: var(--red); }
+    .endpoint-marker .stalk {
+      width: 2px; height: 8px;
+      background: rgba(0,0,0,0.3);
+    }
+    .endpoint-marker .dot-base {
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .endpoint-marker.origin .dot-base { background: var(--green); }
+    .endpoint-marker.dest .dot-base { background: var(--red); }
+
+    /* Always-visible label chip */
+    .chip-wrap { position: relative; cursor: pointer; user-select: none; }
+    .chip {
+      background: white; padding: 6px 10px; border-radius: 18px;
+      box-shadow: var(--shadow); font-size: 12px; font-weight: 700;
+      color: var(--text); white-space: nowrap;
+      border: 1px solid var(--border-soft);
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .chip-wrap:hover .chip { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(17,24,39,0.15); }
+    .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+    .chip .price { color: var(--brand); }
+    .chip .spaces {
+      color: var(--text-muted); font-weight: 500;
+      padding-left: 6px; margin-left: 2px;
+      border-left: 1px solid var(--border);
+    }
+    .chip-tail {
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      width: 1px; height: 4px; background: var(--border);
+    }
+
+    /* Card */
+    .card-wrap {
+      position: relative;
+      filter: drop-shadow(0 12px 32px rgba(17, 24, 39, 0.2));
+    }
+    .card-wrap::after {
+      content: ''; position: absolute;
+      bottom: -8px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top: 9px solid white;
+    }
+    .card {
+      width: 280px; background: white;
+      border-radius: 16px; padding: 18px;
+      font-size: 13px; line-height: 1.5;
+      position: relative;
+    }
+    .card .close {
+      position: absolute; top: 12px; right: 12px;
+      width: 24px; height: 24px;
+      border: 0; background: var(--bg-subtle); border-radius: 50%;
+      cursor: pointer; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; line-height: 1;
+    }
+    .card .close:hover { background: var(--border); color: var(--text); }
+    .card .name {
+      font-size: 16px; font-weight: 700;
+      letter-spacing: -0.01em; padding-right: 28px;
+    }
+    .card .addr { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .card .tag {
+      display: inline-block; padding: 2px 8px;
+      background: var(--warn-bg); color: var(--warn-text);
+      font-size: 11px; font-weight: 600;
+      border-radius: 6px; margin-top: 12px;
+    }
+    .card .price-box {
+      background: linear-gradient(135deg, #EEF4FF 0%, #F0F8FF 100%);
+      border-radius: 12px; padding: 12px 14px; margin-top: 14px;
+    }
+    .card .price-box .label { font-size: 11px; color: var(--brand); font-weight: 600; }
+    .card .price-box .value {
+      font-size: 20px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.02em; margin-top: 2px;
+    }
+    .card .price-box .hour { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .card .price-box .note {
+      font-size: 11px; color: var(--text-muted);
+      margin-top: 6px; padding-top: 6px;
+      border-top: 1px dashed rgba(49,130,246,0.2);
+    }
+    .card .meta {
+      display: grid; grid-template-columns: auto 1fr; gap: 6px 12px;
+      margin-top: 14px; font-size: 12px;
+    }
+    .card .meta dt { color: var(--text-muted); }
+    .card .meta dd { color: var(--text); font-weight: 500; }
+    .card-actions {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px; margin-top: 14px;
+    }
+    .card-actions button, .card-actions a {
+      padding: 10px 0;
+      text-align: center; text-decoration: none;
+      border: 0; border-radius: 10px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; display: block;
+    }
+    .card-actions .set-dest { background: var(--brand); color: white; }
+    .card-actions .set-dest:hover { background: var(--brand-dark); }
+    .card-actions .kakao { background: #FEE500; color: #191919; }
+    .card-actions .tmap { background: #EB1F4F; color: white; }
+
+    @media (max-width: 768px) {
+      .main { flex-direction: column-reverse; }
+      aside.list-panel { width: 100%; height: 55vh; border-right: none; border-top: 1px solid var(--border); }
+      .card { width: 240px; padding: 16px; }
+    }
   </style>
 </head>
 <body>
   <div id="app">
     <header>
-      <h1>구로구 공영주차장 (시간주차 가능)</h1>
-      <div class="subtitle">구로구 시설관리공단 · 총 <span id="count">18</span>곳</div>
-      <div class="legend">
-        <div class="legend-item"><span class="dot dot-normal"></span> 일반 시간주차 (16곳)</div>
-        <div class="legend-item"><span class="dot dot-special"></span> 특수조건 (시간제전용·방문차량, 2곳)</div>
+      <div class="logo">P</div>
+      <div class="titles">
+        <div class="title-row">
+          <h1>서울시 공영주차장</h1>
+          <span class="district-select-wrap">
+            <select id="districtSelect" class="district-select" aria-label="구 선택"></select>
+          </span>
+        </div>
+        <div class="sub" id="subText">데이터를 불러오는 중…</div>
       </div>
+      <div class="updated">갱신 <span id="updatedAt">-</span></div>
     </header>
-    <div id="map">
-      <div id="status">지도를 불러오는 중…</div>
+    <div class="main">
+      <aside class="list-panel">
+        <div class="search-panel">
+          <div class="search-row origin" id="originRow">
+            <span class="icon">●</span>
+            <input id="originInput" type="text" placeholder="출발지를 입력하세요" autocomplete="off">
+            <button class="btn-mini" id="useCurrentBtn" type="button">현재 위치</button>
+            <button class="btn-clear" id="originClear" type="button" aria-label="지우기">×</button>
+            <div class="ac-dropdown" id="originAc"></div>
+          </div>
+          <div class="search-row dest" id="destRow">
+            <span class="icon">●</span>
+            <input id="destInput" type="text" placeholder="도착지를 입력하세요" autocomplete="off">
+            <button class="btn-clear" id="destClear" type="button" aria-label="지우기">×</button>
+            <div class="ac-dropdown" id="destAc"></div>
+          </div>
+          <div class="nav-buttons">
+            <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>카카오내비</button>
+            <button class="nav-btn tmap" id="tmapNavBtn" type="button" disabled>티맵</button>
+          </div>
+        </div>
+
+        <div class="list-area">
+          <div class="list-header">
+            <span id="listCount">전체 주차장</span>
+            <span id="sortLabel" class="sort-label" style="display:none">가까운 순</span>
+          </div>
+          <div id="list"></div>
+        </div>
+      </aside>
+
+      <div id="map">
+        <div id="status">데이터를 불러오는 중…</div>
+      </div>
     </div>
   </div>
 
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e872457ee4739baa130378d4b3042ea&libraries=services&autoload=false"></script>
   <script>
-    const parkingLots = [
-      // 일반 시간주차 가능 (16곳)
-      { name: '가리봉동(주민센터)', addr: '서울 구로구 우마2길 35', hourly: '5분당 100원', monthly: '70,000원', type: 'normal' },
-      { name: '구로4동', addr: '서울 구로구 구로동로26길 54', hourly: '5분당 100원', monthly: '75,000원', type: 'normal' },
-      { name: '고척근린시장', addr: '서울 구로구 고척동 253-124', hourly: '5분당 100원', monthly: '60,000원', type: 'normal' },
-      { name: '하늘공원', addr: '서울 구로구 벚꽃로 370', hourly: '5분당 150원', monthly: '80,000원', type: 'normal' },
-      { name: '고척1동', addr: '서울 구로구 중앙로8길 16', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
-      { name: '구로2동소공원', addr: '서울 구로구 구로동로42길 48-4', hourly: '5분당 150원', monthly: '100,000원', type: 'normal' },
-      { name: '구로리공원 지하', addr: '서울 구로구 구로중앙로 13', hourly: '5분당 150원', monthly: '105,000원', type: 'normal' },
-      { name: '구로5동', addr: '서울 구로구 구로동 549-73', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
-      { name: '구로2동', addr: '서울 구로구 구로동로28길 81', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
-      { name: '개봉1동마을', addr: '서울 구로구 개봉동 105-6', hourly: '5분당 50원', monthly: '50,000원', type: 'normal' },
-      { name: '오류1동텃골', addr: '서울 구로구 경인로15길 22', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
-      { name: '개봉1동노외', addr: '서울 구로구 경인로33길 51', hourly: '5분당 100원', monthly: '75,000원', type: 'normal' },
-      { name: '고척근린공원 지하', addr: '서울 구로구 고척로45길 1', hourly: '5분당 150원', monthly: '112,000원', type: 'normal' },
-      { name: '고척리본타운', addr: '서울 구로구 고척로52나길 25', hourly: '5분당 150원', monthly: '112,000원', type: 'normal' },
-      { name: '구로아트밸리 지하', addr: '서울 구로구 가마산로25길 21', hourly: '5분당 150원', monthly: '112,000원', type: 'normal' },
-      { name: '구로 미래도서관', addr: '서울 구로구 새말로 111', hourly: '5분당 150원', monthly: '140,000원', type: 'normal' },
-      // 특수조건 (2곳)
-      { name: '개봉고가', addr: '서울 구로구 개봉동 403-10', hourly: '5분당 100원 (시간제전용)', monthly: '-', type: 'special' },
-      { name: '구로구청', addr: '서울 구로구 가마산로 245', hourly: '30분당 1,000원 (방문차량)', monthly: '-', type: 'special' },
-    ];
+    // ───────────── 유틸 ─────────────
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function shortHourly(h) { return h.split('(')[0].trim(); }
+    function hourlyHourPart(h) { const m = h.match(/\(([^)]+)\)/); return m ? m[1] : ''; }
 
-    function makeMarkerImage(color) {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="42" viewBox="0 0 36 42"><path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 24 18 24s18-10.5 18-24C36 8.06 27.94 0 18 0z" fill="${color}" stroke="white" stroke-width="2"/><circle cx="18" cy="17" r="6" fill="white"/></svg>`;
+    function haversineMeters(a, b) {
+      const R = 6371000;
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat);
+      const dLng = toRad(b.lng - a.lng);
+      const la1 = toRad(a.lat), la2 = toRad(b.lat);
+      const x = Math.sin(dLat/2)**2 + Math.sin(dLng/2)**2 * Math.cos(la1) * Math.cos(la2);
+      return 2 * R * Math.asin(Math.sqrt(x));
+    }
+    function formatDistance(m) {
+      if (m < 1000) return Math.round(m) + 'm';
+      return (m / 1000).toFixed(m < 10000 ? 1 : 0) + 'km';
+    }
+    function isMobile() {
+      return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    }
+    function debounce(fn, ms) {
+      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    }
+
+    function spacesDisplay(lot) {
+      const total = lot.spaces;
+      const avail = lot.availableSpaces;
+      if (total == null) return '';
+      let availHtml;
+      if (avail == null) availHtml = '<span class="avail unknown">—</span>';
+      else if (avail === 0) availHtml = '<span class="avail full">만차</span>';
+      else availHtml = `<span class="avail">${avail}</span>`;
+      return `${availHtml}<span class="total">/${total}면</span>`;
+    }
+
+    function makeMarkerImage() {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+        <defs><filter id="s" x="-30%" y="-10%" width="160%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.3"/></filter></defs>
+        <g filter="url(#s)">
+          <path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 22 15 22s15-11 15-22C31 7.7 24.3 1 16 1z" fill="#3182F6"/>
+          <circle cx="16" cy="16" r="10" fill="white"/>
+          <text x="16" y="21" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="800" fill="#3182F6">P</text>
+        </g>
+      </svg>`;
       return new kakao.maps.MarkerImage(
         'data:image/svg+xml;base64,' + btoa(svg),
-        new kakao.maps.Size(36, 42),
-        { offset: new kakao.maps.Point(18, 42) }
+        new kakao.maps.Size(32, 40),
+        { offset: new kakao.maps.Point(16, 40) }
       );
     }
 
-    kakao.maps.load(function () {
-      const map = new kakao.maps.Map(document.getElementById('map'), {
-        center: new kakao.maps.LatLng(37.4954, 126.8874),
-        level: 6
-      });
+    function buildChip(lot) {
+      const spacesHtml = lot.spaces != null ? `<span class="spaces">${spacesDisplay(lot)}</span>` : '';
+      return `
+        <div class="chip-wrap" data-lot-id="${escapeHtml(lot._id)}">
+          <div class="chip">
+            <span class="dot"></span>
+            <span class="price">${escapeHtml(shortHourly(lot.hourly))}</span>
+            ${spacesHtml}
+          </div>
+          <div class="chip-tail"></div>
+        </div>
+      `;
+    }
 
-      const geocoder = new kakao.maps.services.Geocoder();
-      const normalImg = makeMarkerImage('#e74c3c');
-      const specialImg = makeMarkerImage('#3498db');
-      let openInfowindow = null;
+    function buildCard(lot) {
+      const monthly = lot.monthly || {};
+      const monthlyAll = monthly.all && monthly.all !== '-' ? monthly.all : null;
+      const isSpecial = lot.category === 'special';
+      const tag = isSpecial
+        ? (lot.applyMethod && lot.applyMethod.includes('방문차량') ? '방문차량 전용' : '시간제 전용')
+        : null;
+      const holidayNote = lot.hours && /공휴일|일요일|토요일/.test(lot.hours)
+        ? '평일·공휴일 안내가 운영시간에 포함됨' : null;
+      const mapLinkHtml = lot.mapLink
+        ? `<a class="kakao" href="${escapeHtml(lot.mapLink)}" target="_blank" rel="noopener">카카오맵</a>` : '';
 
-      const lookups = parkingLots.map(lot => new Promise(resolve => {
-        geocoder.addressSearch(lot.addr, (result, status) => {
-          if (status === kakao.maps.services.Status.OK) {
-            resolve({ ...lot, lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
-          } else {
-            console.warn('주소 변환 실패:', lot.name, lot.addr);
-            resolve(null);
+      return `
+        <div class="card-wrap">
+          <div class="card">
+            <button class="close" aria-label="닫기">×</button>
+            <div class="name">${escapeHtml(lot.name)}</div>
+            <div class="addr">${escapeHtml(lot.address)}</div>
+            ${tag ? `<div class="tag">${escapeHtml(tag)}</div>` : ''}
+            <div class="price-box">
+              <div class="label">시간주차 요금</div>
+              <div class="value">${escapeHtml(shortHourly(lot.hourly))}</div>
+              ${hourlyHourPart(lot.hourly) ? `<div class="hour">${escapeHtml(hourlyHourPart(lot.hourly))}</div>` : ''}
+              ${holidayNote ? `<div class="note">${escapeHtml(holidayNote)}</div>` : ''}
+            </div>
+            <dl class="meta">
+              ${monthlyAll ? `<dt>월정기(전일)</dt><dd>${escapeHtml(monthlyAll)}</dd>` : ''}
+              <dt>주차면수</dt><dd>${spacesDisplay(lot)} <span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span></dd>
+              <dt>운영시간</dt><dd>${escapeHtml(lot.hours)}</dd>
+            </dl>
+            <div class="card-actions">
+              <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">도착지로</button>
+              ${mapLinkHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildListItem(lot, districtName) {
+      const isSpecial = lot.category === 'special';
+      const tag = isSpecial
+        ? (lot.applyMethod && lot.applyMethod.includes('방문차량') ? '방문' : '시간제')
+        : null;
+      const stripPrefix = new RegExp('^서울\\s*' + districtName + '\\s*');
+      const distHtml = lot._distance != null
+        ? `<span class="li-distance">${formatDistance(lot._distance)}</span>` : '';
+      return `
+        <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
+          <div class="li-name">
+            <span>${escapeHtml(lot.name)}${tag ? ` <span class="li-tag">${escapeHtml(tag)}</span>` : ''}</span>
+            ${distHtml}
+          </div>
+          <div class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</div>
+          <div class="li-meta">
+            <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
+            <span class="li-spaces">${spacesDisplay(lot)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function makeEndpointMarkerContent(type, label) {
+      return `
+        <div class="endpoint-marker ${type}">
+          <div class="badge">${escapeHtml(label)}</div>
+          <div class="stalk"></div>
+          <div class="dot-base"></div>
+        </div>
+      `;
+    }
+
+    // ───────────── 메인 ─────────────
+    (async function main() {
+      const statusEl = document.getElementById('status');
+      const selectEl = document.getElementById('districtSelect');
+      const listEl = document.getElementById('list');
+      const subEl = document.getElementById('subText');
+      const updatedAtEl = document.getElementById('updatedAt');
+      const mapContainer = document.getElementById('map');
+      const listCountEl = document.getElementById('listCount');
+      const sortLabelEl = document.getElementById('sortLabel');
+
+      // districts
+      let districtsData;
+      try {
+        const res = await fetch('./data/districts.json?_=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        districtsData = await res.json();
+      } catch (e) {
+        statusEl.textContent = '구 목록 로드 실패: ' + e.message;
+        return;
+      }
+      const districts = districtsData.districts;
+      const districtByCode = new Map(districts.map(d => [d.code, d]));
+      selectEl.innerHTML = districts.map(d => {
+        const label = d.active ? d.name : `${d.name} (준비 중)`;
+        return `<option value="${d.code}" ${d.active ? '' : 'disabled'}>${label}</option>`;
+      }).join('');
+
+      const initialCode = (location.hash.replace('#', '') && districtByCode.get(location.hash.replace('#', '')))
+        ? location.hash.replace('#', '')
+        : (districts.find(d => d.active)?.code || 'guro');
+
+      kakao.maps.load(() => {
+        const map = new kakao.maps.Map(mapContainer, {
+          center: new kakao.maps.LatLng(37.5665, 126.9780), level: 7
+        });
+
+        const state = {
+          markers: [], chipOverlays: [],
+          openCardOverlay: null,
+          lotById: new Map(),
+          lots: [],
+          districtCode: null,
+          mapEmptyEl: null,
+          origin: null,         // { name, lat, lng, overlay }
+          destination: null,    // { name, lat, lng, overlay }
+        };
+
+        function clearState() {
+          if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
+          state.markers.forEach(m => m.setMap(null));
+          state.chipOverlays.forEach(o => o.setMap(null));
+          state.markers = []; state.chipOverlays = [];
+          state.lotById.clear(); state.lots = [];
+          if (state.mapEmptyEl) { state.mapEmptyEl.remove(); state.mapEmptyEl = null; }
+        }
+
+        function showMapEmpty(district) {
+          const div = document.createElement('div');
+          div.className = 'map-empty';
+          div.innerHTML = `
+            <div class="icon">🚧</div>
+            <div class="title">${escapeHtml(district.name)} 데이터 준비 중</div>
+            <div class="msg">아직 ${escapeHtml(district.name)} 데이터가 추가되지 않았습니다.<br>다른 구를 선택하거나, 추후 업데이트를 기다려주세요.</div>
+          `;
+          mapContainer.appendChild(div);
+          state.mapEmptyEl = div;
+        }
+
+        function setActiveItem(lotId) {
+          document.querySelectorAll('.list-item').forEach(el => {
+            el.classList.toggle('active', el.dataset.lotId === lotId);
+          });
+        }
+
+        function openCard(lot) {
+          if (state.openCardOverlay) state.openCardOverlay.setMap(null);
+          const overlay = new kakao.maps.CustomOverlay({
+            content: buildCard(lot), position: lot._coords,
+            yAnchor: 1.18, zIndex: 100
+          });
+          overlay.setMap(map);
+          state.openCardOverlay = overlay;
+          setTimeout(() => {
+            const root = document.querySelector('.card-wrap');
+            if (!root || root._bound) return;
+            root._bound = true;
+            root.querySelector('.close')?.addEventListener('click', () => {
+              overlay.setMap(null);
+              if (state.openCardOverlay === overlay) state.openCardOverlay = null;
+            });
+            root.querySelector('.set-dest')?.addEventListener('click', (e) => {
+              const id = e.currentTarget.dataset.lotId;
+              const lot = state.lotById.get(id);
+              if (lot) setDestination({ name: lot.name, lat: lot.lat, lng: lot.lng });
+              overlay.setMap(null);
+              if (state.openCardOverlay === overlay) state.openCardOverlay = null;
+            });
+          }, 0);
+        }
+
+        function focusLot(lot) {
+          if (!lot._coords) return;
+          map.panTo(lot._coords);
+          setActiveItem(lot._id);
+          openCard(lot);
+        }
+
+        kakao.maps.event.addListener(map, 'click', () => {
+          if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
+        });
+
+        document.addEventListener('click', (e) => {
+          const chipWrap = e.target.closest('.chip-wrap');
+          if (chipWrap) {
+            const lot = state.lotById.get(chipWrap.dataset.lotId);
+            if (lot) focusLot(lot);
           }
         });
-      }));
-
-      Promise.all(lookups).then(results => {
-        const valid = results.filter(r => r !== null);
-        const bounds = new kakao.maps.LatLngBounds();
-
-        valid.forEach(lot => {
-          const coords = new kakao.maps.LatLng(lot.lat, lot.lng);
-          const marker = new kakao.maps.Marker({
-            map,
-            position: coords,
-            title: lot.name,
-            image: lot.type === 'special' ? specialImg : normalImg
-          });
-
-          const isSpecial = lot.type === 'special';
-          const badgeClass = isSpecial ? 'badge-special' : 'badge-normal';
-          const badgeText = isSpecial ? '특수조건' : '시간주차';
-          const content = `
-            <div class="infowindow">
-              <span class="badge ${badgeClass}">${badgeText}</span>
-              <h3>${lot.name}</h3>
-              <div class="addr">${lot.addr}</div>
-              <div class="row"><span class="label">시간요금</span><span class="value">${lot.hourly}</span></div>
-              <div class="row"><span class="label">월정기</span><span class="value">${lot.monthly}</span></div>
-            </div>
-          `;
-          const infowindow = new kakao.maps.InfoWindow({ content, removable: true });
-
-          kakao.maps.event.addListener(marker, 'click', () => {
-            if (openInfowindow) openInfowindow.close();
-            infowindow.open(map, marker);
-            openInfowindow = infowindow;
-          });
-
-          bounds.extend(coords);
+        listEl.addEventListener('click', (e) => {
+          const item = e.target.closest('.list-item');
+          if (!item) return;
+          const lot = state.lotById.get(item.dataset.lotId);
+          if (lot) focusLot(lot);
         });
 
-        if (valid.length > 0) map.setBounds(bounds);
-
-        const status = document.getElementById('status');
-        if (status) {
-          if (valid.length < parkingLots.length) {
-            status.textContent = `${valid.length}/${parkingLots.length}곳 표시 (일부 주소 변환 실패 — 콘솔 확인)`;
-            setTimeout(() => status.remove(), 3000);
+        // ─── 거리 / 정렬 / 리스트 ───
+        function renderList(districtName) {
+          let lots = state.lots.slice();
+          let sorted = false;
+          if (state.destination) {
+            const dest = state.destination;
+            lots.forEach(l => { l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest); });
+            lots.sort((a, b) => a._distance - b._distance);
+            sorted = true;
           } else {
-            status.remove();
+            lots.forEach(l => { l._distance = null; });
+          }
+          listCountEl.textContent = `주차장 ${lots.length}곳`;
+          sortLabelEl.style.display = sorted ? '' : 'none';
+          listEl.innerHTML = lots.length
+            ? lots.map(l => buildListItem(l, districtName)).join('')
+            : '<div class="list-empty">표시할 주차장이 없어요.</div>';
+        }
+
+        // ─── 자동완성 (카카오 Places) ───
+        const placesService = new kakao.maps.services.Places();
+
+        function setupAutocomplete(inputEl, dropdownEl, rowEl, onPick) {
+          const fire = debounce((q) => {
+            if (!q || q.length < 2) { dropdownEl.classList.remove('show'); return; }
+            placesService.keywordSearch(q, (data, status) => {
+              if (status !== kakao.maps.services.Status.OK) {
+                dropdownEl.innerHTML = '<div class="ac-empty">검색 결과 없음</div>';
+                dropdownEl.classList.add('show');
+                return;
+              }
+              const items = data.slice(0, 8);
+              dropdownEl.innerHTML = items.map((p, i) => `
+                <div class="ac-item" data-i="${i}">
+                  <div class="ac-name">${escapeHtml(p.place_name)}</div>
+                  <div class="ac-addr">${escapeHtml(p.road_address_name || p.address_name || '')}</div>
+                </div>
+              `).join('');
+              dropdownEl.classList.add('show');
+              dropdownEl._items = items;
+            }, { location: map.getCenter(), radius: 20000, sort: 'distance' });
+          }, 220);
+
+          inputEl.addEventListener('input', (e) => {
+            rowEl.classList.toggle('has-value', !!e.target.value);
+            fire(e.target.value.trim());
+          });
+          inputEl.addEventListener('focus', (e) => {
+            if (e.target.value.trim().length >= 2) fire(e.target.value.trim());
+          });
+          inputEl.addEventListener('blur', () => {
+            setTimeout(() => dropdownEl.classList.remove('show'), 150);
+          });
+          dropdownEl.addEventListener('mousedown', (e) => {
+            const item = e.target.closest('.ac-item');
+            if (!item) return;
+            e.preventDefault();
+            const p = dropdownEl._items?.[+item.dataset.i];
+            if (!p) return;
+            inputEl.value = p.place_name;
+            rowEl.classList.add('has-value');
+            dropdownEl.classList.remove('show');
+            onPick({ name: p.place_name, lat: parseFloat(p.y), lng: parseFloat(p.x) });
+          });
+        }
+
+        function setOrigin(p) {
+          if (state.origin?.overlay) state.origin.overlay.setMap(null);
+          if (!p) { state.origin = null; updateNavButtons(); return; }
+          const overlay = new kakao.maps.CustomOverlay({
+            content: makeEndpointMarkerContent('origin', '출발 · ' + p.name),
+            position: new kakao.maps.LatLng(p.lat, p.lng),
+            yAnchor: 1.5, zIndex: 50
+          });
+          overlay.setMap(map);
+          state.origin = { ...p, overlay };
+          document.getElementById('originInput').value = p.name;
+          document.getElementById('originRow').classList.add('has-value');
+          updateNavButtons();
+        }
+
+        function setDestination(p) {
+          if (state.destination?.overlay) state.destination.overlay.setMap(null);
+          if (!p) {
+            state.destination = null;
+            const dist = districtByCode.get(state.districtCode);
+            renderList(dist?.name || '');
+            updateNavButtons();
+            return;
+          }
+          const overlay = new kakao.maps.CustomOverlay({
+            content: makeEndpointMarkerContent('dest', '도착 · ' + p.name),
+            position: new kakao.maps.LatLng(p.lat, p.lng),
+            yAnchor: 1.5, zIndex: 50
+          });
+          overlay.setMap(map);
+          state.destination = { ...p, overlay };
+          document.getElementById('destInput').value = p.name;
+          document.getElementById('destRow').classList.add('has-value');
+          const dist = districtByCode.get(state.districtCode);
+          renderList(dist?.name || '');
+          map.panTo(new kakao.maps.LatLng(p.lat, p.lng));
+          updateNavButtons();
+        }
+
+        setupAutocomplete(
+          document.getElementById('originInput'),
+          document.getElementById('originAc'),
+          document.getElementById('originRow'),
+          setOrigin
+        );
+        setupAutocomplete(
+          document.getElementById('destInput'),
+          document.getElementById('destAc'),
+          document.getElementById('destRow'),
+          setDestination
+        );
+
+        document.getElementById('originClear').addEventListener('click', () => {
+          document.getElementById('originInput').value = '';
+          document.getElementById('originRow').classList.remove('has-value');
+          setOrigin(null);
+        });
+        document.getElementById('destClear').addEventListener('click', () => {
+          document.getElementById('destInput').value = '';
+          document.getElementById('destRow').classList.remove('has-value');
+          setDestination(null);
+        });
+
+        // ─── 현재 위치 ───
+        document.getElementById('useCurrentBtn').addEventListener('click', () => {
+          if (!navigator.geolocation) { alert('이 브라우저는 위치 기능을 지원하지 않습니다.'); return; }
+          const btn = document.getElementById('useCurrentBtn');
+          btn.textContent = '확인 중…'; btn.disabled = true;
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              btn.textContent = '현재 위치'; btn.disabled = false;
+              setOrigin({ name: '현재 위치', lat: pos.coords.latitude, lng: pos.coords.longitude });
+            },
+            (err) => {
+              btn.textContent = '현재 위치'; btn.disabled = false;
+              alert('위치를 가져올 수 없습니다: ' + err.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        });
+
+        // ─── 내비 ───
+        function updateNavButtons() {
+          const has = !!state.destination;  // 출발지는 선택, 도착지만 필수
+          document.getElementById('kakaoNavBtn').disabled = !has;
+          document.getElementById('tmapNavBtn').disabled = !has;
+        }
+
+        function openKakaoNav() {
+          const dest = state.destination;
+          const org = state.origin;
+          if (!dest) return;
+          if (isMobile()) {
+            // 카카오내비 앱 URL scheme
+            const url = `kakaonavi://navigate?name=${encodeURIComponent(dest.name)}&x=${dest.lng}&y=${dest.lat}&coord_type=wgs84`;
+            window.location.href = url;
+            // 앱이 없을 경우 대비 fallback
+            setTimeout(() => {
+              window.open(`https://map.kakao.com/?eName=${encodeURIComponent(dest.name)}`, '_blank');
+            }, 1500);
+          } else {
+            // PC: 카카오맵 길찾기 웹페이지
+            const params = new URLSearchParams();
+            if (org) params.set('sName', org.name);
+            params.set('eName', dest.name);
+            window.open(`https://map.kakao.com/?${params.toString()}`, '_blank');
           }
         }
+
+        function openTmap() {
+          const dest = state.destination;
+          const org = state.origin;
+          if (!dest) return;
+          if (isMobile()) {
+            let url = `tmap://route?goalname=${encodeURIComponent(dest.name)}&goalx=${dest.lng}&goaly=${dest.lat}`;
+            if (org) {
+              url += `&startname=${encodeURIComponent(org.name)}&startx=${org.lng}&starty=${org.lat}`;
+            }
+            window.location.href = url;
+          } else {
+            alert('티맵은 모바일 앱 전용입니다. 휴대폰으로 접속해서 이용해주세요.');
+          }
+        }
+
+        document.getElementById('kakaoNavBtn').addEventListener('click', openKakaoNav);
+        document.getElementById('tmapNavBtn').addEventListener('click', openTmap);
+
+        // ─── 구별 데이터 로드 ───
+        async function loadDistrict(code) {
+          clearState();
+          state.districtCode = code;
+          selectEl.value = code;
+          history.replaceState(null, '', '#' + code);
+
+          const district = districtByCode.get(code);
+          if (!district) { statusEl.textContent = '알 수 없는 구'; return; }
+
+          subEl.textContent = `${district.operator || district.name + ' 시설관리공단'}`;
+          updatedAtEl.textContent = '-';
+          listEl.innerHTML = '<div class="list-empty">데이터를 불러오는 중…</div>';
+          statusEl.textContent = '데이터를 불러오는 중…';
+          statusEl.style.display = '';
+
+          if (!district.active) {
+            statusEl.style.display = 'none';
+            subEl.textContent = '데이터 준비 중';
+            listEl.innerHTML = `<div class="list-empty">${escapeHtml(district.name)} 데이터는<br>아직 준비되지 않았어요.</div>`;
+            listCountEl.textContent = '주차장 0곳';
+            sortLabelEl.style.display = 'none';
+            showMapEmpty(district);
+            return;
+          }
+
+          let dataset;
+          try {
+            const res = await fetch(`./data/lots/${code}.json?_=${Date.now()}`);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            dataset = await res.json();
+          } catch (e) {
+            statusEl.textContent = `데이터 로드 실패: ${e.message}`;
+            return;
+          }
+
+          const visibleLots = dataset.lots
+            .filter(l => l.hourlyAvailable)
+            .map((l, i) => ({ ...l, _id: `${code}-${i}` }));
+
+          subEl.innerHTML = `시간주차 가능 <b>${visibleLots.length}</b>곳 · ${escapeHtml(dataset.operator || district.operator || '')}`;
+          updatedAtEl.textContent = dataset.updatedAt || '-';
+
+          const markerImg = makeMarkerImage();
+          const lookups = visibleLots.map(lot => new Promise(resolve => {
+            new kakao.maps.services.Geocoder().addressSearch(lot.address, (result, status) => {
+              if (status === kakao.maps.services.Status.OK) {
+                resolve({ ...lot, lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
+              } else {
+                console.warn('주소 변환 실패:', lot.name, lot.address);
+                resolve(null);
+              }
+            });
+          }));
+
+          const results = await Promise.all(lookups);
+          if (state.districtCode !== code) return;
+
+          const valid = results.filter(r => r !== null);
+          const bounds = new kakao.maps.LatLngBounds();
+
+          valid.forEach(lot => {
+            lot._coords = new kakao.maps.LatLng(lot.lat, lot.lng);
+            state.lotById.set(lot._id, lot);
+            state.lots.push(lot);
+
+            const marker = new kakao.maps.Marker({
+              map, position: lot._coords, title: lot.name, image: markerImg
+            });
+            const chipOverlay = new kakao.maps.CustomOverlay({
+              content: buildChip(lot), position: lot._coords,
+              yAnchor: 2.6, zIndex: 3
+            });
+            chipOverlay.setMap(map);
+            kakao.maps.event.addListener(marker, 'click', () => focusLot(lot));
+
+            state.markers.push(marker);
+            state.chipOverlays.push(chipOverlay);
+            bounds.extend(lot._coords);
+          });
+
+          if (valid.length > 0) map.setBounds(bounds);
+          renderList(district.name);
+
+          if (valid.length < visibleLots.length) {
+            statusEl.textContent = `${valid.length}/${visibleLots.length}곳 표시 (일부 주소 변환 실패)`;
+            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+          } else {
+            statusEl.style.display = 'none';
+          }
+        }
+
+        selectEl.addEventListener('change', e => loadDistrict(e.target.value));
+        window.addEventListener('hashchange', () => {
+          const code = location.hash.replace('#', '');
+          if (code && districtByCode.has(code) && code !== state.districtCode) loadDistrict(code);
+        });
+
+        loadDistrict(initialCode);
       });
-    });
+    })();
   </script>
 </body>
 </html>
