@@ -542,7 +542,6 @@
               ${holidayNote ? `<div class="note">${escapeHtml(holidayNote)}</div>` : ''}
             </div>
             <dl class="meta">
-              ${monthlyAll ? `<dt>월정기(전일)</dt><dd>${escapeHtml(monthlyAll)}</dd>` : ''}
               <dt>주차면수</dt><dd>${spacesDisplay(lot)} <span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span></dd>
               <dt>운영시간</dt><dd>${escapeHtml(lot.hours)}</dd>
             </dl>
@@ -653,39 +652,113 @@
           if (state.routeLabel) { state.routeLabel.setMap(null); state.routeLabel = null; }
         }
 
-        function updateRoute() {
-          clearRoute();
-          if (!state.origin || !state.destination) return;
-          const o = state.origin, d = state.destination;
-          const path = [new kakao.maps.LatLng(o.lat, o.lng), new kakao.maps.LatLng(d.lat, d.lng)];
+        // ─── 카카오 모빌리티 도로 경로 ───
+        const KAKAO_REST_KEY = 'e369007f7234d41ce977746bcd1fb224';
+        const routeCache = new Map();
+        let routeRequestId = 0;
 
+        async function fetchKakaoRoute(o, d) {
+          const url = `https://apis-navi.kakaomobility.com/v1/directions?origin=${o.lng},${o.lat}&destination=${d.lng},${d.lat}&priority=RECOMMEND`;
+          const res = await fetch(url, {
+            headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` }
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          const route = data.routes?.[0];
+          if (!route || route.result_code !== 0) throw new Error(route?.result_msg || 'No route');
+          const path = [];
+          for (const section of route.sections || []) {
+            for (const road of section.roads || []) {
+              const v = road.vertexes || [];
+              for (let i = 0; i < v.length; i += 2) {
+                path.push(new kakao.maps.LatLng(v[i + 1], v[i]));
+              }
+            }
+          }
+          return {
+            path,
+            distanceM: route.summary.distance,
+            durationS: route.summary.duration,
+            taxiFare: route.summary.fare?.taxi || 0,
+            tollFare: route.summary.fare?.toll || 0,
+          };
+        }
+
+        function drawRoute(path, label, midLatLng) {
           state.routePolyline = new kakao.maps.Polyline({
             path,
-            strokeWeight: 4,
+            strokeWeight: 5,
             strokeColor: '#3182F6',
-            strokeOpacity: 0.85,
-            strokeStyle: 'shortdash',
+            strokeOpacity: 0.9,
+            strokeStyle: 'solid',
           });
           state.routePolyline.setMap(map);
 
-          // 거리 라벨 (중간점)
-          const midLat = (o.lat + d.lat) / 2;
-          const midLng = (o.lng + d.lng) / 2;
-          const distM = haversineMeters({ lat: o.lat, lng: o.lng }, { lat: d.lat, lng: d.lng });
-          // 차량 평균 30km/h 가정으로 예상 시간 (도로 거리 ≈ 직선거리 × 1.3 보정)
-          const estMin = Math.max(1, Math.round((distM * 1.3 / 1000) / 30 * 60));
           state.routeLabel = new kakao.maps.CustomOverlay({
-            content: `<div class="route-label"><span class="km">${formatDistance(distM)}</span><span class="est">· 차량 약 ${estMin}분</span></div>`,
-            position: new kakao.maps.LatLng(midLat, midLng),
+            content: `<div class="route-label">${label}</div>`,
+            position: midLatLng,
             yAnchor: 0.5, xAnchor: 0.5,
             zIndex: 60,
           });
           state.routeLabel.setMap(map);
 
-          // 두 점이 모두 보이도록 지도 영역 조정
           const bounds = new kakao.maps.LatLngBounds();
           path.forEach(pt => bounds.extend(pt));
           map.setBounds(bounds, 80, 80, 80, 80);
+        }
+
+        async function updateRoute() {
+          clearRoute();
+          if (!state.origin || !state.destination) return;
+          const o = state.origin, d = state.destination;
+          const midLatLng = new kakao.maps.LatLng((o.lat + d.lat) / 2, (o.lng + d.lng) / 2);
+
+          // 로딩 라벨 즉시 표시
+          state.routeLabel = new kakao.maps.CustomOverlay({
+            content: `<div class="route-label"><span class="est">경로 계산 중…</span></div>`,
+            position: midLatLng,
+            yAnchor: 0.5, xAnchor: 0.5,
+            zIndex: 60,
+          });
+          state.routeLabel.setMap(map);
+
+          const key = `${o.lng.toFixed(5)},${o.lat.toFixed(5)}|${d.lng.toFixed(5)},${d.lat.toFixed(5)}`;
+          const reqId = ++routeRequestId;
+
+          try {
+            let route = routeCache.get(key);
+            if (!route) {
+              route = await fetchKakaoRoute(o, d);
+              routeCache.set(key, route);
+            }
+            if (reqId !== routeRequestId) return;
+
+            clearRoute();
+            const min = Math.max(1, Math.round(route.durationS / 60));
+            const fare = route.taxiFare > 0 ? ` · <span class="est">택시 ${route.taxiFare.toLocaleString()}원</span>` : '';
+            const label = `<span class="km">${formatDistance(route.distanceM)}</span><span class="est">· 약 ${min}분</span>${fare}`;
+            drawRoute(route.path, label, midLatLng);
+          } catch (e) {
+            if (reqId !== routeRequestId) return;
+            console.warn('도로 경로 실패, 직선으로 대체:', e.message);
+            clearRoute();
+            const path = [new kakao.maps.LatLng(o.lat, o.lng), new kakao.maps.LatLng(d.lat, d.lng)];
+            const distM = haversineMeters({ lat: o.lat, lng: o.lng }, { lat: d.lat, lng: d.lng });
+            const label = `<span class="km">${formatDistance(distM)}</span><span class="est">· 직선거리</span>`;
+            // 직선용 점선
+            state.routePolyline = new kakao.maps.Polyline({
+              path, strokeWeight: 4, strokeColor: '#3182F6', strokeOpacity: 0.7, strokeStyle: 'shortdash',
+            });
+            state.routePolyline.setMap(map);
+            state.routeLabel = new kakao.maps.CustomOverlay({
+              content: `<div class="route-label">${label}</div>`,
+              position: midLatLng, yAnchor: 0.5, xAnchor: 0.5, zIndex: 60,
+            });
+            state.routeLabel.setMap(map);
+            const bounds = new kakao.maps.LatLngBounds();
+            path.forEach(pt => bounds.extend(pt));
+            map.setBounds(bounds, 80, 80, 80, 80);
+          }
         }
 
         function showMapEmpty(district) {
@@ -782,12 +855,24 @@
         function setupAutocomplete(inputEl, dropdownEl, rowEl, onPick) {
           const fire = debounce((q) => {
             if (!q || q.length < 2) { dropdownEl.classList.remove('show'); return; }
+            // 1차: 지도 중심에서 20km 내 정확도순 검색
             placesService.keywordSearch(q, (data, status) => {
-              if (status !== kakao.maps.services.Status.OK) {
-                dropdownEl.innerHTML = '<div class="ac-empty">검색 결과 없음</div>';
-                dropdownEl.classList.add('show');
+              if (status === kakao.maps.services.Status.OK && data.length > 0) {
+                showResults(data);
                 return;
               }
+              // 2차: 범위 제거하고 전국 검색
+              placesService.keywordSearch(q, (data2, status2) => {
+                if (status2 !== kakao.maps.services.Status.OK || data2.length === 0) {
+                  dropdownEl.innerHTML = '<div class="ac-empty">검색 결과 없음</div>';
+                  dropdownEl.classList.add('show');
+                  return;
+                }
+                showResults(data2);
+              });
+            }, { location: map.getCenter(), radius: 20000, sort: 'accuracy' });
+
+            function showResults(data) {
               const items = data.slice(0, 8);
               dropdownEl.innerHTML = items.map((p, i) => `
                 <div class="ac-item" data-i="${i}">
@@ -797,7 +882,7 @@
               `).join('');
               dropdownEl.classList.add('show');
               dropdownEl._items = items;
-            }, { location: map.getCenter(), radius: 20000, sort: 'distance' });
+            }
           }, 220);
 
           inputEl.addEventListener('input', (e) => {
