@@ -273,6 +273,21 @@
     .endpoint-marker.origin .dot-base { background: var(--green); }
     .endpoint-marker.dest .dot-base { background: var(--red); }
 
+    .route-label {
+      background: white;
+      padding: 5px 10px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      font-size: 11px; font-weight: 700;
+      color: var(--brand);
+      white-space: nowrap;
+      border: 1px solid var(--brand-soft);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .route-label .km { color: var(--text); }
+    .route-label .est { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+
     /* Always-visible label chip */
     .chip-wrap { position: relative; cursor: pointer; user-select: none; }
     .chip {
@@ -619,6 +634,8 @@
           mapEmptyEl: null,
           origin: null,         // { name, lat, lng, overlay }
           destination: null,    // { name, lat, lng, overlay }
+          routePolyline: null,
+          routeLabel: null,
         };
 
         function clearState() {
@@ -628,6 +645,47 @@
           state.markers = []; state.chipOverlays = [];
           state.lotById.clear(); state.lots = [];
           if (state.mapEmptyEl) { state.mapEmptyEl.remove(); state.mapEmptyEl = null; }
+          clearRoute();
+        }
+
+        function clearRoute() {
+          if (state.routePolyline) { state.routePolyline.setMap(null); state.routePolyline = null; }
+          if (state.routeLabel) { state.routeLabel.setMap(null); state.routeLabel = null; }
+        }
+
+        function updateRoute() {
+          clearRoute();
+          if (!state.origin || !state.destination) return;
+          const o = state.origin, d = state.destination;
+          const path = [new kakao.maps.LatLng(o.lat, o.lng), new kakao.maps.LatLng(d.lat, d.lng)];
+
+          state.routePolyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 4,
+            strokeColor: '#3182F6',
+            strokeOpacity: 0.85,
+            strokeStyle: 'shortdash',
+          });
+          state.routePolyline.setMap(map);
+
+          // 거리 라벨 (중간점)
+          const midLat = (o.lat + d.lat) / 2;
+          const midLng = (o.lng + d.lng) / 2;
+          const distM = haversineMeters({ lat: o.lat, lng: o.lng }, { lat: d.lat, lng: d.lng });
+          // 차량 평균 30km/h 가정으로 예상 시간 (도로 거리 ≈ 직선거리 × 1.3 보정)
+          const estMin = Math.max(1, Math.round((distM * 1.3 / 1000) / 30 * 60));
+          state.routeLabel = new kakao.maps.CustomOverlay({
+            content: `<div class="route-label"><span class="km">${formatDistance(distM)}</span><span class="est">· 차량 약 ${estMin}분</span></div>`,
+            position: new kakao.maps.LatLng(midLat, midLng),
+            yAnchor: 0.5, xAnchor: 0.5,
+            zIndex: 60,
+          });
+          state.routeLabel.setMap(map);
+
+          // 두 점이 모두 보이도록 지도 영역 조정
+          const bounds = new kakao.maps.LatLngBounds();
+          path.forEach(pt => bounds.extend(pt));
+          map.setBounds(bounds, 80, 80, 80, 80);
         }
 
         function showMapEmpty(district) {
@@ -767,7 +825,7 @@
 
         function setOrigin(p) {
           if (state.origin?.overlay) state.origin.overlay.setMap(null);
-          if (!p) { state.origin = null; updateNavButtons(); return; }
+          if (!p) { state.origin = null; updateNavButtons(); updateRoute(); return; }
           const overlay = new kakao.maps.CustomOverlay({
             content: makeEndpointMarkerContent('origin', '출발 · ' + p.name),
             position: new kakao.maps.LatLng(p.lat, p.lng),
@@ -778,6 +836,7 @@
           document.getElementById('originInput').value = p.name;
           document.getElementById('originRow').classList.add('has-value');
           updateNavButtons();
+          updateRoute();
         }
 
         function setDestination(p) {
@@ -787,6 +846,7 @@
             const dist = districtByCode.get(state.districtCode);
             renderList(dist?.name || '');
             updateNavButtons();
+            updateRoute();
             return;
           }
           const overlay = new kakao.maps.CustomOverlay({
@@ -800,8 +860,10 @@
           document.getElementById('destRow').classList.add('has-value');
           const dist = districtByCode.get(state.districtCode);
           renderList(dist?.name || '');
-          map.panTo(new kakao.maps.LatLng(p.lat, p.lng));
           updateNavButtons();
+          updateRoute();
+          // 경로가 양쪽 모두 있으면 bounds로 조정 (updateRoute가 처리); 도착지만 있으면 그 위치로 이동
+          if (!state.origin) map.panTo(new kakao.maps.LatLng(p.lat, p.lng));
         }
 
         setupAutocomplete(
