@@ -419,9 +419,16 @@
       <div class="logo">P</div>
       <div class="titles">
         <div class="title-row">
-          <h1>서울시 공영주차장</h1>
+          <h1>서울시</h1>
           <span class="district-select-wrap">
             <select id="districtSelect" class="district-select" aria-label="구 선택"></select>
+          </span>
+          <span class="district-select-wrap">
+            <select id="categorySelect" class="district-select" aria-label="주차장 종류">
+              <option value="public">공영주차장</option>
+              <option value="shared" disabled>공유주차장 (준비 중)</option>
+              <option value="residential" disabled>거주자우선주차장 (준비 중)</option>
+            </select>
           </span>
         </div>
         <div class="sub" id="subText">데이터를 불러오는 중…</div>
@@ -845,13 +852,15 @@
           if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
         });
 
+        // 지도 마커·칩 클릭 = 즉시 도착지로 (경로 자동 계산)
         document.addEventListener('click', (e) => {
           const chipWrap = e.target.closest('.chip-wrap');
           if (chipWrap) {
             const lot = state.lotById.get(chipWrap.dataset.lotId);
-            if (lot) focusLot(lot);
+            if (lot) setDestination({ name: lot.name, lat: lot.lat, lng: lot.lng });
           }
         });
+        // 좌측 리스트 클릭 = 상세 카드 (정보 확인용)
         listEl.addEventListener('click', (e) => {
           const item = e.target.closest('.list-item');
           if (!item) return;
@@ -1232,7 +1241,7 @@
               yAnchor: 2.6, zIndex: 3
             });
             chipOverlay.setMap(map);
-            kakao.maps.event.addListener(marker, 'click', () => focusLot(lot));
+            kakao.maps.event.addListener(marker, 'click', () => setDestination({ name: lot.name, lat: lot.lat, lng: lot.lng }));
 
             state.markers.push(marker);
             state.chipOverlays.push(chipOverlay);
@@ -1251,6 +1260,11 @@
         }
 
         selectEl.addEventListener('change', e => loadDistrict(e.target.value));
+        // 카테고리 변경 (현재는 공영만 활성; 공유·거주자우선은 disabled라 선택 자체가 안 됨)
+        document.getElementById('categorySelect').addEventListener('change', e => {
+          // 향후 카테고리별 데이터 로드 분기 추가 위치
+          loadDistrict(state.districtCode || initialCode);
+        });
         window.addEventListener('hashchange', () => {
           const code = location.hash.replace('#', '');
           if (code && districtByCode.has(code) && code !== state.districtCode) loadDistrict(code);
