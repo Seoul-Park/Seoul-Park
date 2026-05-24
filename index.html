@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>구로구 공영주차장 (시간주차)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+    #app { display: flex; flex-direction: column; height: 100vh; }
+    header { background: #2c3e50; color: white; padding: 12px 20px; }
+    h1 { font-size: 18px; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; opacity: 0.8; }
+    .legend { display: flex; gap: 16px; margin-top: 8px; font-size: 12px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-normal { background: #e74c3c; }
+    .dot-special { background: #3498db; }
+    #map { flex: 1; }
+    .infowindow { padding: 12px; min-width: 220px; font-size: 13px; line-height: 1.6; }
+    .infowindow h3 { font-size: 15px; margin-bottom: 6px; color: #2c3e50; }
+    .infowindow .addr { color: #7f8c8d; font-size: 12px; margin-bottom: 8px; }
+    .infowindow .row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+    .infowindow .label { color: #95a5a6; }
+    .infowindow .value { font-weight: 600; color: #2c3e50; }
+    .infowindow .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: white; margin-bottom: 6px; }
+    .badge-normal { background: #e74c3c; }
+    .badge-special { background: #3498db; }
+    #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>구로구 공영주차장 (시간주차 가능)</h1>
+      <div class="subtitle">구로구 시설관리공단 · 총 <span id="count">18</span>곳</div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot dot-normal"></span> 일반 시간주차 (16곳)</div>
+        <div class="legend-item"><span class="dot dot-special"></span> 특수조건 (시간제전용·방문차량, 2곳)</div>
+      </div>
+    </header>
+    <div id="map">
+      <div id="status">지도를 불러오는 중…</div>
+    </div>
+  </div>
+
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e872457ee4739baa130378d4b3042ea&libraries=services&autoload=false"></script>
+  <script>
+    const parkingLots = [
+      // 일반 시간주차 가능 (16곳)
+      { name: '가리봉동(주민센터)', addr: '서울 구로구 우마2길 35', hourly: '5분당 100원', monthly: '70,000원', type: 'normal' },
+      { name: '구로4동', addr: '서울 구로구 구로동로26길 54', hourly: '5분당 100원', monthly: '75,000원', type: 'normal' },
+      { name: '고척근린시장', addr: '서울 구로구 고척동 253-124', hourly: '5분당 100원', monthly: '60,000원', type: 'normal' },
+      { name: '하늘공원', addr: '서울 구로구 벚꽃로 370', hourly: '5분당 150원', monthly: '80,000원', type: 'normal' },
+      { name: '고척1동', addr: '서울 구로구 중앙로8길 16', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
+      { name: '구로2동소공원', addr: '서울 구로구 구로동로42길 48-4', hourly: '5분당 150원', monthly: '100,000원', type: 'normal' },
+      { name: '구로리공원 지하', addr: '서울 구로구 구로중앙로 13', hourly: '5분당 150원', monthly: '105,000원', type: 'normal' },
+      { name: '구로5동', addr: '서울 구로구 구로동 549-73', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
+      { name: '구로2동', addr: '서울 구로구 구로동로28길 81', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
+      { name: '개봉1동마을', addr: '서울 구로구 개봉동 105-6', hourly: '5분당 50원', monthly: '50,000원', type: 'normal' },
+      { name: '오류1동텃골', addr: '서울 구로구 경인로15길 22', hourly: '5분당 100원', monthly: '65,000원', type: 'normal' },
+      { name: '개봉1동노외', addr: '서울 구로구 경인로33길 51', hourly: '5분당 100원', monthly: '75,000원', type: 'normal' },
+      { name: '고척근린공원 지하', addr: '서울 구로구 고척로45길 1', hourly: '5분당 150원', monthly: '112,000원', type: 'normal' },
+      { name: '고척리본타운', addr: '서울 구로구 고척로52나길 25', hourly: '5분당 150원', monthly: '112,000원', type: 'normal' },
+      { name: '구로아트밸리 지하', addr: '서울 구로구 가마산로25길 21', hourly: '5분당 150원', monthly: '112,000원', type: 'normal' },
+      { name: '구로 미래도서관', addr: '서울 구로구 새말로 111', hourly: '5분당 150원', monthly: '140,000원', type: 'normal' },
+      // 특수조건 (2곳)
+      { name: '개봉고가', addr: '서울 구로구 개봉동 403-10', hourly: '5분당 100원 (시간제전용)', monthly: '-', type: 'special' },
+      { name: '구로구청', addr: '서울 구로구 가마산로 245', hourly: '30분당 1,000원 (방문차량)', monthly: '-', type: 'special' },
+    ];
+
+    function makeMarkerImage(color) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="42" viewBox="0 0 36 42"><path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 24 18 24s18-10.5 18-24C36 8.06 27.94 0 18 0z" fill="${color}" stroke="white" stroke-width="2"/><circle cx="18" cy="17" r="6" fill="white"/></svg>`;
+      return new kakao.maps.MarkerImage(
+        'data:image/svg+xml;base64,' + btoa(svg),
+        new kakao.maps.Size(36, 42),
+        { offset: new kakao.maps.Point(18, 42) }
+      );
+    }
+
+    kakao.maps.load(function () {
+      const map = new kakao.maps.Map(document.getElementById('map'), {
+        center: new kakao.maps.LatLng(37.4954, 126.8874),
+        level: 6
+      });
+
+      const geocoder = new kakao.maps.services.Geocoder();
+      const normalImg = makeMarkerImage('#e74c3c');
+      const specialImg = makeMarkerImage('#3498db');
+      let openInfowindow = null;
+
+      const lookups = parkingLots.map(lot => new Promise(resolve => {
+        geocoder.addressSearch(lot.addr, (result, status) => {
+          if (status === kakao.maps.services.Status.OK) {
+            resolve({ ...lot, lat: parseFloat(result[0].y), lng: parseFloat(result[0].x) });
+          } else {
+            console.warn('주소 변환 실패:', lot.name, lot.addr);
+            resolve(null);
+          }
+        });
+      }));
+
+      Promise.all(lookups).then(results => {
+        const valid = results.filter(r => r !== null);
+        const bounds = new kakao.maps.LatLngBounds();
+
+        valid.forEach(lot => {
+          const coords = new kakao.maps.LatLng(lot.lat, lot.lng);
+          const marker = new kakao.maps.Marker({
+            map,
+            position: coords,
+            title: lot.name,
+            image: lot.type === 'special' ? specialImg : normalImg
+          });
+
+          const isSpecial = lot.type === 'special';
+          const badgeClass = isSpecial ? 'badge-special' : 'badge-normal';
+          const badgeText = isSpecial ? '특수조건' : '시간주차';
+          const content = `
+            <div class="infowindow">
+              <span class="badge ${badgeClass}">${badgeText}</span>
+              <h3>${lot.name}</h3>
+              <div class="addr">${lot.addr}</div>
+              <div class="row"><span class="label">시간요금</span><span class="value">${lot.hourly}</span></div>
+              <div class="row"><span class="label">월정기</span><span class="value">${lot.monthly}</span></div>
+            </div>
+          `;
+          const infowindow = new kakao.maps.InfoWindow({ content, removable: true });
+
+          kakao.maps.event.addListener(marker, 'click', () => {
+            if (openInfowindow) openInfowindow.close();
+            infowindow.open(map, marker);
+            openInfowindow = infowindow;
+          });
+
+          bounds.extend(coords);
+        });
+
+        if (valid.length > 0) map.setBounds(bounds);
+
+        const status = document.getElementById('status');
+        if (status) {
+          if (valid.length < parkingLots.length) {
+            status.textContent = `${valid.length}/${parkingLots.length}곳 표시 (일부 주소 변환 실패 — 콘솔 확인)`;
+            setTimeout(() => status.remove(), 3000);
+          } else {
+            status.remove();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
