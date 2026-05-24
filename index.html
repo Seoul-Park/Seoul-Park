@@ -213,34 +213,43 @@
       border-bottom: 1px solid var(--border-soft);
       cursor: pointer;
       transition: background 0.15s;
-      display: flex; flex-direction: column; gap: 6px;
+      display: flex; flex-direction: column; gap: 4px;
     }
     .list-item:hover { background: var(--bg-subtle); }
     .list-item.active {
       background: var(--brand-soft);
       box-shadow: inset 3px 0 0 var(--brand);
     }
-    .list-item .li-name {
+    .li-row { display: flex; align-items: center; gap: 6px; }
+    .li-name {
       font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      flex: 0 1 auto; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .li-distance {
       font-size: 11px; font-weight: 700; color: var(--brand);
       background: var(--brand-soft); padding: 2px 8px; border-radius: 10px;
-      flex-shrink: 0;
+      flex-shrink: 0; margin-left: auto;
     }
-    .list-item .li-addr { font-size: 12px; color: var(--text-muted); }
-    .list-item .li-meta {
-      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-      margin-top: 2px;
+    .li-addr {
+      font-size: 12px; color: var(--text-muted);
+      flex: 1 1 auto; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
+    .li-tel {
+      font-size: 11px; color: var(--text-muted);
+      flex-shrink: 0; font-feature-settings: 'tnum';
+    }
+    .li-tel a { color: inherit; text-decoration: none; }
+    .li-tel a:hover { color: var(--brand); }
     .li-chip {
       display: inline-flex; align-items: center;
-      padding: 3px 8px;
+      padding: 2px 7px;
       background: var(--brand-soft); color: var(--brand);
-      font-size: 11px; font-weight: 700; border-radius: 6px;
+      font-size: 10px; font-weight: 700; border-radius: 5px;
+      flex-shrink: 0;
     }
-    .li-spaces { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .li-spaces { font-size: 11px; color: var(--text-muted); font-weight: 500; flex-shrink: 0; }
     .avail { font-weight: 700; color: var(--brand); }
     .avail.full { color: var(--red); }
     .avail.unknown { color: var(--text-dim); font-weight: 500; }
@@ -582,6 +591,19 @@
       `;
     }
 
+    function cleanLotName(name) {
+      return String(name || '')
+        .replace(/\s*공영주차장\s*\(시\)\s*$/, '')
+        .trim();
+    }
+
+    function formatTel(tel) {
+      if (!tel) return '';
+      const t = String(tel).trim();
+      const href = 'tel:' + t.replace(/[^0-9+]/g, '');
+      return `<a href="${escapeHtml(href)}">${escapeHtml(t)}</a>`;
+    }
+
     function buildListItem(lot, districtName) {
       const isSpecial = lot.category === 'special';
       const tag = isSpecial
@@ -590,16 +612,18 @@
       const stripPrefix = new RegExp('^서울\\s*' + districtName + '\\s*');
       const distHtml = lot._distance != null
         ? `<span class="li-distance">${formatDistance(lot._distance)}</span>` : '';
+      const telHtml = lot.tel ? `<span class="li-tel">${formatTel(lot.tel)}</span>` : '';
       return `
         <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
-          <div class="li-name">
-            <span>${escapeHtml(lot.name)}${tag ? ` <span class="li-tag">${escapeHtml(tag)}</span>` : ''}</span>
-            ${distHtml}
-          </div>
-          <div class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</div>
-          <div class="li-meta">
+          <div class="li-row">
+            <span class="li-name">${escapeHtml(cleanLotName(lot.name))}${tag ? ` <span class="li-tag">${escapeHtml(tag)}</span>` : ''}</span>
             <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
             <span class="li-spaces">${spacesDisplay(lot)}</span>
+            ${distHtml}
+          </div>
+          <div class="li-row">
+            <span class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</span>
+            ${telHtml}
           </div>
         </div>
       `;
@@ -857,7 +881,7 @@
           const chipWrap = e.target.closest('.chip-wrap');
           if (chipWrap) {
             const lot = state.lotById.get(chipWrap.dataset.lotId);
-            if (lot) setDestination({ name: lot.name, lat: lot.lat, lng: lot.lng });
+            if (lot) setDestination({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
           }
         });
         // 좌측 리스트 클릭 = 상세 카드 (정보 확인용)
@@ -1196,7 +1220,7 @@
 
           const realtimeLots = realtime?.lots || {};
           const visibleLots = dataset.lots
-            .filter(l => l.hourlyAvailable && l.category !== 'special')
+            .filter(l => l.hourlyAvailable)
             .map((l, i) => {
               const rt = l.realtimeKey ? realtimeLots[l.realtimeKey] : null;
               return {
@@ -1241,7 +1265,7 @@
               yAnchor: 2.6, zIndex: 3
             });
             chipOverlay.setMap(map);
-            kakao.maps.event.addListener(marker, 'click', () => setDestination({ name: lot.name, lat: lot.lat, lng: lot.lng }));
+            kakao.maps.event.addListener(marker, 'click', () => setDestination({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
 
             state.markers.push(marker);
             state.chipOverlays.push(chipOverlay);

@@ -116,6 +116,7 @@ def parse_guro_sisul(html: str) -> list[dict]:
                 "all": cell_text(m_all),
             },
             "hours": cell_text(hours_td),
+            "tel": "02-839-4875",  # 구로구시설관리공단 대표번호
             "mapLink": map_link,
             "category": categorize(apply_method, hourly_avail),
             "source": "guro-sisul",
@@ -195,6 +196,7 @@ def parse_seoul_api_for_district(api_key: str, district_name: str) -> list[dict]
             "hourlyAvailable": True,
             "monthly": {"day": "-", "night": "-", "all": month_all},
             "hours": hours,
+            "tel": r.get("TELNO") or None,
             "mapLink": None,
             "category": "normal",
             "source": "seoul-city",
