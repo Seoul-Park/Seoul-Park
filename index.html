@@ -616,10 +616,6 @@
     }
 
     function buildListItem(lot, districtName) {
-      const isSpecial = lot.category === 'special';
-      const tag = isSpecial
-        ? (lot.applyMethod && lot.applyMethod.includes('방문차량') ? '방문' : '시간제')
-        : null;
       const stripPrefix = new RegExp('^서울(?:특별시|시)?\\s*' + districtName + '\\s*');
       const distHtml = lot._distance != null
         ? `<span class="li-distance">${formatDistance(lot._distance)}</span>` : '';
@@ -627,7 +623,7 @@
       return `
         <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
           <div class="li-row">
-            <span class="li-name">${escapeHtml(cleanLotName(lot.name))}${tag ? ` <span class="li-tag">${escapeHtml(tag)}</span>` : ''}</span>
+            <span class="li-name">${escapeHtml(cleanLotName(lot.name))}</span>
             <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
             <span class="li-spaces">${spacesDisplay(lot)}</span>
             ${distHtml}
