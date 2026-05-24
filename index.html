@@ -434,6 +434,7 @@
           </span>
           <span class="district-select-wrap">
             <select id="categorySelect" class="district-select" aria-label="주차장 종류">
+              <option value="all">전체</option>
               <option value="public">공영주차장</option>
               <option value="shared" disabled>공유주차장 (준비 중)</option>
               <option value="residential">거주자우선주차장</option>
@@ -693,7 +694,7 @@
           lotById: new Map(),
           lots: [],
           districtCode: null,
-          category: 'public',
+          category: 'all',
           mapEmptyEl: null,
           origin: null,         // { name, lat, lng, overlay }
           destination: null,    // { name, lat, lng, overlay }
@@ -889,12 +890,12 @@
           if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
         });
 
-        // 지도 마커·칩 클릭 = 즉시 도착지로 (경로 자동 계산)
+        // 지도 마커·칩 클릭 = 즉시 도착지 + 자동으로 현재 위치를 출발지로 (경로 미리보기)
         document.addEventListener('click', (e) => {
           const chipWrap = e.target.closest('.chip-wrap');
           if (chipWrap) {
             const lot = state.lotById.get(chipWrap.dataset.lotId);
-            if (lot) setDestination({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+            if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
           }
         });
         // 좌측 리스트 클릭 = 상세 카드 (정보 확인용)
@@ -1137,6 +1138,22 @@
           return state.waypoints.filter(w => w.lat != null && w.lng != null);
         }
 
+        function setDestAndAutoOrigin(p) {
+          setDestination(p);
+          // 출발지 비어있고 권한 가능하면 현재 위치 자동으로 가져와 경로 미리보기
+          if (state.origin || !navigator.geolocation) return;
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              // 도착지가 그 사이 바뀌었으면 무시
+              if (state.destination && state.destination.lat === p.lat && state.destination.lng === p.lng) {
+                setOrigin({ name: '현재 위치', lat: pos.coords.latitude, lng: pos.coords.longitude });
+              }
+            },
+            () => {},  // 권한 거부 등 silent
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+          );
+        }
+
         function openKakaoNav() {
           const dest = state.destination;
           const org = state.origin;
@@ -1216,21 +1233,32 @@
           }
 
           const cat = state.category;
-          const dataUrl = cat === 'residential'
-            ? `./data/residential/${code}.json?_=${Date.now()}`
-            : `./data/lots/${code}.json?_=${Date.now()}`;
+          const t = Date.now();
+          const wantPublic = cat === 'public' || cat === 'all';
+          const wantResidential = cat === 'residential' || cat === 'all';
 
-          let dataset, realtime;
+          let publicData = null, residentialData = null, realtime = null;
           try {
-            const fetches = [fetch(dataUrl)];
-            if (cat === 'public') {
-              fetches.push(fetch(`./data/realtime.json?_=${Date.now()}`).catch(() => null));
+            const fetches = [];
+            if (wantPublic) {
+              fetches.push(fetch(`./data/lots/${code}.json?_=${t}`));
+              fetches.push(fetch(`./data/realtime.json?_=${t}`).catch(() => null));
             }
-            const [dRes, rRes] = await Promise.all(fetches);
-            if (!dRes.ok) throw new Error('HTTP ' + dRes.status);
-            dataset = await dRes.json();
-            if (rRes && rRes.ok) {
-              try { realtime = await rRes.json(); } catch {}
+            if (wantResidential) {
+              fetches.push(fetch(`./data/residential/${code}.json?_=${t}`).catch(() => null));
+            }
+            const results = await Promise.all(fetches);
+            let idx = 0;
+            if (wantPublic) {
+              const pRes = results[idx++];
+              if (!pRes.ok) throw new Error('public HTTP ' + pRes.status);
+              publicData = await pRes.json();
+              const rRes = results[idx++];
+              if (rRes && rRes.ok) { try { realtime = await rRes.json(); } catch {} }
+            }
+            if (wantResidential) {
+              const rsRes = results[idx++];
+              if (rsRes && rsRes.ok) { try { residentialData = await rsRes.json(); } catch {} }
             }
           } catch (e) {
             statusEl.textContent = `데이터 로드 실패: ${e.message}`;
@@ -1238,7 +1266,11 @@
           }
 
           const realtimeLots = realtime?.lots || {};
-          const visibleLots = dataset.lots
+          const allRaw = [
+            ...(publicData?.lots || []),
+            ...(residentialData?.lots || []),
+          ];
+          const visibleLots = allRaw
             .filter(l => l.hourlyAvailable)
             .map((l, i) => {
               const rt = l.realtimeKey ? realtimeLots[l.realtimeKey] : null;
@@ -1249,12 +1281,17 @@
                 realtimeUpdatedAt: rt ? rt.updatedAt : null,
               };
             });
+          // 전체 모드용 dataset 객체 (subtitle용)
+          const dataset = publicData || residentialData;
 
-          const catLabel = cat === 'residential' ? '거주자우선주차' : '시간주차 가능';
-          subEl.innerHTML = `${catLabel} <b>${visibleLots.length}</b>곳 · ${escapeHtml(dataset.operator || dataset.source || district.operator || '')}`;
-          updatedAtEl.textContent = dataset.updatedAt || '-';
+          const catLabel = cat === 'residential' ? '거주자우선주차'
+            : cat === 'all' ? '전체 주차장'
+            : '시간주차 가능';
+          subEl.innerHTML = `${catLabel} <b>${visibleLots.length}</b>곳 · ${escapeHtml(publicData?.operator || dataset?.source || district.operator || '')}`;
+          updatedAtEl.textContent = dataset?.updatedAt || '-';
 
-          const markerImg = makeMarkerImage(cat);
+          const publicMarkerImg = makeMarkerImage('public');
+          const residentialMarkerImg = makeMarkerImage('residential');
           // 위경도가 데이터에 있으면 지오코딩 스킵
           const lookups = visibleLots.map(lot => {
             if (lot.lat != null && lot.lng != null) {
@@ -1277,7 +1314,8 @@
 
           const valid = results.filter(r => r !== null);
           const bounds = new kakao.maps.LatLngBounds();
-          const useClusterer = cat === 'residential' && valid.length > 30;
+          const residentialCount = valid.filter(l => l.category === 'residential').length;
+          const useClusterer = residentialCount > 30;
 
           if (useClusterer) {
             state.clusterer = new kakao.maps.MarkerClusterer({
@@ -1299,14 +1337,21 @@
             state.lotById.set(lot._id, lot);
             state.lots.push(lot);
 
+            const isResi = lot.category === 'residential';
             const marker = new kakao.maps.Marker({
-              position: lot._coords, title: lot.name, image: markerImg
+              position: lot._coords, title: lot.name,
+              image: isResi ? residentialMarkerImg : publicMarkerImg
             });
-            if (!useClusterer) marker.setMap(map);
-            kakao.maps.event.addListener(marker, 'click', () => setDestination({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
+            // 거주자우선만 클러스터러, 공영은 항상 표시
+            if (useClusterer && isResi) {
+              clusteredMarkers.push(marker);
+            } else {
+              marker.setMap(map);
+            }
+            kakao.maps.event.addListener(marker, 'click', () => setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
 
-            // 칩은 공영주차장만 (거주자우선은 너무 많아서 생략)
-            if (cat === 'public') {
+            // 칩은 공영(public)만 (거주자우선은 너무 많아 생략)
+            if (lot.category !== 'residential') {
               const chipOverlay = new kakao.maps.CustomOverlay({
                 content: buildChip(lot), position: lot._coords,
                 yAnchor: 2.6, zIndex: 3
@@ -1316,11 +1361,10 @@
             }
 
             state.markers.push(marker);
-            if (useClusterer) clusteredMarkers.push(marker);
             bounds.extend(lot._coords);
           });
 
-          if (useClusterer) state.clusterer.addMarkers(clusteredMarkers);
+          if (useClusterer && clusteredMarkers.length) state.clusterer.addMarkers(clusteredMarkers);
           if (valid.length > 0) map.setBounds(bounds);
           renderList(district.name);
 
