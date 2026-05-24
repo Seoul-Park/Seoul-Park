@@ -135,6 +135,25 @@
     }
     .search-row.has-value .btn-clear { display: flex; }
     .search-row.has-value .btn-mini { display: none; }
+    .btn-add-wp {
+      width: 22px; height: 22px;
+      border: 0; background: var(--brand);
+      color: white; border-radius: 50%;
+      cursor: pointer; font-size: 16px; font-weight: 700;
+      line-height: 1; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-right: 2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-add-wp:hover { background: var(--brand-dark); }
+    .btn-add-wp:active { transform: scale(0.92); }
+    .btn-add-wp:disabled {
+      background: var(--border); color: var(--text-dim);
+      cursor: not-allowed;
+    }
+    .search-row.waypoint .icon { color: #F59E0B; }
+    .endpoint-marker.waypoint .badge { background: #F59E0B; }
+    .endpoint-marker.waypoint .dot-base { background: #F59E0B; }
     .ac-dropdown {
       position: absolute; top: 100%; left: 0; right: 0;
       background: white;
@@ -419,9 +438,11 @@
             <button class="btn-clear" id="originClear" type="button" aria-label="지우기">×</button>
             <div class="ac-dropdown" id="originAc"></div>
           </div>
+          <div id="waypointsContainer"></div>
           <div class="search-row dest" id="destRow">
             <span class="icon">●</span>
             <input id="destInput" type="text" placeholder="도착지를 입력하세요" autocomplete="off">
+            <button class="btn-add-wp" id="addWpBtn" type="button" aria-label="경유지 추가" title="경유지 추가">+</button>
             <button class="btn-clear" id="destClear" type="button" aria-label="지우기">×</button>
             <div class="ac-dropdown" id="destAc"></div>
           </div>
@@ -633,9 +654,11 @@
           mapEmptyEl: null,
           origin: null,         // { name, lat, lng, overlay }
           destination: null,    // { name, lat, lng, overlay }
+          waypoints: [],        // [{ id, name, lat, lng, overlay, row }]
           routePolyline: null,
           routeLabel: null,
         };
+        const MAX_WAYPOINTS = 3;
 
         function clearState() {
           if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
@@ -645,6 +668,7 @@
           state.lotById.clear(); state.lots = [];
           if (state.mapEmptyEl) { state.mapEmptyEl.remove(); state.mapEmptyEl = null; }
           clearRoute();
+          // 경유지 정리 (구 변경 시 유지하고 싶다면 이 줄 빼기)
         }
 
         function clearRoute() {
@@ -657,8 +681,12 @@
         const routeCache = new Map();
         let routeRequestId = 0;
 
-        async function fetchKakaoRoute(o, d) {
-          const url = `https://apis-navi.kakaomobility.com/v1/directions?origin=${o.lng},${o.lat}&destination=${d.lng},${d.lat}&priority=RECOMMEND`;
+        async function fetchKakaoRoute(o, d, waypoints) {
+          const validWps = (waypoints || []).filter(w => w.lat != null && w.lng != null);
+          const wpParam = validWps.length
+            ? '&waypoints=' + validWps.map(w => `${w.lng},${w.lat}`).join('|')
+            : '';
+          const url = `https://apis-navi.kakaomobility.com/v1/directions?origin=${o.lng},${o.lat}&destination=${d.lng},${d.lat}&priority=RECOMMEND${wpParam}`;
           const res = await fetch(url, {
             headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` }
           });
@@ -722,21 +750,22 @@
           });
           state.routeLabel.setMap(map);
 
-          const key = `${o.lng.toFixed(5)},${o.lat.toFixed(5)}|${d.lng.toFixed(5)},${d.lat.toFixed(5)}`;
+          const validWps = state.waypoints.filter(w => w.lat != null && w.lng != null);
+          const wpKeyPart = validWps.map(w => `${w.lng.toFixed(5)},${w.lat.toFixed(5)}`).join('|');
+          const key = `${o.lng.toFixed(5)},${o.lat.toFixed(5)}|${wpKeyPart}|${d.lng.toFixed(5)},${d.lat.toFixed(5)}`;
           const reqId = ++routeRequestId;
 
           try {
             let route = routeCache.get(key);
             if (!route) {
-              route = await fetchKakaoRoute(o, d);
+              route = await fetchKakaoRoute(o, d, validWps);
               routeCache.set(key, route);
             }
             if (reqId !== routeRequestId) return;
 
             clearRoute();
             const min = Math.max(1, Math.round(route.durationS / 60));
-            const fare = route.taxiFare > 0 ? ` · <span class="est">택시 ${route.taxiFare.toLocaleString()}원</span>` : '';
-            const label = `<span class="km">${formatDistance(route.distanceM)}</span><span class="est">· 약 ${min}분</span>${fare}`;
+            const label = `<span class="km">${formatDistance(route.distanceM)}</span><span class="est">· 약 ${min}분</span>`;
             drawRoute(route.path, label, midLatLng);
           } catch (e) {
             if (reqId !== routeRequestId) return;
@@ -951,6 +980,64 @@
           if (!state.origin) map.panTo(new kakao.maps.LatLng(p.lat, p.lng));
         }
 
+        // ─── 경유지 ───
+        function refreshAddWpButton() {
+          const btn = document.getElementById('addWpBtn');
+          if (btn) btn.disabled = state.waypoints.length >= MAX_WAYPOINTS;
+        }
+
+        function addWaypoint() {
+          if (state.waypoints.length >= MAX_WAYPOINTS) return;
+          const wpId = 'wp-' + Date.now() + '-' + state.waypoints.length;
+          const row = document.createElement('div');
+          row.className = 'search-row waypoint';
+          row.dataset.wpId = wpId;
+          row.innerHTML = `
+            <span class="icon">●</span>
+            <input class="wp-input" type="text" placeholder="경유지를 입력하세요" autocomplete="off">
+            <button class="btn-clear wp-remove" type="button" aria-label="경유지 삭제" style="display:flex">×</button>
+            <div class="ac-dropdown"></div>
+          `;
+          document.getElementById('waypointsContainer').appendChild(row);
+          const wp = { id: wpId, name: null, lat: null, lng: null, overlay: null, row };
+          state.waypoints.push(wp);
+          refreshAddWpButton();
+
+          const inputEl = row.querySelector('.wp-input');
+          const dropdownEl = row.querySelector('.ac-dropdown');
+          setupAutocomplete(inputEl, dropdownEl, row, (p) => setWaypoint(wpId, p));
+          row.querySelector('.wp-remove').addEventListener('click', () => removeWaypoint(wpId));
+          setTimeout(() => inputEl.focus(), 0);
+        }
+
+        function setWaypoint(wpId, p) {
+          const wp = state.waypoints.find(w => w.id === wpId);
+          if (!wp) return;
+          if (wp.overlay) wp.overlay.setMap(null);
+          Object.assign(wp, p);
+          const overlay = new kakao.maps.CustomOverlay({
+            content: makeEndpointMarkerContent('waypoint', '경유 · ' + p.name),
+            position: new kakao.maps.LatLng(p.lat, p.lng),
+            yAnchor: 1.5, zIndex: 50
+          });
+          overlay.setMap(map);
+          wp.overlay = overlay;
+          updateRoute();
+        }
+
+        function removeWaypoint(wpId) {
+          const idx = state.waypoints.findIndex(w => w.id === wpId);
+          if (idx < 0) return;
+          const wp = state.waypoints[idx];
+          if (wp.overlay) wp.overlay.setMap(null);
+          wp.row.remove();
+          state.waypoints.splice(idx, 1);
+          refreshAddWpButton();
+          updateRoute();
+        }
+
+        document.getElementById('addWpBtn').addEventListener('click', addWaypoint);
+
         setupAutocomplete(
           document.getElementById('originInput'),
           document.getElementById('originAc'),
@@ -1000,36 +1087,53 @@
           document.getElementById('tmapNavBtn').disabled = !has;
         }
 
+        function getValidWaypoints() {
+          return state.waypoints.filter(w => w.lat != null && w.lng != null);
+        }
+
         function openKakaoNav() {
           const dest = state.destination;
           const org = state.origin;
+          const wps = getValidWaypoints();
           if (!dest) return;
           if (isMobile()) {
-            // 카카오내비 앱 URL scheme
-            const url = `kakaonavi://navigate?name=${encodeURIComponent(dest.name)}&x=${dest.lng}&y=${dest.lat}&coord_type=wgs84`;
-            window.location.href = url;
-            // 앱이 없을 경우 대비 fallback
-            setTimeout(() => {
-              window.open(`https://map.kakao.com/?eName=${encodeURIComponent(dest.name)}`, '_blank');
-            }, 1500);
+            if (wps.length > 0 && org) {
+              // 경유지 있을 때는 카카오맵 route scheme (vp 파라미터 지원)
+              const vp = wps.map(w => `${encodeURIComponent(w.name)},${w.lat},${w.lng}`).join('|');
+              const url = `kakaomap://route?sp=${org.lat},${org.lng}&ep=${dest.lat},${dest.lng}&vp=${vp}&by=CAR`;
+              window.location.href = url;
+            } else {
+              // 경유지 없으면 카카오내비
+              const url = `kakaonavi://navigate?name=${encodeURIComponent(dest.name)}&x=${dest.lng}&y=${dest.lat}&coord_type=wgs84`;
+              window.location.href = url;
+              setTimeout(() => {
+                window.open(`https://map.kakao.com/?eName=${encodeURIComponent(dest.name)}`, '_blank');
+              }, 1500);
+            }
           } else {
-            // PC: 카카오맵 길찾기 웹페이지
+            // PC: 카카오맵 길찾기 (경유지 미지원)
             const params = new URLSearchParams();
             if (org) params.set('sName', org.name);
             params.set('eName', dest.name);
             window.open(`https://map.kakao.com/?${params.toString()}`, '_blank');
+            if (wps.length > 0) {
+              setTimeout(() => alert('PC 카카오맵 길찾기는 경유지를 지원하지 않습니다. 모바일에서 이용해주세요.'), 100);
+            }
           }
         }
 
         function openTmap() {
           const dest = state.destination;
           const org = state.origin;
+          const wps = getValidWaypoints();
           if (!dest) return;
           if (isMobile()) {
             let url = `tmap://route?goalname=${encodeURIComponent(dest.name)}&goalx=${dest.lng}&goaly=${dest.lat}`;
-            if (org) {
-              url += `&startname=${encodeURIComponent(org.name)}&startx=${org.lng}&starty=${org.lat}`;
-            }
+            if (org) url += `&startname=${encodeURIComponent(org.name)}&startx=${org.lng}&starty=${org.lat}`;
+            wps.slice(0, 3).forEach((w, i) => {
+              const n = i + 1;
+              url += `&via${n}name=${encodeURIComponent(w.name)}&via${n}x=${w.lng}&via${n}y=${w.lat}`;
+            });
             window.location.href = url;
           } else {
             alert('티맵은 모바일 앱 전용입니다. 휴대폰으로 접속해서 이용해주세요.');
@@ -1083,7 +1187,7 @@
 
           const realtimeLots = realtime?.lots || {};
           const visibleLots = dataset.lots
-            .filter(l => l.hourlyAvailable)
+            .filter(l => l.hourlyAvailable && l.category !== 'special')
             .map((l, i) => {
               const rt = l.realtimeKey ? realtimeLots[l.realtimeKey] : null;
               return {
