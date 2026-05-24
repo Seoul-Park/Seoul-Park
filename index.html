@@ -542,7 +542,7 @@
               ${holidayNote ? `<div class="note">${escapeHtml(holidayNote)}</div>` : ''}
             </div>
             <dl class="meta">
-              <dt>주차면수</dt><dd>${spacesDisplay(lot)} <span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span></dd>
+              <dt>주차면수</dt><dd>${spacesDisplay(lot)} ${lot.availableSpaces != null ? `<span style="color:var(--text-dim);font-size:11px">· 실시간</span>` : `<span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span>`}</dd>
               <dt>운영시간</dt><dd>${escapeHtml(lot.hours)}</dd>
             </dl>
             <div class="card-actions">
@@ -1065,19 +1065,34 @@
             return;
           }
 
-          let dataset;
+          let dataset, realtime;
           try {
-            const res = await fetch(`./data/lots/${code}.json?_=${Date.now()}`);
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            dataset = await res.json();
+            const [dRes, rRes] = await Promise.all([
+              fetch(`./data/lots/${code}.json?_=${Date.now()}`),
+              fetch(`./data/realtime.json?_=${Date.now()}`).catch(() => null),
+            ]);
+            if (!dRes.ok) throw new Error('HTTP ' + dRes.status);
+            dataset = await dRes.json();
+            if (rRes && rRes.ok) {
+              try { realtime = await rRes.json(); } catch {}
+            }
           } catch (e) {
             statusEl.textContent = `데이터 로드 실패: ${e.message}`;
             return;
           }
 
+          const realtimeLots = realtime?.lots || {};
           const visibleLots = dataset.lots
             .filter(l => l.hourlyAvailable)
-            .map((l, i) => ({ ...l, _id: `${code}-${i}` }));
+            .map((l, i) => {
+              const rt = l.realtimeKey ? realtimeLots[l.realtimeKey] : null;
+              return {
+                ...l,
+                _id: `${code}-${i}`,
+                availableSpaces: rt ? rt.available : null,
+                realtimeUpdatedAt: rt ? rt.updatedAt : null,
+              };
+            });
 
           subEl.innerHTML = `시간주차 가능 <b>${visibleLots.length}</b>곳 · ${escapeHtml(dataset.operator || district.operator || '')}`;
           updatedAtEl.textContent = dataset.updatedAt || '-';

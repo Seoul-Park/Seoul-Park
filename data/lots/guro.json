@@ -1,8 +1,12 @@
 {
-  "source": "https://www.gurosisul.or.kr/mod.asp?m=business&s=a02",
   "district": "구로구",
+  "districtCode": "guro",
   "operator": "구로구시설관리공단",
-  "updatedAt": "2026-05-24",
+  "sources": [
+    "https://www.gurosisul.or.kr/mod.asp?m=business&s=a02",
+    "서울 열린데이터 GetParkingInfo"
+  ],
+  "updatedAt": "2026-05-25",
   "lots": [
     {
       "name": "고척동 삼덕마을",
@@ -20,7 +24,9 @@
       },
       "hours": "월주차전용(무인)",
       "mapLink": "https://kko.to/sb1_-86LyR",
-      "category": "monthly-only"
+      "category": "monthly-only",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "가리봉동 (주민센터)",
@@ -38,7 +44,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/Qh0FSc7Ar",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로4동",
@@ -56,7 +64,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/Hg-0UVy-N",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로3동",
@@ -74,7 +84,9 @@
       },
       "hours": "월주차전용(무인)",
       "mapLink": "http://kko.to/8JzOERfoh",
-      "category": "monthly-only"
+      "category": "monthly-only",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "고척근린시장",
@@ -92,7 +104,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "https://kko.kakao.com/r840SU0ffg",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "하늘공원",
@@ -110,7 +124,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/KAKunZHG8",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "고척1동",
@@ -128,7 +144,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/W_FHlVhrJ",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "고척동소규모",
@@ -146,7 +164,9 @@
       },
       "hours": "월주차전용(무인)",
       "mapLink": "https://kko.to/NLhgkv5o0a",
-      "category": "monthly-only"
+      "category": "monthly-only",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로2동소공원",
@@ -164,7 +184,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "https://kko.kakao.com/LGZedWuu_A",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로리공원 지하",
@@ -182,7 +204,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/r3hiUkKaa",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로5동",
@@ -200,7 +224,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/J2IgJNAhd",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로2동",
@@ -218,7 +244,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/nbZI95DwS",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "개봉1동마을 (남부순환로옆)",
@@ -236,7 +264,9 @@
       },
       "hours": "24시간 (근무자13시~21시)",
       "mapLink": "http://kko.to/qtvxGgHcX",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "오류1동텃골",
@@ -254,7 +284,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/kw9wRbffc",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "개봉1동노외 (주민센터)",
@@ -272,7 +304,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/Wyu47jY-i",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "고척근린공원 지하",
@@ -290,7 +324,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/s-VqQFifY",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "고척리본타운",
@@ -308,7 +344,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/sUlGQpGpt",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로아트밸리 지하",
@@ -326,7 +364,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "http://kko.to/RoGiEXhNL",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로 미래도서관",
@@ -344,7 +384,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "https://kko.to/eG4PQt6WtI",
-      "category": "normal"
+      "category": "normal",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "개봉고가",
@@ -362,7 +404,9 @@
       },
       "hours": "24시간(무인)",
       "mapLink": "https://kko.kakao.com/Kfa_n3UP3F",
-      "category": "special"
+      "category": "special",
+      "source": "guro-sisul",
+      "realtimeKey": null
     },
     {
       "name": "구로구청",
@@ -380,7 +424,149 @@
       },
       "hours": "유료:평일 8시반 ~ 18시 무료:평일야간/토요일/",
       "mapLink": "http://kko.to/oG4HWk6Xy",
-      "category": "special"
+      "category": "special",
+      "source": "guro-sisul",
+      "realtimeKey": null
+    },
+    {
+      "name": "구로디지털단지역 공영주차장(시)",
+      "address": "서울 구로구 구로동 810-3",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 91,
+      "grade": "-",
+      "hourly": "5분당 320원 (1시간 3,840원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "24시간",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1037932"
+    },
+    {
+      "name": "가마산고가밑 공영주차장(시)",
+      "address": "서울 구로구 구로동 414-13",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 18,
+      "grade": "-",
+      "hourly": "5분당 120원 (1시간 1,440원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~19:00",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1234305"
+    },
+    {
+      "name": "동구로 공영주차장(시)",
+      "address": "서울 구로구 구로동 94-1",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 70,
+      "grade": "-",
+      "hourly": "5분당 320원 (1시간 3,840원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "24시간",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1367120"
+    },
+    {
+      "name": "대림노외 공영주차장(시)",
+      "address": "서울 구로구 구로동 120-3",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 93,
+      "grade": "-",
+      "hourly": "5분당 320원 (1시간 3,840원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "평일 09:00~19:00",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1372454"
+    },
+    {
+      "name": "천왕역 공영주차장(시)",
+      "address": "서울 구로구 천왕동 280-11",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 327,
+      "grade": "-",
+      "hourly": "5분당 280원 (1시간 3,360원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "109,000원"
+      },
+      "hours": "24시간",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1404936"
+    },
+    {
+      "name": "대림역2 공영주차장(시)",
+      "address": "서울 구로구 구로동 73-9",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 31,
+      "grade": "-",
+      "hourly": "5분당 400원 (1시간 4,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "160,000원"
+      },
+      "hours": "평일 09:00~19:00",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1499707"
+    },
+    {
+      "name": "온수역(남) 공영주차장(시)",
+      "address": "서울 구로구 온수동 51-26",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 41,
+      "grade": "-",
+      "hourly": "5분당 290원 (1시간 3,480원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "120,000원"
+      },
+      "hours": "평일 09:00~19:00",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1576208"
     }
   ]
 }
