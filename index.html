@@ -730,6 +730,47 @@
           return min;
         }
 
+        function applyMapVisibility(visibleLotIds) {
+          const isFiltered = visibleLotIds !== null;
+          const visSet = visibleLotIds ? new Set(visibleLotIds) : null;
+          state.markers.forEach(m => {
+            const v = !isFiltered || visSet.has(m._lotId);
+            // 클러스터러는 별도 처리: 일단 클러스터러에서 제거
+            if (v) m.setMap(state.clusterer ? null : map);  // 클러스터러가 있으면 add로 보여줌
+            else m.setMap(null);
+          });
+          state.chipOverlays.forEach(o => {
+            const v = !isFiltered || visSet.has(o._lotId);
+            o.setMap(v ? map : null);
+          });
+          if (state.clusterer) {
+            state.clusterer.clear();
+            const visMarkers = state.markers.filter(m => !isFiltered || visSet.has(m._lotId));
+            // 필터링 적용 시 (visible 수가 적으면) 클러스터러 우회하고 직접 표시
+            if (isFiltered && visMarkers.length <= 50) {
+              visMarkers.forEach(m => m.setMap(map));
+            } else {
+              state.clusterer.addMarkers(visMarkers);
+            }
+          }
+        }
+
+        function reverseGeocode(lat, lng, cb) {
+          try {
+            new kakao.maps.services.Geocoder().coord2Address(lng, lat, (result, status) => {
+              if (status === kakao.maps.services.Status.OK && result && result[0]) {
+                const road = result[0].road_address?.address_name;
+                const jibun = result[0].address?.address_name;
+                cb(road || jibun || '현재 위치');
+              } else {
+                cb('현재 위치');
+              }
+            });
+          } catch (e) {
+            cb('현재 위치');
+          }
+        }
+
         // ─── 카카오 모빌리티 도로 경로 ───
         const KAKAO_REST_KEY = 'e369007f7234d41ce977746bcd1fb224';
         const routeCache = new Map();
@@ -959,6 +1000,9 @@
             lots.forEach(l => { l._distance = null; l._distToPath = null; });
           }
 
+          // 지도 마커도 같은 필터 적용
+          applyMapVisibility(mode === 'route' ? lots.map(l => l._id) : null);
+
           // 헤더 표시
           if (mode === 'route') {
             listCountEl.textContent = `경로상 ${lots.length}곳 (1km 이내)`;
@@ -1171,7 +1215,8 @@
           navigator.geolocation.getCurrentPosition(
             (pos) => {
               btn.textContent = '현재 위치'; btn.disabled = false;
-              setOrigin({ name: '현재 위치', lat: pos.coords.latitude, lng: pos.coords.longitude });
+              const lat = pos.coords.latitude, lng = pos.coords.longitude;
+              reverseGeocode(lat, lng, (name) => setOrigin({ name, lat, lng }));
             },
             (err) => {
               btn.textContent = '현재 위치'; btn.disabled = false;
@@ -1194,16 +1239,15 @@
 
         function setDestAndAutoOrigin(p) {
           setDestination(p);
-          // 출발지 비어있고 권한 가능하면 현재 위치 자동으로 가져와 경로 미리보기
           if (state.origin || !navigator.geolocation) return;
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              // 도착지가 그 사이 바뀌었으면 무시
               if (state.destination && state.destination.lat === p.lat && state.destination.lng === p.lng) {
-                setOrigin({ name: '현재 위치', lat: pos.coords.latitude, lng: pos.coords.longitude });
+                const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                reverseGeocode(lat, lng, (name) => setOrigin({ name, lat, lng }));
               }
             },
-            () => {},  // 권한 거부 등 silent
+            () => {},
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
           );
         }
@@ -1420,12 +1464,14 @@
             kakao.maps.event.addListener(marker, 'click', () => setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
 
             // 칩은 공영(public)이면서 데이터가 적을 때만
+            marker._lotId = lot._id;
             if (!isResi && showChips) {
               const chipOverlay = new kakao.maps.CustomOverlay({
                 content: buildChip(lot), position: lot._coords,
                 yAnchor: 2.6, zIndex: 3
               });
               chipOverlay.setMap(map);
+              chipOverlay._lotId = lot._id;
               state.chipOverlays.push(chipOverlay);
             }
 
