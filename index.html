@@ -981,12 +981,12 @@
           const hasRoute = state.routePathCoords && state.routePathCoords.length >= 2;
           const ROUTE_RADIUS_M = 1000;
 
-          if (hasRoute && state.origin) {
-            // 경로상 1km 이내 + 출발지 기준 거리순
-            const orig = state.origin;
+          if (hasRoute && state.origin && state.destination) {
+            // 경로상 1km 이내 + 도착지 기준 거리순
+            const dest = state.destination;
             lots.forEach(l => {
               l._distToPath = minDistMToPath(l.lat, l.lng, state.routePathCoords);
-              l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, orig);
+              l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest);
             });
             lots = lots.filter(l => l._distToPath <= ROUTE_RADIUS_M);
             lots.sort((a, b) => a._distance - b._distance);
@@ -1006,7 +1006,7 @@
           // 헤더 표시
           if (mode === 'route') {
             listCountEl.textContent = `경로상 ${lots.length}곳 (1km 이내)`;
-            sortLabelEl.textContent = '출발지 가까운 순';
+            sortLabelEl.textContent = '도착지 가까운 순';
             sortLabelEl.style.display = '';
           } else if (mode === 'destination') {
             listCountEl.textContent = `주차장 ${lots.length}곳`;
