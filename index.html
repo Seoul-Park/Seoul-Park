@@ -1807,11 +1807,14 @@
           const visibleLots = allRaw
             .filter(l => l.hourlyAvailable)
             .map((l, i) => {
-              const rt = l.realtimeKey ? realtimeLots[l.realtimeKey] : null;
+              // realtimeKey 우선, 없으면 lot.code(=PKLT_CD)도 매칭 시도
+              const rk = l.realtimeKey || (l.code ? String(l.code) : null);
+              const rt = rk && realtimeLots[rk] ? realtimeLots[rk] : null;
               return {
                 ...l,
                 _id: `${code}-${cat}-${i}`,
                 availableSpaces: rt ? rt.available : null,
+                spaces: rt && rt.total > 0 ? rt.total : l.spaces,  // 실시간 총면수가 더 정확
                 realtimeUpdatedAt: rt ? rt.updatedAt : null,
               };
             });
