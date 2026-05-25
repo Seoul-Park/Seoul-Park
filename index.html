@@ -77,6 +77,16 @@
       padding: 4px 10px; background: var(--bg-subtle); border-radius: 12px;
       flex-shrink: 0;
     }
+    .loc-settings-btn {
+      width: 32px; height: 32px;
+      border: 0; background: var(--bg-subtle);
+      border-radius: 50%; cursor: pointer;
+      font-size: 14px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .loc-settings-btn:hover { background: var(--border); }
 
     .main { flex: 1; display: flex; min-height: 0; }
     aside.list-panel {
@@ -511,6 +521,7 @@
         </div>
         <div class="sub" id="subText">데이터를 불러오는 중…</div>
       </div>
+      <button id="locSettingsBtn" type="button" class="loc-settings-btn" aria-label="위치 권한 설정" title="위치 사용 설정">📍</button>
       <div class="updated">갱신 <span id="updatedAt">-</span></div>
     </header>
     <div class="main">
@@ -902,6 +913,14 @@
           document.getElementById('locModal').classList.add('show');
           return _locationPromise;
         }
+
+        // 헤더의 위치 설정 버튼 - 언제든 모달 다시 띄움
+        document.getElementById('locSettingsBtn').addEventListener('click', () => {
+          locationConsent = null;
+          _locationPromise = null;
+          _locationResolve = null;
+          document.getElementById('locModal').classList.add('show');
+        });
 
         document.getElementById('locAllow').addEventListener('click', () => {
           locationConsent = true;
