@@ -594,7 +594,7 @@
               <dt>운영시간</dt><dd>${escapeHtml(lot.hours)}</dd>
             </dl>
             <div class="card-actions">
-              <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">도착지로</button>
+              <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
               ${mapLinkHtml}
             </div>
           </div>
@@ -938,7 +938,7 @@
             root.querySelector('.set-dest')?.addEventListener('click', (e) => {
               const id = e.currentTarget.dataset.lotId;
               const lot = state.lotById.get(id);
-              if (lot) setDestination({ name: lot.name, lat: lot.lat, lng: lot.lng });
+              if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
               overlay.setMap(null);
               if (state.openCardOverlay === overlay) state.openCardOverlay = null;
             });
@@ -956,12 +956,12 @@
           if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
         });
 
-        // 지도 마커·칩 클릭 = 즉시 도착지 + 자동으로 현재 위치를 출발지로 (경로 미리보기)
+        // 지도 칩 클릭 = 상세 카드 (경로는 카드 내 '경로검색' 버튼으로)
         document.addEventListener('click', (e) => {
           const chipWrap = e.target.closest('.chip-wrap');
           if (chipWrap) {
             const lot = state.lotById.get(chipWrap.dataset.lotId);
-            if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+            if (lot) focusLot(lot);
           }
         });
         // 좌측 리스트 클릭 = 상세 카드 (정보 확인용)
@@ -1461,7 +1461,7 @@
             } else {
               marker.setMap(map);
             }
-            kakao.maps.event.addListener(marker, 'click', () => setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
+            kakao.maps.event.addListener(marker, 'click', () => focusLot(lot));
 
             // 칩은 공영(public)이면서 데이터가 적을 때만
             marker._lotId = lot._id;
