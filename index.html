@@ -1145,7 +1145,8 @@
           if (state.openCardOverlay) state.openCardOverlay.setMap(null);
           const overlay = new kakao.maps.CustomOverlay({
             content: buildCard(lot), position: lot._coords,
-            yAnchor: 1.18, zIndex: 100
+            yAnchor: 1.18, zIndex: 100,
+            clickable: true  // 카드 안 클릭이 지도에 안 흘러가게 (핸들러 정상 동작)
           });
           overlay.setMap(map);
           state.openCardOverlay = overlay;
