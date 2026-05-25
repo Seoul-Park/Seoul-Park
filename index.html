@@ -417,7 +417,7 @@
     .card-actions .card-kakao-nav { background: #FEE500; color: #181600; }
     .card-actions .card-tmap-nav { background: #FF002F; color: white; }
     .card-actions .card-roadview { background: #4B5563; color: white; }
-    .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr 1fr; }
+    .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr; }
 
     /* Roadview modal */
     .rv-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; }
@@ -646,8 +646,6 @@
         : null;
       const holidayNote = lot.hours && /공휴일|일요일|토요일/.test(lot.hours)
         ? '평일·공휴일 안내가 운영시간에 포함됨' : null;
-      const mapLinkHtml = lot.mapLink
-        ? `<a class="kakao" href="${escapeHtml(lot.mapLink)}" target="_blank" rel="noopener">카카오맵</a>` : '';
 
       return `
         <div class="card-wrap">
@@ -673,7 +671,6 @@
             </div>
             <div class="card-actions">
               <button class="card-roadview" data-lot-id="${escapeHtml(lot._id)}">거리뷰</button>
-              ${mapLinkHtml || '<span></span>'}
             </div>
           </div>
         </div>
