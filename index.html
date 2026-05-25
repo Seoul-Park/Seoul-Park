@@ -202,14 +202,16 @@
     }
     .nav-btn:active { transform: scale(0.98); }
     .nav-btn.kakao {
-      background: linear-gradient(135deg, #FAE100 0%, #FAE100 45%, #4A90E2 100%);
-      color: #1A1F36;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+      background: #FAE100;
+      color: #3C1E1E;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     }
     .nav-btn.tmap {
-      background: linear-gradient(135deg, #FF002C 0%, #FF3F73 50%, #FF6B9D 100%);
+      background: #E60041;
       color: white;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     }
+    .nav-btn .app-ico { width: 16px; height: 16px; flex-shrink: 0; }
     .nav-btn.route-btn {
       width: 100%; background: var(--brand); color: white;
       margin-bottom: 6px;
@@ -435,10 +437,11 @@
     }
     .card-actions .set-dest { background: var(--brand); color: white; }
     .card-actions .set-dest:hover { background: var(--brand-dark); }
-    .card-actions .kakao { background: linear-gradient(135deg, #FAE100 0%, #FAE100 45%, #4A90E2 100%); color: #1A1F36; text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
-    .card-actions .tmap { background: linear-gradient(135deg, #FF002C 0%, #FF3F73 50%, #FF6B9D 100%); color: white; }
-    .card-actions .card-kakao-nav { background: linear-gradient(135deg, #FAE100 0%, #FAE100 45%, #4A90E2 100%); color: #1A1F36; text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
-    .card-actions .card-tmap-nav { background: linear-gradient(135deg, #FF002C 0%, #FF3F73 50%, #FF6B9D 100%); color: white; }
+    .card-actions .kakao { background: #FAE100; color: #3C1E1E; }
+    .card-actions .tmap { background: #E60041; color: white; }
+    .card-actions .card-kakao-nav { background: #FAE100; color: #3C1E1E; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+    .card-actions .card-tmap-nav { background: #E60041; color: white; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+    .card-actions .app-ico { width: 14px; height: 14px; flex-shrink: 0; }
     .card-actions .card-roadview { background: #4B5563; color: white; }
     .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr; }
 
@@ -557,8 +560,14 @@
           </div>
           <button class="nav-btn route-btn" id="routeSearchBtn" type="button">최적 경로 검색</button>
           <div class="nav-buttons">
-            <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>카카오내비</button>
-            <button class="nav-btn tmap" id="tmapNavBtn" type="button" disabled>티맵</button>
+            <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>
+              <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#FAE100"/><path d="M12 5C8.5 5 6 7.3 6 10c0 1.8 1 3.4 2.6 4.3l-.7 2.4c-.1.3.3.5.5.3l2.7-1.9c.3 0 .6.1.9.1 3.5 0 6-2.3 6-5s-2.5-5-6-5z" fill="#3C1E1E"/></svg>
+              카카오내비
+            </button>
+            <button class="nav-btn tmap" id="tmapNavBtn" type="button" disabled>
+              <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#E60041"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="white">T</text></svg>
+              티맵
+            </button>
           </div>
         </div>
 
@@ -749,8 +758,8 @@
             </dl>
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
-              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}">카카오내비</button>
-              <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}">티맵</button>
+              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#FAE100"/><path d="M12 5C8.5 5 6 7.3 6 10c0 1.8 1 3.4 2.6 4.3l-.7 2.4c-.1.3.3.5.5.3l2.7-1.9c.3 0 .6.1.9.1 3.5 0 6-2.3 6-5s-2.5-5-6-5z" fill="#3C1E1E"/></svg>카카오내비</button>
+              <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#E60041"/><text x="12" y="17.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="900" fill="white">T</text></svg>티맵</button>
             </div>
             <div class="card-actions">
               <button class="card-roadview" data-lot-id="${escapeHtml(lot._id)}">거리뷰</button>
