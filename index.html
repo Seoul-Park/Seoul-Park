@@ -519,7 +519,9 @@
     function spacesDisplay(lot) {
       const total = lot.spaces;
       const avail = lot.availableSpaces;
-      if (total == null) return '';
+      if (total == null || total === 0) {
+        return '<span class="avail unknown">미제공</span>';
+      }
       let availHtml;
       if (avail == null) availHtml = '<span class="avail unknown">—</span>';
       else if (avail === 0) availHtml = '<span class="avail full">만차</span>';
