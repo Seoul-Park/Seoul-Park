@@ -1647,10 +1647,57 @@
 
         document.getElementById('kakaoNavBtn').addEventListener('click', openKakaoNav);
         document.getElementById('tmapNavBtn').addEventListener('click', openTmap);
-        document.getElementById('routeSearchBtn').addEventListener('click', () => {
+        function findPlace(query) {
+          // 키워드 검색 → 실패 시 주소 검색
+          return new Promise((resolve) => {
+            const places = new kakao.maps.services.Places();
+            places.keywordSearch(query, (data, status) => {
+              if (status === kakao.maps.services.Status.OK && data[0]) {
+                resolve({ name: data[0].place_name, lat: parseFloat(data[0].y), lng: parseFloat(data[0].x) });
+                return;
+              }
+              new kakao.maps.services.Geocoder().addressSearch(query, (d2, s2) => {
+                if (s2 === kakao.maps.services.Status.OK && d2[0]) {
+                  resolve({ name: d2[0].road_address?.address_name || d2[0].address?.address_name || query, lat: parseFloat(d2[0].y), lng: parseFloat(d2[0].x) });
+                } else resolve(null);
+              });
+            });
+          });
+        }
+
+        document.getElementById('routeSearchBtn').addEventListener('click', async () => {
+          const destInputEl = document.getElementById('destInput');
+          const destText = destInputEl.value.trim();
+          const originInputEl = document.getElementById('originInput');
+          const originText = originInputEl.value.trim();
+
+          // 도착지 input에 텍스트가 있는데 state.destination이 비어있거나 텍스트와 다르면 → 검색해서 자동 설정
+          if (destText && (!state.destination || state.destination.name !== destText)) {
+            statusEl.textContent = '도착지 검색 중…';
+            statusEl.style.display = '';
+            const found = await findPlace(destText);
+            statusEl.style.display = 'none';
+            if (!found) {
+              alert(`"${destText}" 위치를 찾을 수 없습니다. 다시 입력해 주세요.`);
+              destInputEl.focus();
+              return;
+            }
+            setDestination(found);
+            await new Promise(r => setTimeout(r, 300));  // setDestination 안의 자치구 전환 시간
+          }
+
+          // 출발지도 input에 텍스트만 있고 state.origin이 비어있으면 검색
+          if (originText && (!state.origin || state.origin.name !== originText)) {
+            statusEl.textContent = '출발지 검색 중…';
+            statusEl.style.display = '';
+            const found = await findPlace(originText);
+            statusEl.style.display = 'none';
+            if (found) setOrigin(found);
+          }
+
           if (!state.destination) {
             alert('도착지를 먼저 입력해 주세요.');
-            document.getElementById('destInput').focus();
+            destInputEl.focus();
             return;
           }
           if (state.origin) {
