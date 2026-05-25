@@ -1245,13 +1245,13 @@
           const ROUTE_RADIUS_M = 1000;
 
           if (hasRoute && state.origin && state.destination) {
-            // 경로상 1km 이내 + 도착지 기준 거리순
+            // 도착지 기준 직선 1km 이내 + 도착지 거리순
             const dest = state.destination;
             lots.forEach(l => {
-              l._distToPath = minDistMToPath(l.lat, l.lng, state.routePathCoords);
               l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest);
+              l._distToPath = null;
             });
-            lots = lots.filter(l => l._distToPath <= ROUTE_RADIUS_M);
+            lots = lots.filter(l => l._distance <= ROUTE_RADIUS_M);
             lots.sort((a, b) => a._distance - b._distance);
             mode = 'route';
           } else if (state.destination) {
@@ -1268,7 +1268,7 @@
 
           // 헤더 표시
           if (mode === 'route') {
-            listCountEl.textContent = `경로상 ${lots.length}곳 (1km 이내)`;
+            listCountEl.textContent = `도착지 1km 내 ${lots.length}곳`;
             sortLabelEl.textContent = '도착지 가까운 순';
             sortLabelEl.style.display = '';
           } else if (mode === 'destination') {
@@ -1282,7 +1282,7 @@
 
           listEl.innerHTML = lots.length
             ? lots.map(l => buildListItem(l, districtName)).join('')
-            : '<div class="list-empty">' + (mode === 'route' ? '경로 1km 내 주차장이 없어요.' : '표시할 주차장이 없어요.') + '</div>';
+            : '<div class="list-empty">' + (mode === 'route' ? '도착지 1km 내 주차장이 없어요.' : '표시할 주차장이 없어요.') + '</div>';
         }
 
         // ─── 자동완성 (카카오 Places) ───
