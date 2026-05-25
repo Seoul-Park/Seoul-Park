@@ -1548,15 +1548,21 @@
 
         function setDestAndAutoOrigin(p) {
           setDestination(p);
-          // 경로검색을 누를 때마다 위치 동의 받아 출발지를 현재 위치로 설정
-          if (!navigator.geolocation) {
-            if (!state.origin) focusOriginPrompt('이 브라우저는 위치 기능을 지원하지 않습니다. 출발지를 직접 입력해 주세요.');
+          // 이미 출발지 있음 → 경로는 setDestination 안 updateRoute가 그려줌. 끝.
+          if (state.origin) return;
+
+          // 출발지 없음 → 위치 시도 또는 안내
+          if (!navigator.geolocation || locationConsent === false) {
+            alert('경로를 그리려면 출발지가 필요합니다.\n\n' +
+              (locationConsent === false
+                ? '📍 헤더의 위치 설정 버튼을 눌러 "사용"으로 바꾸시거나,\n좌측 "출발지" 입력란에 직접 주소를 검색해 주세요.'
+                : '좌측 "출발지" 입력란에 직접 주소를 검색해 주세요.'));
+            document.getElementById('originInput').focus();
             return;
           }
-          if (!state.origin && locationConsent !== false) {
-            statusEl.textContent = '현재 위치를 가져오는 중…';
-            statusEl.style.display = '';
-          }
+
+          statusEl.textContent = '현재 위치를 가져오는 중…';
+          statusEl.style.display = '';
           tryGeolocation(
             (pos) => {
               statusEl.style.display = 'none';
@@ -1567,15 +1573,12 @@
               }
             },
             (err) => {
-              if (!state.origin) {
-                focusOriginPrompt(locationConsent === false
-                  ? '위치 사용에 동의하지 않으셨습니다. 출발지를 직접 입력해 주세요.'
-                  : (err.code === 1
-                      ? '위치 권한이 차단되어 출발지를 자동으로 잡지 못합니다. 직접 입력하시거나, 주소창 왼쪽 자물쇠 아이콘 → 위치 → 허용으로 바꿔주세요.'
-                      : '위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.'));
-              } else {
-                statusEl.style.display = 'none';
-              }
+              statusEl.style.display = 'none';
+              alert('현재 위치를 가져올 수 없어 경로를 그릴 수 없습니다.\n' +
+                (err.code === 1
+                  ? '브라우저 위치 권한이 차단되어 있습니다. 주소창 왼쪽 자물쇠 아이콘 → 위치 → 허용으로 바꿔주시거나,\n좌측 "출발지" 입력란에 직접 주소를 검색해 주세요.'
+                  : 'GPS 신호가 약합니다. 좌측 "출발지" 입력란에 직접 주소를 검색해 주세요.'));
+              document.getElementById('originInput').focus();
             },
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
           );
