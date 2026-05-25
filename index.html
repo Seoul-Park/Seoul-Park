@@ -1235,26 +1235,41 @@
 
           let publicData = null, residentialData = null, realtime = null;
           try {
-            const fetches = [];
-            if (wantPublic) {
-              fetches.push(fetch(`./data/lots/${code}.json?_=${t}`));
-              fetches.push(fetch(`./data/realtime.json?_=${t}`).catch(() => null));
-            }
-            if (wantResidential) {
-              fetches.push(fetch(`./data/residential/${code}.json?_=${t}`).catch(() => null));
-            }
-            const results = await Promise.all(fetches);
-            let idx = 0;
-            if (wantPublic) {
-              const pRes = results[idx++];
-              if (!pRes.ok) throw new Error('public HTTP ' + pRes.status);
-              publicData = await pRes.json();
-              const rRes = results[idx++];
-              if (rRes && rRes.ok) { try { realtime = await rRes.json(); } catch {} }
-            }
-            if (wantResidential) {
-              const rsRes = results[idx++];
-              if (rsRes && rsRes.ok) { try { residentialData = await rsRes.json(); } catch {} }
+            if (district.aggregate) {
+              // 서울 전체: 모든 active 구의 lots 합치기
+              const codes = districts.filter(d => d.active && !d.aggregate).map(d => d.code);
+              const safeFetch = (url) => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+              if (wantPublic) {
+                const arr = await Promise.all(codes.map(c => safeFetch(`./data/lots/${c}.json?_=${t}`)));
+                publicData = { lots: arr.flatMap(d => d?.lots || []), operator: '서울특별시' };
+                realtime = await safeFetch(`./data/realtime.json?_=${t}`);
+              }
+              if (wantResidential) {
+                const arr = await Promise.all(codes.map(c => safeFetch(`./data/residential/${c}.json?_=${t}`)));
+                residentialData = { lots: arr.flatMap(d => d?.lots || []) };
+              }
+            } else {
+              const fetches = [];
+              if (wantPublic) {
+                fetches.push(fetch(`./data/lots/${code}.json?_=${t}`));
+                fetches.push(fetch(`./data/realtime.json?_=${t}`).catch(() => null));
+              }
+              if (wantResidential) {
+                fetches.push(fetch(`./data/residential/${code}.json?_=${t}`).catch(() => null));
+              }
+              const results = await Promise.all(fetches);
+              let idx = 0;
+              if (wantPublic) {
+                const pRes = results[idx++];
+                if (!pRes.ok) throw new Error('public HTTP ' + pRes.status);
+                publicData = await pRes.json();
+                const rRes = results[idx++];
+                if (rRes && rRes.ok) { try { realtime = await rRes.json(); } catch {} }
+              }
+              if (wantResidential) {
+                const rsRes = results[idx++];
+                if (rsRes && rsRes.ok) { try { residentialData = await rsRes.json(); } catch {} }
+              }
             }
           } catch (e) {
             statusEl.textContent = `데이터 로드 실패: ${e.message}`;
@@ -1310,8 +1325,8 @@
 
           const valid = results.filter(r => r !== null);
           const bounds = new kakao.maps.LatLngBounds();
-          const residentialCount = valid.filter(l => l.category === 'residential').length;
-          const useClusterer = residentialCount > 30;
+          const useClusterer = valid.length > 80;
+          const showChips = valid.length <= 50;
 
           if (useClusterer) {
             state.clusterer = new kakao.maps.MarkerClusterer({
@@ -1338,16 +1353,16 @@
               position: lot._coords, title: lot.name,
               image: isResi ? residentialMarkerImg : publicMarkerImg
             });
-            // 거주자우선만 클러스터러, 공영은 항상 표시
-            if (useClusterer && isResi) {
+            // 대량(>80)이면 클러스터러로, 적으면 개별 표시
+            if (useClusterer) {
               clusteredMarkers.push(marker);
             } else {
               marker.setMap(map);
             }
             kakao.maps.event.addListener(marker, 'click', () => setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng }));
 
-            // 칩은 공영(public)만 (거주자우선은 너무 많아 생략)
-            if (lot.category !== 'residential') {
+            // 칩은 공영(public)이면서 데이터가 적을 때만
+            if (!isResi && showChips) {
               const chipOverlay = new kakao.maps.CustomOverlay({
                 content: buildChip(lot), position: lot._coords,
                 yAnchor: 2.6, zIndex: 3

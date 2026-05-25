@@ -3,7 +3,8 @@
   "districtCode": "guro",
   "operator": "구로구시설관리공단",
   "sources": [
-    "https://www.gurosisul.or.kr/mod.asp?m=business&s=a02"
+    "https://www.gurosisul.or.kr/mod.asp?m=business&s=a02",
+    "서울 열린데이터 GetParkingInfo"
   ],
   "updatedAt": "2026-05-25",
   "lots": [
@@ -447,6 +448,153 @@
       "category": "special",
       "source": "guro-sisul",
       "realtimeKey": null
+    },
+    {
+      "name": "구로디지털단지역 공영주차장(시)",
+      "address": "서울 구로구 구로동 810-3",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 91,
+      "grade": "-",
+      "hourly": "5분당 320원 (1시간 3,840원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "24시간",
+      "tel": "02-2290-6034",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1037932"
+    },
+    {
+      "name": "가마산고가밑 공영주차장(시)",
+      "address": "서울 구로구 구로동 414-13",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 18,
+      "grade": "-",
+      "hourly": "5분당 120원 (1시간 1,440원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~19:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1234305"
+    },
+    {
+      "name": "동구로 공영주차장(시)",
+      "address": "서울 구로구 구로동 94-1",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 70,
+      "grade": "-",
+      "hourly": "5분당 320원 (1시간 3,840원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "24시간",
+      "tel": "02-3405-4086",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1367120"
+    },
+    {
+      "name": "대림노외 공영주차장(시)",
+      "address": "서울 구로구 구로동 120-3",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 93,
+      "grade": "-",
+      "hourly": "5분당 320원 (1시간 3,840원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "평일 09:00~19:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1372454"
+    },
+    {
+      "name": "천왕역 공영주차장(시)",
+      "address": "서울 구로구 천왕동 280-11",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 327,
+      "grade": "-",
+      "hourly": "5분당 280원 (1시간 3,360원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "109,000원"
+      },
+      "hours": "24시간",
+      "tel": "02-2290-6343",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1404936"
+    },
+    {
+      "name": "대림역2 공영주차장(시)",
+      "address": "서울 구로구 구로동 73-9",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 31,
+      "grade": "-",
+      "hourly": "5분당 400원 (1시간 4,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "160,000원"
+      },
+      "hours": "평일 09:00~19:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1499707"
+    },
+    {
+      "name": "온수역(남) 공영주차장(시)",
+      "address": "서울 구로구 온수동 51-26",
+      "operationType": "서울시 직영",
+      "applyMethod": "시간제 주차장",
+      "spaces": 41,
+      "grade": "-",
+      "hourly": "5분당 290원 (1시간 3,480원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "120,000원"
+      },
+      "hours": "평일 09:00~19:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-city",
+      "realtimeKey": "1576208"
     }
   ]
 }
