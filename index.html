@@ -203,6 +203,11 @@
     .nav-btn:active { transform: scale(0.98); }
     .nav-btn.kakao { background: #FEE500; color: #181600; }
     .nav-btn.tmap { background: #FF002F; color: white; }
+    .nav-btn.route-btn {
+      width: 100%; background: var(--brand); color: white;
+      margin-bottom: 6px;
+    }
+    .nav-btn.route-btn:hover { background: var(--brand-dark); }
     .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* List */
@@ -543,6 +548,7 @@
             <button class="btn-clear" id="destClear" type="button" aria-label="지우기">×</button>
             <div class="ac-dropdown" id="destAc"></div>
           </div>
+          <button class="nav-btn route-btn" id="routeSearchBtn" type="button">최적 경로 검색</button>
           <div class="nav-buttons">
             <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>카카오내비</button>
             <button class="nav-btn tmap" id="tmapNavBtn" type="button" disabled>티맵</button>
@@ -1641,6 +1647,36 @@
 
         document.getElementById('kakaoNavBtn').addEventListener('click', openKakaoNav);
         document.getElementById('tmapNavBtn').addEventListener('click', openTmap);
+        document.getElementById('routeSearchBtn').addEventListener('click', () => {
+          if (!state.destination) {
+            alert('도착지를 먼저 입력해 주세요.');
+            document.getElementById('destInput').focus();
+            return;
+          }
+          if (state.origin) {
+            // 이미 둘 다 있으면 강제 재계산
+            updateRoute();
+            return;
+          }
+          // 출발지 없음 → 현재 위치 받아 자동 설정
+          if (!navigator.geolocation || locationConsent === false) {
+            alert('출발지를 입력해주세요. (또는 헤더의 📍 버튼으로 위치 사용에 동의)');
+            document.getElementById('originInput').focus();
+            return;
+          }
+          statusEl.textContent = '현재 위치를 가져오는 중…';
+          statusEl.style.display = '';
+          tryGeolocation((pos) => {
+            statusEl.style.display = 'none';
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            showUserLocationMarker(lat, lng);
+            reverseGeocode(lat, lng, (name) => setOrigin({ name, lat, lng }));
+          }, (err) => {
+            statusEl.style.display = 'none';
+            alert('현재 위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.');
+            document.getElementById('originInput').focus();
+          }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+        });
 
         // ─── 구별 데이터 로드 ───
         async function loadDistrict(code) {
