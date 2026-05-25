@@ -1420,12 +1420,11 @@
 
         function setDestAndAutoOrigin(p) {
           setDestination(p);
-          if (state.origin) return;
+          // 경로검색을 누를 때마다 항상 현재 위치를 출발지로 새로 설정
           if (!navigator.geolocation) {
-            focusOriginPrompt('출발지를 직접 입력해 주세요. 경로가 자동으로 그려집니다.');
+            if (!state.origin) focusOriginPrompt('이 브라우저는 위치 기능을 지원하지 않습니다. 출발지를 직접 입력해 주세요.');
             return;
           }
-          // 임시 안내 + 위치 시도
           statusEl.textContent = '현재 위치를 가져오는 중…';
           statusEl.style.display = '';
           navigator.geolocation.getCurrentPosition(
@@ -1437,9 +1436,14 @@
               }
             },
             (err) => {
-              focusOriginPrompt(err.code === 1
-                ? '위치 권한이 차단되어 출발지를 자동으로 잡지 못합니다. 출발지를 직접 입력해 주세요.'
-                : '위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.');
+              // 위치 못 받았을 때 — 기존 출발지가 있으면 그대로 유지(경로 그려짐), 없으면 안내
+              if (!state.origin) {
+                focusOriginPrompt(err.code === 1
+                  ? '위치 권한이 차단되어 출발지를 자동으로 잡지 못합니다. 직접 입력하시거나, 주소창 왼쪽 자물쇠 아이콘 → 위치 → 허용으로 바꿔주세요.'
+                  : '위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.');
+              } else {
+                statusEl.style.display = 'none';
+              }
             },
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
           );
