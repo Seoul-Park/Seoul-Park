@@ -42,6 +42,9 @@ jobs:
       - name: Sync 성동구도시관리공단 공영주차장
         run: python scripts/scrape_seongdong.py
 
+      - name: Sync 공유누리 공유주차장 (서울)
+        run: python scripts/scrape_eshare.py
+
       - name: Sync 거주자우선주차 (16개 구)
         run: python scripts/scrape_residential.py all
 

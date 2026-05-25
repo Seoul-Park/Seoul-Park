@@ -195,23 +195,32 @@
     }
     .nav-btn {
       padding: 9px 0;
-      border: 0; border-radius: 8px;
+      border: 0; border-radius: 10px;
       font-size: 12px; font-weight: 700;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
     }
     .nav-btn:active { transform: scale(0.98); }
     .nav-btn.kakao {
-      background: #FAE100;
+      background: linear-gradient(180deg, #FFEB3D 0%, #FAE100 55%, #F5D300 100%);
       color: #3C1E1E;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      box-shadow: 0 2px 6px rgba(250, 225, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+    .nav-btn.kakao:hover:not(:disabled) {
+      box-shadow: 0 3px 10px rgba(250, 225, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.6);
     }
     .nav-btn.tmap {
-      background: #E60041;
+      background: linear-gradient(135deg, #FF6B9D 0%, #C56EFF 50%, #5B7FFF 100%);
       color: white;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      box-shadow: 0 2px 6px rgba(140, 100, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+      text-shadow: 0 1px 1px rgba(0,0,0,0.15);
     }
-    .nav-btn .app-ico { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-btn.tmap:hover:not(:disabled) {
+      box-shadow: 0 3px 10px rgba(140, 100, 255, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .nav-btn .app-ico { width: 18px; height: 18px; flex-shrink: 0; border-radius: 4px; }
     .nav-btn.route-btn {
       width: 100%; background: var(--brand); color: white;
       margin-bottom: 6px;
@@ -275,6 +284,71 @@
       flex-shrink: 0;
     }
     .li-spaces { font-size: 11px; color: var(--text-muted); font-weight: 500; flex-shrink: 0; }
+
+    /* 카테고리 뱃지 (공영/공유/거주자우선) */
+    .cat-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px; border-radius: 5px;
+      font-size: 10px; font-weight: 700; line-height: 1.4;
+      flex-shrink: 0;
+    }
+    .cat-badge::before {
+      content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    }
+    .cat-badge.public { background: rgba(49, 130, 246, 0.12); color: #1E5FB8; }
+    .cat-badge.public::before { background: #3182F6; }
+    .cat-badge.shared { background: rgba(139, 92, 246, 0.14); color: #6D28D9; }
+    .cat-badge.shared::before { background: #8B5CF6; }
+    .cat-badge.residential { background: rgba(16, 185, 129, 0.14); color: #047857; }
+    .cat-badge.residential::before { background: #10B981; }
+
+    /* 카드 안 큰 뱃지 (상단 우측) */
+    .card .cat-badge-lg {
+      position: absolute; top: 14px; right: 40px;
+      padding: 4px 9px; font-size: 11px; font-weight: 800;
+      border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .card .cat-badge-lg::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+    }
+    .card .cat-badge-lg.public { background: rgba(49, 130, 246, 0.12); color: #1E5FB8; }
+    .card .cat-badge-lg.public::before { background: #3182F6; }
+    .card .cat-badge-lg.shared { background: rgba(139, 92, 246, 0.14); color: #6D28D9; }
+    .card .cat-badge-lg.shared::before { background: #8B5CF6; }
+    .card .cat-badge-lg.residential { background: rgba(16, 185, 129, 0.14); color: #047857; }
+    .card .cat-badge-lg.residential::before { background: #10B981; }
+
+    /* 지도 우하단 범례 */
+    .map-legend {
+      position: absolute; bottom: 14px; right: 14px; z-index: 10;
+      background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(6px);
+      padding: 9px 11px; border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      font-size: 11px; font-weight: 600; color: var(--text);
+      display: flex; flex-direction: column; gap: 6px;
+      pointer-events: none; user-select: none;
+    }
+    .map-legend .lg-title {
+      font-size: 10px; color: var(--text-muted); font-weight: 700;
+      letter-spacing: 0.02em; padding-bottom: 4px;
+      border-bottom: 1px solid #EEF0F2; margin-bottom: 2px;
+    }
+    .map-legend .lg-row {
+      display: flex; align-items: center; gap: 7px; line-height: 1;
+    }
+    .map-legend .lg-pin {
+      width: 14px; height: 18px; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .map-legend .lg-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      border: 2.5px solid white; box-sizing: border-box;
+      box-shadow: 0 0 0 0.5px rgba(0,0,0,0.1);
+    }
+    .map-legend .lg-dot.green { background: #10B981; }
+    @media (max-width: 640px) {
+      .map-legend { font-size: 10px; padding: 7px 9px; bottom: 10px; right: 10px; }
+    }
     .avail { font-weight: 700; color: var(--brand); }
     .avail.full { color: var(--red); }
     .avail.unknown { color: var(--text-dim); font-weight: 500; }
@@ -395,6 +469,7 @@
     .card .name {
       font-size: 16px; font-weight: 700;
       letter-spacing: -0.01em; padding-right: 28px;
+      margin-top: 22px;  /* 카테고리 뱃지(absolute) 자리 확보 */
     }
     .card .addr { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .card .tag {
@@ -439,9 +514,20 @@
     .card-actions .set-dest:hover { background: var(--brand-dark); }
     .card-actions .kakao { background: #FAE100; color: #3C1E1E; }
     .card-actions .tmap { background: #E60041; color: white; }
-    .card-actions .card-kakao-nav { background: #FAE100; color: #3C1E1E; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
-    .card-actions .card-tmap-nav { background: #E60041; color: white; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
-    .card-actions .app-ico { width: 14px; height: 14px; flex-shrink: 0; }
+    .card-actions .card-kakao-nav {
+      background: linear-gradient(180deg, #FFEB3D 0%, #FAE100 55%, #F5D300 100%);
+      color: #3C1E1E;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      box-shadow: 0 2px 5px rgba(250, 225, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+    .card-actions .card-tmap-nav {
+      background: linear-gradient(135deg, #FF6B9D 0%, #C56EFF 50%, #5B7FFF 100%);
+      color: white;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      box-shadow: 0 2px 5px rgba(140, 100, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.22);
+      text-shadow: 0 1px 1px rgba(0,0,0,0.12);
+    }
+    .card-actions .app-ico { width: 16px; height: 16px; flex-shrink: 0; border-radius: 3px; }
     .card-actions .card-roadview { background: #4B5563; color: white; }
     .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr; }
 
@@ -530,7 +616,7 @@
             <select id="categorySelect" class="district-select" aria-label="주차장 종류">
               <option value="all">전체</option>
               <option value="public">공영주차장</option>
-              <option value="shared" disabled>공유주차장 (준비 중)</option>
+              <option value="shared">공유주차장</option>
               <option value="residential">거주자우선주차장</option>
             </select>
           </span>
@@ -561,11 +647,34 @@
           <button class="nav-btn route-btn" id="routeSearchBtn" type="button">최적 경로 검색</button>
           <div class="nav-buttons">
             <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>
-              <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#FAE100"/><path d="M12 4C8.7 4 6 6.6 6 9.8c0 4.4 6 10.2 6 10.2s6-5.8 6-10.2C18 6.6 15.3 4 12 4z" fill="white"/><circle cx="12" cy="9.8" r="2.4" fill="#3C1E1E"/></svg>
+              <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true">
+                <rect width="24" height="24" rx="5" fill="#FFE600"/>
+                <g transform="rotate(45 12 12)">
+                  <path d="M12 4 L15 13 L12 11 Z" fill="#FFFFFF"/>
+                  <path d="M12 4 L9 13 L12 11 Z" fill="#C9A800"/>
+                  <path d="M12 20 L15 13 L12 11 Z" fill="#FFFFFF" opacity="0.85"/>
+                  <path d="M12 20 L9 13 L12 11 Z" fill="#E6C200"/>
+                </g>
+              </svg>
               카카오내비
             </button>
             <button class="nav-btn tmap" id="tmapNavBtn" type="button" disabled>
-              <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="tmapG1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF4D78"/><stop offset="1" stop-color="#E60041"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="url(#tmapG1)"/><text x="12" y="18" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="16" font-weight="900" fill="white">T</text></svg>
+              <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true">
+                <defs>
+                  <linearGradient id="tmapTopBar" x1="0" y1="0" x2="1" y2="0.2">
+                    <stop offset="0" stop-color="#E83BFF"/>
+                    <stop offset="0.55" stop-color="#7B7DFF"/>
+                    <stop offset="1" stop-color="#3FE3D8"/>
+                  </linearGradient>
+                  <linearGradient id="tmapStem" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0" stop-color="#7B7DFF"/>
+                    <stop offset="1" stop-color="#3D6BFF"/>
+                  </linearGradient>
+                </defs>
+                <rect width="24" height="24" rx="5.5" fill="white"/>
+                <path d="M5 6 H17 Q19 6 19 8 Q19 11.5 16 11.5 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 V10 H5 Q4.5 10 4.5 9.5 V6.5 Q4.5 6 5 6 Z" fill="url(#tmapTopBar)"/>
+                <path d="M10.2 10 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 Z" fill="url(#tmapStem)"/>
+              </svg>
               티맵
             </button>
           </div>
@@ -582,6 +691,33 @@
 
       <div id="map">
         <div id="status">데이터를 불러오는 중…</div>
+        <div class="map-legend" aria-label="마커 범례">
+          <div class="lg-title">마커 분류</div>
+          <div class="lg-row">
+            <span class="lg-pin">
+              <svg width="14" height="18" viewBox="0 0 32 40" aria-hidden="true">
+                <path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 22 15 22s15-11 15-22C31 7.7 24.3 1 16 1z" fill="#3182F6"/>
+                <circle cx="16" cy="16" r="10" fill="white"/>
+                <text x="16" y="21" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="800" fill="#3182F6">P</text>
+              </svg>
+            </span>
+            <span>공영주차장</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-pin">
+              <svg width="14" height="18" viewBox="0 0 32 40" aria-hidden="true">
+                <path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 22 15 22s15-11 15-22C31 7.7 24.3 1 16 1z" fill="#8B5CF6"/>
+                <circle cx="16" cy="16" r="10" fill="white"/>
+                <text x="16" y="21" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="800" fill="#8B5CF6">S</text>
+              </svg>
+            </span>
+            <span>공유주차장</span>
+          </div>
+          <div class="lg-row">
+            <span class="lg-pin"><span class="lg-dot green"></span></span>
+            <span>거주자우선주차</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -662,6 +798,21 @@
           { offset: new kakao.maps.Point(9, 9) }
         );
       }
+      if (category === 'shared') {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+          <defs><filter id="ss" x="-30%" y="-10%" width="160%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.3"/></filter></defs>
+          <g filter="url(#ss)">
+            <path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 22 15 22s15-11 15-22C31 7.7 24.3 1 16 1z" fill="#8B5CF6"/>
+            <circle cx="16" cy="16" r="10" fill="white"/>
+            <text x="16" y="21" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="800" fill="#8B5CF6">S</text>
+          </g>
+        </svg>`;
+        return new kakao.maps.MarkerImage(
+          'data:image/svg+xml;base64,' + btoa(svg),
+          new kakao.maps.Size(32, 40),
+          { offset: new kakao.maps.Point(16, 40) }
+        );
+      }
       const color = isOpen === false ? '#9CA3AF' : '#3182F6';
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
         <defs><filter id="s" x="-30%" y="-10%" width="160%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.3"/></filter></defs>
@@ -695,6 +846,17 @@
       }
       return null;
     }
+
+    // 모든 lot을 공영/공유/거주자우선 3가지로 분류
+    // - 'shared' (eshare 공유누리) → 공유
+    // - 'residential' (거주자우선) → 거주자우선
+    // - 그 외 (normal/special/monthly-only) → 공영
+    function getCategoryGroup(lot) {
+      if (lot.category === 'shared') return 'shared';
+      if (lot.category === 'residential') return 'residential';
+      return 'public';
+    }
+    const CATEGORY_LABEL = { public: '공영', shared: '공유', residential: '거주자우선' };
 
     function isOperating(lot, now) {
       const hours = lot.hours || '';
@@ -739,10 +901,14 @@
       const holidayNote = lot.hours && /공휴일|일요일|토요일/.test(lot.hours)
         ? '평일·공휴일 안내가 운영시간에 포함됨' : null;
 
+      const catGroup = getCategoryGroup(lot);
+      const catLabel = CATEGORY_LABEL[catGroup];
+
       return `
         <div class="card-wrap">
           <div class="card">
             <button class="close" aria-label="닫기">×</button>
+            <span class="cat-badge-lg ${catGroup}">${escapeHtml(catLabel)}</span>
             <div class="name">${escapeHtml(lot.name)}</div>
             <div class="addr">${escapeHtml(lot.address)}</div>
             ${tag ? `<div class="tag">${escapeHtml(tag)}</div>` : ''}
@@ -758,8 +924,8 @@
             </dl>
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
-              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#FAE100"/><path d="M12 4C8.7 4 6 6.6 6 9.8c0 4.4 6 10.2 6 10.2s6-5.8 6-10.2C18 6.6 15.3 4 12 4z" fill="white"/><circle cx="12" cy="9.8" r="2.4" fill="#3C1E1E"/></svg>카카오내비</button>
-              <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><defs><linearGradient id="tmapG2-${escapeHtml(lot._id)}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF4D78"/><stop offset="1" stop-color="#E60041"/></linearGradient></defs><rect width="24" height="24" rx="6" fill="url(#tmapG2-${escapeHtml(lot._id)})"/><text x="12" y="18" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="16" font-weight="900" fill="white">T</text></svg>티맵</button>
+              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#FFE600"/><g transform="rotate(45 12 12)"><path d="M12 4 L15 13 L12 11 Z" fill="#FFFFFF"/><path d="M12 4 L9 13 L12 11 Z" fill="#C9A800"/><path d="M12 20 L15 13 L12 11 Z" fill="#FFFFFF" opacity="0.85"/><path d="M12 20 L9 13 L12 11 Z" fill="#E6C200"/></g></svg>카카오내비</button>
+              <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><defs><linearGradient id="tmapTopBar-${escapeHtml(lot._id)}" x1="0" y1="0" x2="1" y2="0.2"><stop offset="0" stop-color="#E83BFF"/><stop offset="0.55" stop-color="#7B7DFF"/><stop offset="1" stop-color="#3FE3D8"/></linearGradient><linearGradient id="tmapStem-${escapeHtml(lot._id)}" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#7B7DFF"/><stop offset="1" stop-color="#3D6BFF"/></linearGradient></defs><rect width="24" height="24" rx="5.5" fill="white"/><path d="M5 6 H17 Q19 6 19 8 Q19 11.5 16 11.5 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 V10 H5 Q4.5 10 4.5 9.5 V6.5 Q4.5 6 5 6 Z" fill="url(#tmapTopBar-${escapeHtml(lot._id)})"/><path d="M10.2 10 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 Z" fill="url(#tmapStem-${escapeHtml(lot._id)})"/></svg>티맵</button>
             </div>
             <div class="card-actions">
               <button class="card-roadview" data-lot-id="${escapeHtml(lot._id)}">거리뷰</button>
@@ -787,10 +953,13 @@
       const distHtml = lot._distance != null
         ? `<span class="li-distance">${formatDistance(lot._distance)}</span>` : '';
       const telHtml = lot.tel ? `<span class="li-tel">${formatTel(lot.tel)}</span>` : '';
+      const catGroup = getCategoryGroup(lot);
+      const catLabel = CATEGORY_LABEL[catGroup];
       return `
         <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
           <div class="li-row">
             <span class="li-name">${escapeHtml(cleanLotName(lot.name))}</span>
+            <span class="cat-badge ${catGroup}">${escapeHtml(catLabel)}</span>
             <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
             <span class="li-spaces">${spacesDisplay(lot)}</span>
             ${distHtml}
@@ -1771,13 +1940,14 @@
           const t = Date.now();
           const wantPublic = cat === 'public' || cat === 'all';
           const wantResidential = cat === 'residential' || cat === 'all';
+          const wantShared = cat === 'shared' || cat === 'all';
 
-          let publicData = null, residentialData = null, realtime = null;
+          let publicData = null, residentialData = null, sharedData = null, realtime = null;
+          const safeFetch = (url) => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
           try {
             if (district.aggregate) {
               // 서울 전체: 모든 active 구의 lots 합치기
               const codes = districts.filter(d => d.active && !d.aggregate).map(d => d.code);
-              const safeFetch = (url) => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
               if (wantPublic) {
                 const arr = await Promise.all(codes.map(c => safeFetch(`./data/lots/${c}.json?_=${t}`)));
                 publicData = { lots: arr.flatMap(d => d?.lots || []), operator: '서울특별시' };
@@ -1787,6 +1957,9 @@
                 const arr = await Promise.all(codes.map(c => safeFetch(`./data/residential/${c}.json?_=${t}`)));
                 residentialData = { lots: arr.flatMap(d => d?.lots || []) };
               }
+              if (wantShared) {
+                sharedData = await safeFetch(`./data/lots/shared_seoul.json?_=${t}`);
+              }
             } else {
               const fetches = [];
               if (wantPublic) {
@@ -1795,6 +1968,10 @@
               }
               if (wantResidential) {
                 fetches.push(fetch(`./data/residential/${code}.json?_=${t}`).catch(() => null));
+              }
+              if (wantShared) {
+                // shared는 서울 전체 한 파일 → 구별로 필터링
+                fetches.push(fetch(`./data/lots/shared_seoul.json?_=${t}`).catch(() => null));
               }
               const results = await Promise.all(fetches);
               let idx = 0;
@@ -1809,6 +1986,16 @@
                 const rsRes = results[idx++];
                 if (rsRes && rsRes.ok) { try { residentialData = await rsRes.json(); } catch {} }
               }
+              if (wantShared) {
+                const shRes = results[idx++];
+                if (shRes && shRes.ok) {
+                  try {
+                    const sd = await shRes.json();
+                    // districtCode 로 필터링 (현재 선택된 구의 것만)
+                    sharedData = { ...sd, lots: (sd.lots || []).filter(l => l.districtCode === code) };
+                  } catch {}
+                }
+              }
             }
           } catch (e) {
             statusEl.textContent = `데이터 로드 실패: ${e.message}`;
@@ -1819,6 +2006,7 @@
           const allRaw = [
             ...(publicData?.lots || []),
             ...(residentialData?.lots || []),
+            ...(sharedData?.lots || []),
           ];
           const visibleLots = allRaw
             .filter(l => l.hourlyAvailable)
@@ -1838,6 +2026,7 @@
           const dataset = publicData || residentialData;
 
           const catLabel = cat === 'residential' ? '거주자우선주차'
+            : cat === 'shared' ? '공유주차장'
             : cat === 'all' ? '전체 주차장'
             : '시간주차 가능';
           subEl.innerHTML = `${catLabel} <b>${visibleLots.length}</b>곳 · ${escapeHtml(publicData?.operator || dataset?.source || district.operator || '')}`;
@@ -1846,6 +2035,7 @@
           const publicOpenImg = makeMarkerImage('public', true);
           const publicClosedImg = makeMarkerImage('public', false);
           const residentialMarkerImg = makeMarkerImage('residential');
+          const sharedMarkerImg = makeMarkerImage('shared');
           const _now = new Date();
           // 위경도가 데이터에 있으면 지오코딩 스킵
           const lookups = visibleLots.map(lot => {
@@ -1892,12 +2082,16 @@
             state.lotById.set(lot._id, lot);
             state.lots.push(lot);
 
-            const isResi = lot.category === 'residential';
+            const catGroup = getCategoryGroup(lot);
             const isOpen = isOperating(lot, _now);
             lot._isOpen = isOpen;
+            lot._catGroup = catGroup;
             const marker = new kakao.maps.Marker({
-              position: lot._coords, title: lot.name + (isOpen ? '' : ' (운영시간 외)'),
-              image: isResi ? residentialMarkerImg : (isOpen ? publicOpenImg : publicClosedImg)
+              position: lot._coords,
+              title: `${lot.name} [${CATEGORY_LABEL[catGroup]}]` + (isOpen ? '' : ' (운영시간 외)'),
+              image: catGroup === 'residential' ? residentialMarkerImg
+                   : catGroup === 'shared' ? sharedMarkerImg
+                   : (isOpen ? publicOpenImg : publicClosedImg)
             });
             // 대량(>80)이면 클러스터러로, 적으면 개별 표시
             if (useClusterer) {
