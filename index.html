@@ -1150,35 +1150,40 @@
           overlay.setMap(map);
           state.openCardOverlay = overlay;
         }
-        // 카드 내 버튼 이벤트 위임 (document 레벨, 매번 새 카드라도 안전)
+        // 카드 내 버튼 이벤트 위임 — 단순 셀렉터 + 디버그 로그
         document.addEventListener('click', (e) => {
-          const closeBtn = e.target.closest('.card .close');
-          if (closeBtn && state.openCardOverlay) {
-            state.openCardOverlay.setMap(null); state.openCardOverlay = null; return;
-          }
-          const setDest = e.target.closest('.card .set-dest');
-          if (setDest) {
-            const lot = state.lotById.get(setDest.dataset.lotId);
-            if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+          const t = e.target;
+          if (t.closest('.set-dest')) {
+            const btn = t.closest('.set-dest');
+            const id = btn.dataset.lotId;
+            const lot = state.lotById.get(id);
+            console.log('[카드 경로검색]', { id, lot, hasLot: !!lot, name: lot?.name, lat: lot?.lat, lng: lot?.lng });
+            if (lot) {
+              setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+              console.log('[setDestAndAutoOrigin 호출 후]', { destInput: document.getElementById('destInput').value, hasDest: !!state.destination });
+            } else {
+              console.warn('[lot 못 찾음] state.lotById 크기:', state.lotById.size, '키 목록:', Array.from(state.lotById.keys()).slice(0, 5));
+            }
             if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
             return;
           }
-          const kn = e.target.closest('.card .card-kakao-nav');
-          if (kn) {
-            const lot = state.lotById.get(kn.dataset.lotId);
+          if (t.closest('.card-kakao-nav')) {
+            const lot = state.lotById.get(t.closest('.card-kakao-nav').dataset.lotId);
             if (lot) openKakaoNav({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
             return;
           }
-          const tn = e.target.closest('.card .card-tmap-nav');
-          if (tn) {
-            const lot = state.lotById.get(tn.dataset.lotId);
+          if (t.closest('.card-tmap-nav')) {
+            const lot = state.lotById.get(t.closest('.card-tmap-nav').dataset.lotId);
             if (lot) openTmap({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
             return;
           }
-          const rv = e.target.closest('.card .card-roadview');
-          if (rv) {
-            const lot = state.lotById.get(rv.dataset.lotId);
+          if (t.closest('.card-roadview')) {
+            const lot = state.lotById.get(t.closest('.card-roadview').dataset.lotId);
             if (lot) openRoadview(lot.lat, lot.lng, cleanLotName(lot.name));
+            return;
+          }
+          if (t.closest('.card .close')) {
+            if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
             return;
           }
         });
