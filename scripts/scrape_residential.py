@@ -13,6 +13,7 @@ import io
 import json
 import re
 import sys
+import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -22,15 +23,43 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "data" / "residential"
 KST = timezone(timedelta(hours=9))
 
-# 구별 atchFileId (확장 시 여기 추가)
-DISTRICT_CONFIG = {
-    "guro": {
-        "name": "구로구",
-        "atchFileId": "FILE_000000003572148",
-        "fileDetailSn": "1",
-        "publicDataPk": "15021105",
-    },
+# 표준데이터셋 15021105의 자치단체별 uddi 매핑
+# atchFileId는 매 실행 시 selectFileDataDownload.do로 동적 조회 (변경 가능성 대응)
+DISTRICT_UDDI = {
+    "gangnam":     ("강남구",   "uddi:c8ee98e1-c2d9-418b-8b24-89d5a35f3167_201912301657"),
+    "gangbuk":     ("강북구",   "uddi:702f43fb-7fa9-4f0f-865b-a5153cdee3e2_201909261629"),
+    "gangseo":     ("강서구",   "uddi:1685c062-7a3b-4110-a50e-c2502c43f3a4"),
+    "gwanak":      ("관악구",   "uddi:bdbd6da2-427a-418c-be83-810ae00f1fb0_201906281341"),
+    "gwangjin":    ("광진구",   "uddi:640f303c-43c1-457c-9074-a9f9356475bb"),
+    "guro":        ("구로구",   "uddi:d7c667b3-7bb6-432f-bc06-c198bb60c885_202003161043"),
+    "geumcheon":   ("금천구",   "uddi:77a92859-2f57-4e09-b2b2-e3dda32d0f14_202003181610"),
+    "nowon":       ("노원구",   "uddi:218c66dc-0b1d-4f88-aa5e-c88f3274dace"),
+    "dongjak":     ("동작구",   "uddi:325630b6-fb15-457f-87d4-db9c9fbf63f2_202001061726"),
+    "seocho":      ("서초구",   "uddi:ab4e56a4-7774-4069-929a-c581f462b6ad"),
+    "seongbuk":    ("성북구",   "uddi:5e601031-d575-4e2a-b19e-9e9a63f74c76"),
+    "songpa":      ("송파구",   "uddi:d6fb591c-a7e2-40ba-a4a8-873372574440_202003111406"),
+    "yangcheon":   ("양천구",   "uddi:dad61a70-f667-48e8-b78d-c8474141b4ba_201911251120"),
+    "yeongdeungpo":("영등포구", "uddi:ab0f63bf-d893-47be-8b3b-d0bdb0ac5b1e"),
+    "jongno":      ("종로구",   "uddi:33b88e36-faef-4ec4-93fe-b60965487d73"),
+    "jungnang":    ("중랑구",   "uddi:7f9c603a-6038-4896-9faf-e7cecaee3ad0"),
 }
+
+
+def fetch_atch_file_id(uddi, retries=4):
+    url = (f"https://www.data.go.kr/tcs/dss/selectFileDataDownload.do"
+           f"?recommendDataYn=Y&publicDataPk=15021105&publicDataDetailPk={uddi}")
+    headers = {"Referer": "https://www.data.go.kr/data/15021105/standard.do",
+               "X-Requested-With": "XMLHttpRequest",
+               "User-Agent": "Mozilla/5.0"}
+    for i in range(retries):
+        try:
+            res = requests.get(url, headers=headers, timeout=20)
+            if res.status_code == 200:
+                return res.json().get("fileDataRegistVO", {}).get("atchFileId")
+        except Exception as e:
+            print(f"  재시도 {i+1}/{retries}: {e}", file=sys.stderr)
+        time.sleep(2 ** i)  # 1, 2, 4, 8초 백오프
+    return None
 
 
 def parse_monthly(fee_str: str) -> dict:
@@ -54,13 +83,22 @@ def parse_monthly(fee_str: str) -> dict:
     return out
 
 
-def fetch_csv(cfg: dict) -> str:
+def fetch_csv(atch_file_id: str, retries=4) -> str:
     url = (f"https://www.data.go.kr/cmm/cmm/fileDownload.do?"
-           f"atchFileId={cfg['atchFileId']}&fileDetailSn={cfg['fileDetailSn']}")
-    headers = {"Referer": f"https://www.data.go.kr/data/{cfg['publicDataPk']}/standard.do"}
-    res = requests.get(url, headers=headers, timeout=60)
-    res.raise_for_status()
-    return res.content.decode("utf-8-sig")
+           f"atchFileId={atch_file_id}&fileDetailSn=1")
+    headers = {"Referer": "https://www.data.go.kr/data/15021105/standard.do",
+               "User-Agent": "Mozilla/5.0"}
+    last_err = None
+    for i in range(retries):
+        try:
+            res = requests.get(url, headers=headers, timeout=60)
+            res.raise_for_status()
+            return res.content.decode("utf-8-sig", errors="replace")
+        except Exception as e:
+            last_err = e
+            print(f"  CSV 재시도 {i+1}/{retries}: {e}", file=sys.stderr)
+            time.sleep(2 ** i)
+    raise last_err
 
 
 def convert(text: str, district_name: str) -> list[dict]:
@@ -100,24 +138,25 @@ def convert(text: str, district_name: str) -> list[dict]:
     return lots
 
 
-def main(argv):
-    if len(argv) < 2:
-        print(__doc__, file=sys.stderr)
-        return 2
-    code = argv[1].strip().lower()
-    cfg = DISTRICT_CONFIG.get(code)
-    if not cfg:
+def scrape_one(code: str) -> int:
+    info = DISTRICT_UDDI.get(code)
+    if not info:
         print(f"[{code}] 미등록 구 코드", file=sys.stderr)
         return 1
-
-    print(f"[{code}] downloading CSV ({cfg['atchFileId']})")
-    text = fetch_csv(cfg)
-    lots = convert(text, cfg["name"])
-    print(f"[{code}] parsed {len(lots)} parking spots")
+    gu_name, uddi = info
+    print(f"[{code}] {gu_name} atchFileId 조회…")
+    atch_id = fetch_atch_file_id(uddi)
+    if not atch_id:
+        print(f"[{code}] atchFileId 조회 실패", file=sys.stderr)
+        return 1
+    print(f"[{code}] CSV 다운로드 ({atch_id})")
+    text = fetch_csv(atch_id)
+    lots = convert(text, gu_name)
+    print(f"[{code}] {len(lots)}곳 변환")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     payload = {
-        "district": cfg["name"],
+        "district": gu_name,
         "districtCode": code,
         "category": "residential",
         "source": "공공데이터포털 전국거주자우선주차정보표준데이터",
@@ -128,6 +167,20 @@ def main(argv):
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"[{code}] wrote {out_path.relative_to(ROOT)}")
     return 0
+
+
+def main(argv):
+    if len(argv) < 2:
+        print(__doc__, file=sys.stderr)
+        return 2
+    target = argv[1].strip().lower()
+    if target == "all":
+        results = []
+        for code in DISTRICT_UDDI:
+            results.append(scrape_one(code))
+            time.sleep(1.5)  # data.go.kr rate limit 회피
+        return max(results) if results else 0
+    return scrape_one(target)
 
 
 if __name__ == "__main__":
