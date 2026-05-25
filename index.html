@@ -1149,38 +1149,39 @@
           });
           overlay.setMap(map);
           state.openCardOverlay = overlay;
-          setTimeout(() => {
-            const root = document.querySelector('.card-wrap');
-            if (!root || root._bound) return;
-            root._bound = true;
-            root.querySelector('.close')?.addEventListener('click', () => {
-              overlay.setMap(null);
-              if (state.openCardOverlay === overlay) state.openCardOverlay = null;
-            });
-            root.querySelector('.set-dest')?.addEventListener('click', (e) => {
-              const id = e.currentTarget.dataset.lotId;
-              const lot = state.lotById.get(id);
-              if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
-              overlay.setMap(null);
-              if (state.openCardOverlay === overlay) state.openCardOverlay = null;
-            });
-            root.querySelector('.card-kakao-nav')?.addEventListener('click', (e) => {
-              const id = e.currentTarget.dataset.lotId;
-              const lot = state.lotById.get(id);
-              if (lot) openKakaoNav({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
-            });
-            root.querySelector('.card-tmap-nav')?.addEventListener('click', (e) => {
-              const id = e.currentTarget.dataset.lotId;
-              const lot = state.lotById.get(id);
-              if (lot) openTmap({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
-            });
-            root.querySelector('.card-roadview')?.addEventListener('click', (e) => {
-              const id = e.currentTarget.dataset.lotId;
-              const lot = state.lotById.get(id);
-              if (lot) openRoadview(lot.lat, lot.lng, cleanLotName(lot.name));
-            });
-          }, 0);
         }
+        // 카드 내 버튼 이벤트 위임 (document 레벨, 매번 새 카드라도 안전)
+        document.addEventListener('click', (e) => {
+          const closeBtn = e.target.closest('.card .close');
+          if (closeBtn && state.openCardOverlay) {
+            state.openCardOverlay.setMap(null); state.openCardOverlay = null; return;
+          }
+          const setDest = e.target.closest('.card .set-dest');
+          if (setDest) {
+            const lot = state.lotById.get(setDest.dataset.lotId);
+            if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+            if (state.openCardOverlay) { state.openCardOverlay.setMap(null); state.openCardOverlay = null; }
+            return;
+          }
+          const kn = e.target.closest('.card .card-kakao-nav');
+          if (kn) {
+            const lot = state.lotById.get(kn.dataset.lotId);
+            if (lot) openKakaoNav({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+            return;
+          }
+          const tn = e.target.closest('.card .card-tmap-nav');
+          if (tn) {
+            const lot = state.lotById.get(tn.dataset.lotId);
+            if (lot) openTmap({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+            return;
+          }
+          const rv = e.target.closest('.card .card-roadview');
+          if (rv) {
+            const lot = state.lotById.get(rv.dataset.lotId);
+            if (lot) openRoadview(lot.lat, lot.lng, cleanLotName(lot.name));
+            return;
+          }
+        });
 
         function focusLot(lot) {
           if (!lot._coords) return;
