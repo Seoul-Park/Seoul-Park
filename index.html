@@ -190,8 +190,8 @@
       transition: opacity 0.15s, transform 0.1s;
     }
     .nav-btn:active { transform: scale(0.98); }
-    .nav-btn.kakao { background: #FEE500; color: #191919; }
-    .nav-btn.tmap { background: #EB1F4F; color: white; }
+    .nav-btn.kakao { background: #FEE500; color: #181600; }
+    .nav-btn.tmap { background: #FF002F; color: white; }
     .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* List */
@@ -412,11 +412,33 @@
     }
     .card-actions .set-dest { background: var(--brand); color: white; }
     .card-actions .set-dest:hover { background: var(--brand-dark); }
-    .card-actions .kakao { background: #FEE500; color: #191919; }
-    .card-actions .tmap { background: #EB1F4F; color: white; }
-    .card-actions .card-kakao-nav { background: #FEE500; color: #191919; }
-    .card-actions .card-tmap-nav { background: #EB1F4F; color: white; }
-    .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr; }
+    .card-actions .kakao { background: #FEE500; color: #181600; }
+    .card-actions .tmap { background: #FF002F; color: white; }
+    .card-actions .card-kakao-nav { background: #FEE500; color: #181600; }
+    .card-actions .card-tmap-nav { background: #FF002F; color: white; }
+    .card-actions .card-roadview { background: #4B5563; color: white; }
+    .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr 1fr; }
+
+    /* Roadview modal */
+    .rv-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; }
+    .rv-modal.show { display: block; }
+    .rv-content { position: absolute; inset: 5%; }
+    .rv-content #rvContainer { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; background: #222; }
+    .rv-close {
+      position: absolute; top: -8px; right: -8px;
+      width: 40px; height: 40px;
+      background: white; border: 0; border-radius: 50%;
+      cursor: pointer; font-size: 22px; line-height: 1;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text);
+    }
+    .rv-title {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(0,0,0,0.6); color: white;
+      padding: 6px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+    }
 
     @media (max-width: 768px) {
       .main { flex-direction: column-reverse; }
@@ -484,6 +506,14 @@
       <div id="map">
         <div id="status">데이터를 불러오는 중…</div>
       </div>
+    </div>
+  </div>
+
+  <div id="rvModal" class="rv-modal" role="dialog" aria-modal="true">
+    <div class="rv-content">
+      <div id="rvContainer"></div>
+      <div id="rvTitle" class="rv-title"></div>
+      <button id="rvClose" class="rv-close" type="button" aria-label="거리뷰 닫기">×</button>
     </div>
   </div>
 
@@ -641,7 +671,10 @@
               <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}">카카오내비</button>
               <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}">티맵</button>
             </div>
-            ${mapLinkHtml ? `<div class="card-actions">${mapLinkHtml}</div>` : ''}
+            <div class="card-actions">
+              <button class="card-roadview" data-lot-id="${escapeHtml(lot._id)}">거리뷰</button>
+              ${mapLinkHtml || '<span></span>'}
+            </div>
           </div>
         </div>
       `;
@@ -800,6 +833,26 @@
             }
           }
         }
+
+        // ─── 거리뷰 모달 ───
+        const rvModal = document.getElementById('rvModal');
+        const rvContainer = document.getElementById('rvContainer');
+        const rvTitle = document.getElementById('rvTitle');
+        let _roadview = null;
+        function openRoadview(lat, lng, title) {
+          const pos = new kakao.maps.LatLng(lat, lng);
+          new kakao.maps.RoadviewClient().getNearestPanoId(pos, 100, (panoId) => {
+            if (!panoId) { alert('이 위치 근처에 거리뷰가 없습니다.'); return; }
+            rvTitle.textContent = title || '';
+            rvModal.classList.add('show');
+            if (!_roadview) _roadview = new kakao.maps.Roadview(rvContainer);
+            _roadview.setPanoId(panoId, pos);
+            setTimeout(() => _roadview.relayout && _roadview.relayout(), 100);
+          });
+        }
+        document.getElementById('rvClose').addEventListener('click', () => rvModal.classList.remove('show'));
+        rvModal.addEventListener('click', (e) => { if (e.target === rvModal) rvModal.classList.remove('show'); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') rvModal.classList.remove('show'); });
 
         function reverseGeocode(lat, lng, cb) {
           try {
@@ -998,6 +1051,11 @@
               const lot = state.lotById.get(id);
               if (lot) openTmap({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
             });
+            root.querySelector('.card-roadview')?.addEventListener('click', (e) => {
+              const id = e.currentTarget.dataset.lotId;
+              const lot = state.lotById.get(id);
+              if (lot) openRoadview(lot.lat, lot.lng, cleanLotName(lot.name));
+            });
           }, 0);
         }
 
@@ -1156,18 +1214,59 @@
           });
         }
 
+        function makeOriginMarkerImage() {
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="28" viewBox="0 0 22 28">
+            <defs><filter id="os" x="-30%" y="-10%" width="160%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.35"/></filter></defs>
+            <g filter="url(#os)">
+              <circle cx="11" cy="11" r="9" fill="#10B981" stroke="white" stroke-width="3"/>
+              <circle cx="11" cy="11" r="3" fill="white"/>
+            </g>
+          </svg>`;
+          return new kakao.maps.MarkerImage(
+            'data:image/svg+xml;base64,' + btoa(svg),
+            new kakao.maps.Size(22, 28),
+            { offset: new kakao.maps.Point(11, 11) }
+          );
+        }
+
         function setOrigin(p) {
           if (state.origin?.overlay) state.origin.overlay.setMap(null);
+          if (state.origin?.marker) state.origin.marker.setMap(null);
           if (!p) { state.origin = null; updateNavButtons(); updateRoute(); if (state.districtName) renderList(state.districtName); return; }
+
+          const pos = new kakao.maps.LatLng(p.lat, p.lng);
+          const marker = new kakao.maps.Marker({
+            position: pos, draggable: true, image: makeOriginMarkerImage(), zIndex: 60
+          });
+          marker.setMap(map);
           const overlay = new kakao.maps.CustomOverlay({
-            content: makeEndpointMarkerContent('origin', '출발 · ' + p.name),
-            position: new kakao.maps.LatLng(p.lat, p.lng),
-            yAnchor: 1.5, zIndex: 50
+            content: `<div class="endpoint-marker origin"><div class="badge">출발 · ${escapeHtml(p.name)}</div></div>`,
+            position: pos, yAnchor: 1.8, zIndex: 61
           });
           overlay.setMap(map);
-          state.origin = { ...p, overlay };
+
+          state.origin = { ...p, marker, overlay };
           document.getElementById('originInput').value = p.name;
           document.getElementById('originRow').classList.add('has-value');
+
+          // 드래그: 라벨 동기 이동
+          kakao.maps.event.addListener(marker, 'drag', () => {
+            overlay.setPosition(marker.getPosition());
+          });
+          // 드래그 끝 → reverse geocode + state 갱신
+          kakao.maps.event.addListener(marker, 'dragend', () => {
+            const np = marker.getPosition();
+            const nlat = np.getLat(), nlng = np.getLng();
+            overlay.setContent(`<div class="endpoint-marker origin"><div class="badge">출발 · 위치 확인 중…</div></div>`);
+            reverseGeocode(nlat, nlng, (name) => {
+              state.origin = { ...state.origin, lat: nlat, lng: nlng, name };
+              document.getElementById('originInput').value = name;
+              overlay.setContent(`<div class="endpoint-marker origin"><div class="badge">출발 · ${escapeHtml(name)}</div></div>`);
+              updateRoute();
+              if (state.districtName) renderList(state.districtName);
+            });
+          });
+
           updateNavButtons();
           updateRoute();
           if (state.districtName) renderList(state.districtName);
