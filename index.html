@@ -697,6 +697,8 @@
           waypoints: [],        // [{ id, name, lat, lng, overlay, row }]
           routePolyline: null,
           routeLabel: null,
+          routePathCoords: null,   // [[lat,lng], ...] 경로 좌표 캐시
+          districtName: '',        // renderList 재호출용
         };
         const MAX_WAYPOINTS = 3;
 
@@ -715,6 +717,17 @@
         function clearRoute() {
           if (state.routePolyline) { state.routePolyline.setMap(null); state.routePolyline = null; }
           if (state.routeLabel) { state.routeLabel.setMap(null); state.routeLabel = null; }
+          state.routePathCoords = null;
+        }
+
+        function minDistMToPath(lat, lng, coords) {
+          let min = Infinity;
+          for (let i = 0; i < coords.length; i++) {
+            const [plat, plng] = coords[i];
+            const d = haversineMeters({ lat, lng }, { lat: plat, lng: plng });
+            if (d < min) { min = d; if (min < 50) break; }
+          }
+          return min;
         }
 
         // ─── 카카오 모빌리티 도로 경로 ───
@@ -774,6 +787,20 @@
           const bounds = new kakao.maps.LatLngBounds();
           path.forEach(pt => bounds.extend(pt));
           map.setBounds(bounds, 80, 80, 80, 80);
+
+          // 경로 좌표 캐시 (점 너무 많으면 샘플링)
+          const step = Math.max(1, Math.floor(path.length / 200));
+          const coords = [];
+          for (let i = 0; i < path.length; i += step) {
+            coords.push([path[i].getLat(), path[i].getLng()]);
+          }
+          // 마지막 점 보장
+          if (coords[coords.length - 1] !== path[path.length - 1]) {
+            const last = path[path.length - 1];
+            coords.push([last.getLat(), last.getLng()]);
+          }
+          state.routePathCoords = coords;
+          if (state.districtName) renderList(state.districtName);
         }
 
         async function updateRoute() {
@@ -828,6 +855,8 @@
             const bounds = new kakao.maps.LatLngBounds();
             path.forEach(pt => bounds.extend(pt));
             map.setBounds(bounds, 80, 80, 80, 80);
+            state.routePathCoords = [[o.lat, o.lng], [d.lat, d.lng]];
+            if (state.districtName) renderList(state.districtName);
           }
         }
 
@@ -904,21 +933,49 @@
 
         // ─── 거리 / 정렬 / 리스트 ───
         function renderList(districtName) {
+          state.districtName = districtName;
           let lots = state.lots.slice();
-          let sorted = false;
-          if (state.destination) {
-            const dest = state.destination;
-            lots.forEach(l => { l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest); });
+          let mode = 'default';
+
+          const hasRoute = state.routePathCoords && state.routePathCoords.length >= 2;
+          const ROUTE_RADIUS_M = 1000;
+
+          if (hasRoute && state.origin) {
+            // 경로상 1km 이내 + 출발지 기준 거리순
+            const orig = state.origin;
+            lots.forEach(l => {
+              l._distToPath = minDistMToPath(l.lat, l.lng, state.routePathCoords);
+              l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, orig);
+            });
+            lots = lots.filter(l => l._distToPath <= ROUTE_RADIUS_M);
             lots.sort((a, b) => a._distance - b._distance);
-            sorted = true;
+            mode = 'route';
+          } else if (state.destination) {
+            const dest = state.destination;
+            lots.forEach(l => { l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest); l._distToPath = null; });
+            lots.sort((a, b) => a._distance - b._distance);
+            mode = 'destination';
           } else {
-            lots.forEach(l => { l._distance = null; });
+            lots.forEach(l => { l._distance = null; l._distToPath = null; });
           }
-          listCountEl.textContent = `주차장 ${lots.length}곳`;
-          sortLabelEl.style.display = sorted ? '' : 'none';
+
+          // 헤더 표시
+          if (mode === 'route') {
+            listCountEl.textContent = `경로상 ${lots.length}곳 (1km 이내)`;
+            sortLabelEl.textContent = '출발지 가까운 순';
+            sortLabelEl.style.display = '';
+          } else if (mode === 'destination') {
+            listCountEl.textContent = `주차장 ${lots.length}곳`;
+            sortLabelEl.textContent = '도착지 가까운 순';
+            sortLabelEl.style.display = '';
+          } else {
+            listCountEl.textContent = `주차장 ${lots.length}곳`;
+            sortLabelEl.style.display = 'none';
+          }
+
           listEl.innerHTML = lots.length
             ? lots.map(l => buildListItem(l, districtName)).join('')
-            : '<div class="list-empty">표시할 주차장이 없어요.</div>';
+            : '<div class="list-empty">' + (mode === 'route' ? '경로 1km 내 주차장이 없어요.' : '표시할 주차장이 없어요.') + '</div>';
         }
 
         // ─── 자동완성 (카카오 Places) ───
@@ -982,7 +1039,7 @@
 
         function setOrigin(p) {
           if (state.origin?.overlay) state.origin.overlay.setMap(null);
-          if (!p) { state.origin = null; updateNavButtons(); updateRoute(); return; }
+          if (!p) { state.origin = null; updateNavButtons(); updateRoute(); if (state.districtName) renderList(state.districtName); return; }
           const overlay = new kakao.maps.CustomOverlay({
             content: makeEndpointMarkerContent('origin', '출발 · ' + p.name),
             position: new kakao.maps.LatLng(p.lat, p.lng),
@@ -994,6 +1051,7 @@
           document.getElementById('originRow').classList.add('has-value');
           updateNavButtons();
           updateRoute();
+          if (state.districtName) renderList(state.districtName);
         }
 
         function setDestination(p) {
