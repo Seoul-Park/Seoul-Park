@@ -604,6 +604,34 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "면목유수지 공영주차장(시)",
+      "address": "중랑구 면목동 168-2",
+      "lat": 37.579494,
+      "lng": 127.081451,
+      "code": "1913415",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 567,
+      "grade": "-",
+      "hourly": "5분당 100원 (1시간 1,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 24시간",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

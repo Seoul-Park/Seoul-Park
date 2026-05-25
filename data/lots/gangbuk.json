@@ -1,0 +1,37 @@
+{
+  "district": "강북구",
+  "districtCode": "gangbuk",
+  "operator": null,
+  "source": "서울 GetParkInfo (신규)",
+  "updatedAt": "2026-05-25",
+  "lots": [
+    {
+      "name": "도봉로 15길 공영주차장(시)",
+      "address": "강북구 미아동 458-7",
+      "lat": 37.61668076,
+      "lng": 127.02868891,
+      "code": "1576514",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 200원 (1시간 2,400원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "90,000원"
+      },
+      "hours": "평일 09:00~18:00 / 주말 00:00~00:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
+  ]
+}

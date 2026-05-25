@@ -388,6 +388,59 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "동작대교(위) 공영주차장(시)",
+      "address": "동작구 동작동 316-3",
+      "lat": 37.50548711,
+      "lng": 126.98006107,
+      "code": "1477337",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 450원 (1시간 5,400원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 13:00~22:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "보라매상업 공영주차장(시)",
+      "address": "동작구 신대방동 431-3",
+      "lat": 37.49039184,
+      "lng": 126.92340595,
+      "code": "1583862",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 61,
+      "grade": "-",
+      "hourly": "5분당 220원 (1시간 2,640원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "162,000원"
+      },
+      "hours": "평일 09:00~21:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

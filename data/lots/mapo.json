@@ -4,5 +4,109 @@
   "operator": "마포구 (표준데이터)",
   "source": "공공데이터포털 전국주차장정보표준데이터",
   "updatedAt": "2026-05-25",
-  "lots": []
+  "lots": [
+    {
+      "name": "난지중앙로노상공영주차장(시)",
+      "address": "마포구 상암동 481-94",
+      "lat": 37.568052,
+      "lng": 126.879504,
+      "code": "2983079",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~22:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "난지중앙로노상공영주차장(시)",
+      "address": "마포구 상암동 481-94",
+      "lat": 37.5688532,
+      "lng": 126.8802191,
+      "code": "2983079",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~22:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "난지중앙로노상공영주차장(시)",
+      "address": "마포구 상암동 481-94",
+      "lat": 37.569808,
+      "lng": 126.8810069,
+      "code": "2983079",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~22:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "난지중앙로노상공영주차장(시)",
+      "address": "마포구 상암동 481-94",
+      "lat": 37.572143,
+      "lng": 126.883038,
+      "code": "2983079",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~22:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
+  ]
 }

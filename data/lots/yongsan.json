@@ -532,6 +532,109 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "동작대교 공영주차장(시)",
+      "address": "용산구 용산동6가 69-11",
+      "lat": 37.518577,
+      "lng": 126.983287,
+      "code": "1366527",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 88,
+      "grade": "-",
+      "hourly": "5분당 120원 (1시간 1,440원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "80,000원"
+      },
+      "hours": "평일 08:00~22:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "장충단로(한남광장) 관광버스전용 주차장(시)",
+      "address": "용산구 한남동 9-19",
+      "lat": 37.547311,
+      "lng": 127.00258284,
+      "code": "1549662",
+      "operationType": "버스전용 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "무료",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 00:00~00:00",
+      "tel": "02-2290-6449",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "삼각지고가밑 공영주차장(시)",
+      "address": "용산구 문배동 12-1",
+      "lat": 37.53709356,
+      "lng": 126.9693986,
+      "code": "1594991",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 250원 (1시간 3,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~19:00 / 주말 09:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "용산주차빌딩 공영주차장(시)",
+      "address": "용산구 한강로2가 12-9",
+      "lat": 37.53436379,
+      "lng": 126.96541818,
+      "code": "172065",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 559,
+      "grade": "-",
+      "hourly": "5분당 270원 (1시간 3,240원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "198,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-2290-6014",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

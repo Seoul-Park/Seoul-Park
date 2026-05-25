@@ -580,6 +580,59 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "석계역 공영주차장(시)",
+      "address": "노원구 월계동 50-9",
+      "lat": 37.615292,
+      "lng": 127.062997,
+      "code": "1366903",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 70,
+      "grade": "-",
+      "hourly": "5분당 280원 (1시간 3,360원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "당고개위 공영주차장(시)",
+      "address": "노원구 상계동 111-568",
+      "lat": 37.67043597,
+      "lng": 127.08049106,
+      "code": "1453742",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 400원 (1시간 4,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~22:00",
+      "tel": "02-1688-1054",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

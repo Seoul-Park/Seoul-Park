@@ -244,6 +244,34 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "중곡1동 공영주차장(시)",
+      "address": "광진구 중곡동 230-12",
+      "lat": 37.5645259,
+      "lng": 127.0807859,
+      "code": "3246959",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 130,
+      "grade": "-",
+      "hourly": "5분당 200원 (1시간 2,400원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "144,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-3405-4530",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

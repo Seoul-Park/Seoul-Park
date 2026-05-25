@@ -34,6 +34,11 @@ jobs:
       - name: Sync 표준데이터 (22개 구 공영주차장)
         run: python scripts/scrape_standard.py all
 
+      - name: Sync GetParkInfo (서울 통합 공영 신규)
+        env:
+          SEOUL_OPEN_API_KEY: ${{ secrets.SEOUL_OPEN_API_KEY }}
+        run: python scripts/scrape_parkinfo.py
+
       - name: Sync 거주자우선주차 (구로구)
         run: python scripts/scrape_residential.py guro
 

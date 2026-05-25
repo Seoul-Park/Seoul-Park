@@ -1372,6 +1372,59 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "신월4동 공영주차장(시)",
+      "address": "양천구 신월동 411-1",
+      "lat": 37.525643,
+      "lng": 126.837692,
+      "code": "1588341",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 46,
+      "grade": "-",
+      "hourly": "5분당 120원 (1시간 1,440원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "80,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-2290-6311",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "웃우물 공영주차장(시)",
+      "address": "양천구 신정동 943-25",
+      "lat": 37.52379759,
+      "lng": 126.85141746,
+      "code": "172935",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 79,
+      "grade": "-",
+      "hourly": "5분당 200원 (1시간 2,400원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "144,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-2290-6311",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

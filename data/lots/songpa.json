@@ -508,6 +508,109 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "잠실역 공영주차장(시)",
+      "address": "송파구 신천동 27-0",
+      "lat": 37.51427683,
+      "lng": 127.10341414,
+      "code": "1277145",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 357,
+      "grade": "-",
+      "hourly": "5분당 440원 (1시간 5,280원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "275,000원"
+      },
+      "hours": "평일 05:00~01:00",
+      "tel": "02-2290-6402",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "성내역(잠실나루역) 공영주차장(시)",
+      "address": "송파구 신천동 11-1",
+      "lat": 37.51759041,
+      "lng": 127.10502756,
+      "code": "1475224",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 270원 (1시간 3,240원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~18:00 / 주말 09:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "신천유수지 공영주차장(시)",
+      "address": "송파구 신천동 14-0",
+      "lat": 37.52231457,
+      "lng": 127.10290327,
+      "code": "173646",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 192,
+      "grade": "-",
+      "hourly": "5분당 440원 (1시간 5,280원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-414-6417",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "복정역 공영주차장(시)",
+      "address": "송파구 장지동 600-2",
+      "lat": 37.47005293,
+      "lng": 127.1277329,
+      "code": "173752",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 362,
+      "grade": "-",
+      "hourly": "5분당 280원 (1시간 3,360원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "109,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-3405-4075",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

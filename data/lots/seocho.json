@@ -820,6 +820,84 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "사당노외 공영주차장(시)",
+      "address": "서초구 방배동 507-1",
+      "lat": 37.47543791,
+      "lng": 126.98377372,
+      "code": "173452",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 183,
+      "grade": "-",
+      "hourly": "5분당 400원 (1시간 4,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "218,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-3405-4078",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "양재역 공영주차장(시)",
+      "address": "서초구 양재동 23-0",
+      "lat": 37.483518,
+      "lng": 127.034357,
+      "code": "2877728",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 885,
+      "grade": "-",
+      "hourly": "5분당 400원 (1시간 4,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "250,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-3405-4231",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "반포천 공영주차장(파미에)(시)",
+      "address": "서초구 반포동 118-3",
+      "lat": 37.504517,
+      "lng": 127.007933,
+      "code": "3187200",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 1186,
+      "grade": "-",
+      "hourly": "5분당 550원 (1시간 6,600원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-6282-0550",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

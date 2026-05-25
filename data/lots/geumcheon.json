@@ -460,6 +460,84 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "독산동 금천교 공영주차장(시)",
+      "address": "금천구 독산동 1081-4",
+      "lat": 37.46654105,
+      "lng": 126.89000673,
+      "code": "1167546",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 400원 (1시간 4,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "160,000원"
+      },
+      "hours": "평일 09:00~19:00 / 주말 09:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "가산동 금천교 공영주차장(시)",
+      "address": "금천구 가산동 691-3",
+      "lat": 37.46593739,
+      "lng": 126.8872329,
+      "code": "1367773",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 200원 (1시간 2,400원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "140,000원"
+      },
+      "hours": "평일 09:00~19:00 / 주말 09:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "남부여성발전센터 공영주차장(시)",
+      "address": "금천구 시흥동 139-2",
+      "lat": 37.462917,
+      "lng": 126.905718,
+      "code": "1575315",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 128,
+      "grade": "-",
+      "hourly": "5분당 120원 (1시간 1,440원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "80,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-1588-1054",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

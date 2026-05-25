@@ -484,6 +484,84 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "명일파출소 공영주차장(시)",
+      "address": "강동구 명일동 47-9",
+      "lat": 37.55361065,
+      "lng": 127.15591212,
+      "code": "1277163",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 12,
+      "grade": "-",
+      "hourly": "5분당 220원 (1시간 2,640원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "162,000원"
+      },
+      "hours": "평일 09:00~20:00 / 주말 09:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "볕우물 공영주차장(시)",
+      "address": "강동구 암사동 473-3",
+      "lat": 37.55237413,
+      "lng": 127.13512275,
+      "code": "173840",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 96,
+      "grade": "-",
+      "hourly": "5분당 120원 (1시간 1,440원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "80,000원"
+      },
+      "hours": "평일 00:00~00:00",
+      "tel": "02-2290-6410",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "천호역 공영주차장(시)",
+      "address": "강동구 천호동 455-0",
+      "lat": 37.53849749,
+      "lng": 127.12512853,
+      "code": "173867",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 1431,
+      "grade": "-",
+      "hourly": "5분당 360원 (1시간 4,320원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "168,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-2290-6201",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }
