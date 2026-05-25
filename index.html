@@ -648,7 +648,7 @@
           </div>
           <button class="nav-btn route-btn" id="routeSearchBtn" type="button">최적 경로 검색</button>
           <div class="nav-buttons">
-            <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>
+            <button class="nav-btn kakao" id="kakaoNavBtn" type="button">
               <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true">
                 <defs>
                   <linearGradient id="kakaoHexNav" x1="0.5" y1="0" x2="0.5" y2="1">
@@ -662,7 +662,7 @@
               </svg>
               카카오내비
             </button>
-            <button class="nav-btn tmap" id="tmapNavBtn" type="button" disabled>
+            <button class="nav-btn tmap" id="tmapNavBtn" type="button">
               <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true">
                 <defs>
                   <linearGradient id="tmapTopBar" x1="0" y1="0" x2="1" y2="0.2">
@@ -1758,9 +1758,25 @@
 
         // ─── 내비 ───
         function updateNavButtons() {
-          const has = !!state.destination;  // 출발지는 선택, 도착지만 필수
-          document.getElementById('kakaoNavBtn').disabled = !has;
-          document.getElementById('tmapNavBtn').disabled = !has;
+          // 버튼은 항상 활성화. 클릭 시 도착지 없으면 안내 (openKakaoNav/openTmap 내부 처리)
+          const has = !!state.destination;
+          document.getElementById('kakaoNavBtn').style.opacity = has ? '1' : '0.7';
+          document.getElementById('tmapNavBtn').style.opacity = has ? '1' : '0.7';
+        }
+        function ensureDestinationOrPrompt() {
+          if (state.destination) return true;
+          const destInput = document.getElementById('destInput');
+          if (destInput) {
+            destInput.focus();
+            destInput.placeholder = '여기에 도착지를 입력해주세요 ↓';
+            destInput.style.background = '#FEF3C7';
+            setTimeout(() => {
+              destInput.placeholder = '도착지를 입력하세요';
+              destInput.style.background = '';
+            }, 2500);
+          }
+          alert('먼저 도착지를 입력해주세요.\n(또는 지도/리스트에서 주차장을 클릭하세요)');
+          return false;
         }
 
         function getValidWaypoints() {
@@ -1819,7 +1835,7 @@
           const dest = destOverride || state.destination;
           const org = state.origin;
           const wps = destOverride ? [] : getValidWaypoints();
-          if (!dest) return;
+          if (!dest) { ensureDestinationOrPrompt(); return; }
           if (isMobile()) {
             if (wps.length > 0 && org) {
               // 경유지 있을 때는 카카오맵 route scheme (vp 파라미터 지원)
@@ -1850,7 +1866,7 @@
           const dest = destOverride || state.destination;
           const org = state.origin;
           const wps = destOverride ? [] : getValidWaypoints();
-          if (!dest) return;
+          if (!dest) { ensureDestinationOrPrompt(); return; }
           if (isMobile()) {
             let url = `tmap://route?goalname=${encodeURIComponent(dest.name)}&goalx=${dest.lng}&goaly=${dest.lat}`;
             if (org) url += `&startname=${encodeURIComponent(org.name)}&startx=${org.lng}&starty=${org.lat}`;
@@ -1864,8 +1880,8 @@
           }
         }
 
-        document.getElementById('kakaoNavBtn').addEventListener('click', openKakaoNav);
-        document.getElementById('tmapNavBtn').addEventListener('click', openTmap);
+        document.getElementById('kakaoNavBtn').addEventListener('click', () => openKakaoNav());
+        document.getElementById('tmapNavBtn').addEventListener('click', () => openTmap());
         function findPlace(query) {
           // 키워드 검색 → 실패 시 주소 검색
           return new Promise((resolve) => {
