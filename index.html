@@ -971,6 +971,25 @@
           const lot = state.lotById.get(item.dataset.lotId);
           if (lot) focusLot(lot);
         });
+        // 좌측 리스트 호버 = 지도 이동 + 적당히 확대 (디바운스 200ms)
+        let hoverTimer = null;
+        listEl.addEventListener('mouseover', (e) => {
+          const item = e.target.closest('.list-item');
+          if (!item) return;
+          if (hoverTimer) clearTimeout(hoverTimer);
+          hoverTimer = setTimeout(() => {
+            const lot = state.lotById.get(item.dataset.lotId);
+            if (!lot || !lot._coords) return;
+            map.panTo(lot._coords);
+            if (map.getLevel() > 4) map.setLevel(4, { anchor: lot._coords });
+          }, 200);
+        });
+        listEl.addEventListener('mouseout', (e) => {
+          // 다른 항목으로 빠르게 옮길 때 타이머 취소
+          if (e.target.closest('.list-item') && !e.relatedTarget?.closest('.list-item')) {
+            if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+          }
+        });
 
         // ─── 거리 / 정렬 / 리스트 ───
         function renderList(districtName) {
