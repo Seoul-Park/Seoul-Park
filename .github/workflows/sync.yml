@@ -39,8 +39,11 @@ jobs:
           SEOUL_OPEN_API_KEY: ${{ secrets.SEOUL_OPEN_API_KEY }}
         run: python scripts/scrape_parkinfo.py
 
-      - name: Sync 거주자우선주차 (구로구)
-        run: python scripts/scrape_residential.py guro
+      - name: Sync 성동구도시관리공단 공영주차장
+        run: python scripts/scrape_seongdong.py
+
+      - name: Sync 거주자우선주차 (16개 구)
+        run: python scripts/scrape_residential.py all
 
       - name: Commit changes (if any)
         run: |
