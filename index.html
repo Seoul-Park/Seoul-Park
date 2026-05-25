@@ -419,6 +419,49 @@
     .card-actions .card-roadview { background: #4B5563; color: white; }
     .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr; }
 
+    /* Location consent modal */
+    .loc-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(17, 24, 39, 0.55); z-index: 10000;
+      align-items: center; justify-content: center;
+    }
+    .loc-modal.show { display: flex; }
+    .loc-card {
+      width: min(380px, 92vw);
+      background: white; border-radius: 16px;
+      padding: 24px 22px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .loc-card .icon {
+      width: 44px; height: 44px;
+      background: var(--brand-soft); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .loc-card .icon svg { width: 22px; height: 22px; fill: var(--brand); }
+    .loc-card .title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .loc-card .msg { font-size: 13px; color: var(--text-muted); margin-top: 8px; line-height: 1.55; }
+    .loc-card .msg b { color: var(--text); font-weight: 600; }
+    .loc-buttons {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-top: 18px;
+    }
+    .loc-buttons button {
+      padding: 12px 0; border: 0; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: inherit;
+    }
+    .loc-allow { background: var(--brand); color: white; }
+    .loc-allow:hover { background: var(--brand-dark); }
+    .loc-deny { background: var(--bg-subtle); color: var(--text-muted); }
+    .loc-deny:hover { background: var(--border); }
+
+    .user-loc-pulse {
+      width: 16px; height: 16px;
+      background: #3182F6; border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.5), 0 2px 6px rgba(0,0,0,0.3);
+    }
+
     /* Roadview modal */
     .rv-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; }
     .rv-modal.show { display: block; }
@@ -505,6 +548,21 @@
 
       <div id="map">
         <div id="status">데이터를 불러오는 중…</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="locModal" class="loc-modal" role="dialog" aria-modal="true">
+    <div class="loc-card">
+      <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7 11.5 7.3 11.7a1 1 0 0 0 1.4 0C13 21.5 20 15.4 20 10a8 8 0 0 0-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg></div>
+      <div class="title">현재 위치 사용</div>
+      <div class="msg">
+        가까운 주차장과 <b>최적 경로</b>를 보여드리려면 위치 정보가 필요합니다.<br>
+        <span style="font-size:11px">"사용 안 함"을 누르셔도 출발지를 직접 입력하면 경로를 그릴 수 있어요.</span>
+      </div>
+      <div class="loc-buttons">
+        <button id="locDeny" class="loc-deny" type="button">사용 안 함</button>
+        <button id="locAllow" class="loc-allow" type="button">사용</button>
       </div>
     </div>
   </div>
@@ -829,6 +887,54 @@
               state.clusterer.addMarkers(visMarkers);
             }
           }
+        }
+
+        // ─── 위치 권한 ───
+        let locationConsent = null;  // null=미결정, true=동의, false=비동의
+        let _locationPromise = null;
+        let _locationResolve = null;
+
+        function showLocationConsent() {
+          // 한 번만 결정. 이미 결정됐으면 그 값 반환.
+          if (locationConsent !== null) return Promise.resolve(locationConsent);
+          if (_locationPromise) return _locationPromise;
+          _locationPromise = new Promise((res) => { _locationResolve = res; });
+          document.getElementById('locModal').classList.add('show');
+          return _locationPromise;
+        }
+
+        document.getElementById('locAllow').addEventListener('click', () => {
+          locationConsent = true;
+          document.getElementById('locModal').classList.remove('show');
+          if (_locationResolve) { _locationResolve(true); _locationResolve = null; _locationPromise = null; }
+        });
+        document.getElementById('locDeny').addEventListener('click', () => {
+          locationConsent = false;
+          document.getElementById('locModal').classList.remove('show');
+          // 위치 관련 UI 비활성화
+          const btn = document.getElementById('useCurrentBtn');
+          if (btn) { btn.disabled = true; btn.title = '위치 사용에 동의하지 않음'; }
+          if (_locationResolve) { _locationResolve(false); _locationResolve = null; _locationPromise = null; }
+        });
+
+        // 모든 geolocation 호출의 게이트키퍼
+        async function tryGeolocation(onPos, onFail, opts) {
+          const ok = await showLocationConsent();
+          if (!ok || !navigator.geolocation) {
+            onFail && onFail({ code: 1, message: 'denied by user or unsupported' });
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(onPos, onFail || (() => {}), opts || { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+        }
+
+        function showUserLocationMarker(lat, lng) {
+          if (state.userLocOverlay) state.userLocOverlay.setMap(null);
+          state.userLocOverlay = new kakao.maps.CustomOverlay({
+            content: '<div class="user-loc-pulse"></div>',
+            position: new kakao.maps.LatLng(lat, lng),
+            yAnchor: 0.5, xAnchor: 0.5, zIndex: 65,
+          });
+          state.userLocOverlay.setMap(map);
         }
 
         // ─── 거리뷰 모달 ───
@@ -1383,15 +1489,16 @@
           if (!navigator.geolocation) { alert('이 브라우저는 위치 기능을 지원하지 않습니다.'); return; }
           const btn = document.getElementById('useCurrentBtn');
           btn.textContent = '확인 중…'; btn.disabled = true;
-          navigator.geolocation.getCurrentPosition(
+          tryGeolocation(
             (pos) => {
-              btn.textContent = '현재 위치'; btn.disabled = false;
+              btn.textContent = '현재 위치'; btn.disabled = (locationConsent === false);
               const lat = pos.coords.latitude, lng = pos.coords.longitude;
+              showUserLocationMarker(lat, lng);
               reverseGeocode(lat, lng, (name) => setOrigin({ name, lat, lng }));
             },
             (err) => {
-              btn.textContent = '현재 위치'; btn.disabled = false;
-              alert('위치를 가져올 수 없습니다: ' + err.message);
+              btn.textContent = '현재 위치'; btn.disabled = (locationConsent === false);
+              if (locationConsent !== false) alert('위치를 가져올 수 없습니다: ' + (err.message || ''));
             },
             { enableHighAccuracy: true, timeout: 10000 }
           );
@@ -1420,27 +1527,31 @@
 
         function setDestAndAutoOrigin(p) {
           setDestination(p);
-          // 경로검색을 누를 때마다 항상 현재 위치를 출발지로 새로 설정
+          // 경로검색을 누를 때마다 위치 동의 받아 출발지를 현재 위치로 설정
           if (!navigator.geolocation) {
             if (!state.origin) focusOriginPrompt('이 브라우저는 위치 기능을 지원하지 않습니다. 출발지를 직접 입력해 주세요.');
             return;
           }
-          statusEl.textContent = '현재 위치를 가져오는 중…';
-          statusEl.style.display = '';
-          navigator.geolocation.getCurrentPosition(
+          if (!state.origin && locationConsent !== false) {
+            statusEl.textContent = '현재 위치를 가져오는 중…';
+            statusEl.style.display = '';
+          }
+          tryGeolocation(
             (pos) => {
               statusEl.style.display = 'none';
               if (state.destination && state.destination.lat === p.lat && state.destination.lng === p.lng) {
                 const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                showUserLocationMarker(lat, lng);
                 reverseGeocode(lat, lng, (name) => setOrigin({ name, lat, lng }));
               }
             },
             (err) => {
-              // 위치 못 받았을 때 — 기존 출발지가 있으면 그대로 유지(경로 그려짐), 없으면 안내
               if (!state.origin) {
-                focusOriginPrompt(err.code === 1
-                  ? '위치 권한이 차단되어 출발지를 자동으로 잡지 못합니다. 직접 입력하시거나, 주소창 왼쪽 자물쇠 아이콘 → 위치 → 허용으로 바꿔주세요.'
-                  : '위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.');
+                focusOriginPrompt(locationConsent === false
+                  ? '위치 사용에 동의하지 않으셨습니다. 출발지를 직접 입력해 주세요.'
+                  : (err.code === 1
+                      ? '위치 권한이 차단되어 출발지를 자동으로 잡지 못합니다. 직접 입력하시거나, 주소창 왼쪽 자물쇠 아이콘 → 위치 → 허용으로 바꿔주세요.'
+                      : '위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.'));
               } else {
                 statusEl.style.display = 'none';
               }
@@ -1704,19 +1815,19 @@
 
         loadDistrict(initialCode);
 
-        // URL hash가 없으면 권한 받아 현재 위치의 구로 자동 전환
-        if (!hashCode && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            new kakao.maps.services.Geocoder().coord2Address(pos.coords.longitude, pos.coords.latitude, (result, status) => {
+        // 페이지 로드 직후 권한 동의 모달 → 동의 시 현재 위치 마커 + (hash 없으면) 자동 구 전환
+        tryGeolocation((pos) => {
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          showUserLocationMarker(lat, lng);
+          if (!hashCode) {
+            new kakao.maps.services.Geocoder().coord2Address(lng, lat, (result, status) => {
               if (status !== kakao.maps.services.Status.OK || !result?.[0]) return;
               const guName = result[0].address?.region_2depth_name;
               const found = districts.find(d => d.name === guName);
-              if (found && found.code !== state.districtCode) {
-                loadDistrict(found.code);
-              }
+              if (found && found.code !== state.districtCode) loadDistrict(found.code);
             });
-          }, () => {}, { timeout: 10000, maximumAge: 300000 });
-        }
+          }
+        }, () => {}, { timeout: 10000, maximumAge: 300000 });
       });
     })();
   </script>
