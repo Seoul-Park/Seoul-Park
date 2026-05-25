@@ -1,7 +1,6 @@
 {
   "updatedAt": "2026-05-25",
   "districts": [
-    { "code": "_all",        "name": "서울 전체", "operator": null, "active": true,  "aggregate": true },
     { "code": "gangnam",     "name": "강남구",   "operator": "강남구 (표준데이터)",   "active": true },
     { "code": "gangdong",    "name": "강동구",   "operator": "강동구 (표준데이터)",   "active": true },
     { "code": "gangbuk",     "name": "강북구",   "operator": "서울 GetParkInfo", "active": true },

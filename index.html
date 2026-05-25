@@ -414,6 +414,9 @@
     .card-actions .set-dest:hover { background: var(--brand-dark); }
     .card-actions .kakao { background: #FEE500; color: #191919; }
     .card-actions .tmap { background: #EB1F4F; color: white; }
+    .card-actions .card-kakao-nav { background: #FEE500; color: #191919; }
+    .card-actions .card-tmap-nav { background: #EB1F4F; color: white; }
+    .card-actions + .card-actions { margin-top: 6px; grid-template-columns: 1fr; }
 
     @media (max-width: 768px) {
       .main { flex-direction: column-reverse; }
@@ -595,8 +598,10 @@
             </dl>
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
-              ${mapLinkHtml}
+              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}">카카오내비</button>
+              <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}">티맵</button>
             </div>
+            ${mapLinkHtml ? `<div class="card-actions">${mapLinkHtml}</div>` : ''}
           </div>
         </div>
       `;
@@ -674,9 +679,10 @@
         return `<option value="${d.code}" ${d.active ? '' : 'disabled'}>${label}</option>`;
       }).join('');
 
-      const initialCode = (location.hash.replace('#', '') && districtByCode.get(location.hash.replace('#', '')))
-        ? location.hash.replace('#', '')
-        : (districts.find(d => d.active)?.code || 'guro');
+      const hashCode = location.hash.replace('#', '');
+      const initialCode = (hashCode && districtByCode.get(hashCode))
+        ? hashCode
+        : 'guro';  // 첫 로드 fallback (geolocation 결과 오면 자동 전환)
 
       kakao.maps.load(() => {
         const map = new kakao.maps.Map(mapContainer, {
@@ -941,6 +947,16 @@
               if (lot) setDestAndAutoOrigin({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
               overlay.setMap(null);
               if (state.openCardOverlay === overlay) state.openCardOverlay = null;
+            });
+            root.querySelector('.card-kakao-nav')?.addEventListener('click', (e) => {
+              const id = e.currentTarget.dataset.lotId;
+              const lot = state.lotById.get(id);
+              if (lot) openKakaoNav({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
+            });
+            root.querySelector('.card-tmap-nav')?.addEventListener('click', (e) => {
+              const id = e.currentTarget.dataset.lotId;
+              const lot = state.lotById.get(id);
+              if (lot) openTmap({ name: cleanLotName(lot.name), lat: lot.lat, lng: lot.lng });
             });
           }, 0);
         }
@@ -1271,10 +1287,10 @@
           );
         }
 
-        function openKakaoNav() {
-          const dest = state.destination;
+        function openKakaoNav(destOverride) {
+          const dest = destOverride || state.destination;
           const org = state.origin;
-          const wps = getValidWaypoints();
+          const wps = destOverride ? [] : getValidWaypoints();
           if (!dest) return;
           if (isMobile()) {
             if (wps.length > 0 && org) {
@@ -1302,10 +1318,10 @@
           }
         }
 
-        function openTmap() {
-          const dest = state.destination;
+        function openTmap(destOverride) {
+          const dest = destOverride || state.destination;
           const org = state.origin;
-          const wps = getValidWaypoints();
+          const wps = destOverride ? [] : getValidWaypoints();
           if (!dest) return;
           if (isMobile()) {
             let url = `tmap://route?goalname=${encodeURIComponent(dest.name)}&goalx=${dest.lng}&goaly=${dest.lat}`;
@@ -1521,6 +1537,20 @@
         });
 
         loadDistrict(initialCode);
+
+        // URL hash가 없으면 권한 받아 현재 위치의 구로 자동 전환
+        if (!hashCode && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            new kakao.maps.services.Geocoder().coord2Address(pos.coords.longitude, pos.coords.latitude, (result, status) => {
+              if (status !== kakao.maps.services.Status.OK || !result?.[0]) return;
+              const guName = result[0].address?.region_2depth_name;
+              const found = districts.find(d => d.name === guName);
+              if (found && found.code !== state.districtCode) {
+                loadDistrict(found.code);
+              }
+            });
+          }, () => {}, { timeout: 10000, maximumAge: 300000 });
+        }
       });
     })();
   </script>
