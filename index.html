@@ -1408,17 +1408,39 @@
           return state.waypoints.filter(w => w.lat != null && w.lng != null);
         }
 
+        function focusOriginPrompt(reason) {
+          // 출발지 input에 포커스 + 짧은 안내 (status 영역 활용)
+          const oi = document.getElementById('originInput');
+          oi.focus();
+          statusEl.textContent = reason;
+          statusEl.style.display = '';
+          clearTimeout(focusOriginPrompt._t);
+          focusOriginPrompt._t = setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+        }
+
         function setDestAndAutoOrigin(p) {
           setDestination(p);
-          if (state.origin || !navigator.geolocation) return;
+          if (state.origin) return;
+          if (!navigator.geolocation) {
+            focusOriginPrompt('출발지를 직접 입력해 주세요. 경로가 자동으로 그려집니다.');
+            return;
+          }
+          // 임시 안내 + 위치 시도
+          statusEl.textContent = '현재 위치를 가져오는 중…';
+          statusEl.style.display = '';
           navigator.geolocation.getCurrentPosition(
             (pos) => {
+              statusEl.style.display = 'none';
               if (state.destination && state.destination.lat === p.lat && state.destination.lng === p.lng) {
                 const lat = pos.coords.latitude, lng = pos.coords.longitude;
                 reverseGeocode(lat, lng, (name) => setOrigin({ name, lat, lng }));
               }
             },
-            () => {},
+            (err) => {
+              focusOriginPrompt(err.code === 1
+                ? '위치 권한이 차단되어 출발지를 자동으로 잡지 못합니다. 출발지를 직접 입력해 주세요.'
+                : '위치를 가져올 수 없어요. 출발지를 직접 입력해 주세요.');
+            },
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
           );
         }
