@@ -202,14 +202,14 @@
     }
     .nav-btn:active { transform: scale(0.98); }
     .nav-btn.kakao {
-      background: linear-gradient(180deg, #E5C9A0 0%, #C9A472 55%, #A8814D 100%);
-      color: #3C1E1E;
+      background: linear-gradient(135deg, #FFE600 0%, #7DC8E8 55%, #2D7DD2 100%);
+      color: white;
       display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      box-shadow: 0 2px 6px rgba(168, 129, 77, 0.45), inset 0 1px 0 rgba(255,255,255,0.55);
-      text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+      box-shadow: 0 2px 6px rgba(45, 125, 210, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     }
     .nav-btn.kakao:hover:not(:disabled) {
-      box-shadow: 0 3px 10px rgba(168, 129, 77, 0.6), inset 0 1px 0 rgba(255,255,255,0.6);
+      box-shadow: 0 3px 10px rgba(45, 125, 210, 0.55), inset 0 1px 0 rgba(255,255,255,0.35);
     }
     .nav-btn.tmap {
       background: linear-gradient(135deg, #FF6B9D 0%, #C56EFF 50%, #5B7FFF 100%);
@@ -516,11 +516,11 @@
     .card-actions .kakao { background: #FAE100; color: #3C1E1E; }
     .card-actions .tmap { background: #E60041; color: white; }
     .card-actions .card-kakao-nav {
-      background: linear-gradient(180deg, #E5C9A0 0%, #C9A472 55%, #A8814D 100%);
-      color: #3C1E1E;
+      background: linear-gradient(135deg, #FFE600 0%, #7DC8E8 55%, #2D7DD2 100%);
+      color: white;
       display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-      box-shadow: 0 2px 5px rgba(168, 129, 77, 0.4), inset 0 1px 0 rgba(255,255,255,0.55);
-      text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+      box-shadow: 0 2px 5px rgba(45, 125, 210, 0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     .card-actions .card-tmap-nav {
       background: linear-gradient(135deg, #FF6B9D 0%, #C56EFF 50%, #5B7FFF 100%);
@@ -2138,7 +2138,7 @@
 
             // 칩은 공영(public)이면서 데이터가 적을 때만
             marker._lotId = lot._id;
-            if (!isResi && showChips) {
+            if (catGroup === 'public' && showChips) {
               const chipOverlay = new kakao.maps.CustomOverlay({
                 content: buildChip(lot), position: lot._coords,
                 yAnchor: 2.6, zIndex: 3
