@@ -755,7 +755,31 @@
     </div>
   </div>
 
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e872457ee4739baa130378d4b3042ea&libraries=services,clusterer&autoload=false"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=3e872457ee4739baa130378d4b3042ea&libraries=services,clusterer&autoload=false"
+          onerror="document.getElementById('status').textContent='⚠️ 카카오 지도 SDK 로드 실패 (도메인 등록을 확인해주세요)';"></script>
+  <script>
+    // 글로벌 에러 핸들러 — 어떤 unhandled 에러도 화면에 표시
+    window.addEventListener('error', (e) => {
+      const s = document.getElementById('status');
+      if (s) {
+        s.textContent = '⚠️ ' + (e.message || e.error?.message || 'JS 에러');
+        s.style.display = '';
+        s.style.background = '#FEE2E2';
+        s.style.color = '#991B1B';
+      }
+      console.error('[seoul-park]', e.message, e.error);
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      const s = document.getElementById('status');
+      if (s) {
+        s.textContent = '⚠️ ' + (e.reason?.message || String(e.reason));
+        s.style.display = '';
+        s.style.background = '#FEE2E2';
+        s.style.color = '#991B1B';
+      }
+      console.error('[seoul-park] Promise rejection:', e.reason);
+    });
+  </script>
   <script>
     // ───────────── 유틸 ─────────────
     function escapeHtml(str) {
@@ -1973,7 +1997,7 @@
             } else {
               const fetches = [];
               if (wantPublic) {
-                fetches.push(fetch(`./data/lots/${code}.json?_=${t}`));
+                fetches.push(fetch(`./data/lots/${code}.json?_=${t}`).catch(() => null));
                 fetches.push(fetch(`./data/realtime.json?_=${t}`).catch(() => null));
               }
               if (wantResidential) {
@@ -1987,8 +2011,9 @@
               let idx = 0;
               if (wantPublic) {
                 const pRes = results[idx++];
-                if (!pRes.ok) throw new Error('public HTTP ' + pRes.status);
-                publicData = await pRes.json();
+                if (pRes && pRes.ok) {
+                  try { publicData = await pRes.json(); } catch {}
+                }
                 const rRes = results[idx++];
                 if (rRes && rRes.ok) { try { realtime = await rRes.json(); } catch {} }
               }
