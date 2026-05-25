@@ -202,14 +202,14 @@
     }
     .nav-btn:active { transform: scale(0.98); }
     .nav-btn.kakao {
-      background: linear-gradient(180deg, #4A2A2A 0%, #3C1E1E 55%, #2A1313 100%);
-      color: #FAE100;
+      background: linear-gradient(180deg, #E5C9A0 0%, #C9A472 55%, #A8814D 100%);
+      color: #3C1E1E;
       display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      box-shadow: 0 2px 6px rgba(60, 30, 30, 0.45), inset 0 1px 0 rgba(255,255,255,0.12);
-      text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 6px rgba(168, 129, 77, 0.45), inset 0 1px 0 rgba(255,255,255,0.55);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.25);
     }
     .nav-btn.kakao:hover:not(:disabled) {
-      box-shadow: 0 3px 10px rgba(60, 30, 30, 0.6), inset 0 1px 0 rgba(255,255,255,0.18);
+      box-shadow: 0 3px 10px rgba(168, 129, 77, 0.6), inset 0 1px 0 rgba(255,255,255,0.6);
     }
     .nav-btn.tmap {
       background: linear-gradient(135deg, #FF6B9D 0%, #C56EFF 50%, #5B7FFF 100%);
@@ -516,11 +516,11 @@
     .card-actions .kakao { background: #FAE100; color: #3C1E1E; }
     .card-actions .tmap { background: #E60041; color: white; }
     .card-actions .card-kakao-nav {
-      background: linear-gradient(180deg, #4A2A2A 0%, #3C1E1E 55%, #2A1313 100%);
-      color: #FAE100;
+      background: linear-gradient(180deg, #E5C9A0 0%, #C9A472 55%, #A8814D 100%);
+      color: #3C1E1E;
       display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-      box-shadow: 0 2px 5px rgba(60, 30, 30, 0.4), inset 0 1px 0 rgba(255,255,255,0.12);
-      text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 5px rgba(168, 129, 77, 0.4), inset 0 1px 0 rgba(255,255,255,0.55);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.25);
     }
     .card-actions .card-tmap-nav {
       background: linear-gradient(135deg, #FF6B9D 0%, #C56EFF 50%, #5B7FFF 100%);
@@ -650,13 +650,15 @@
           <div class="nav-buttons">
             <button class="nav-btn kakao" id="kakaoNavBtn" type="button" disabled>
               <svg class="app-ico" viewBox="0 0 24 24" aria-hidden="true">
-                <rect width="24" height="24" rx="5" fill="#FFE600"/>
-                <g transform="rotate(45 12 12)">
-                  <path d="M12 4 L15 13 L12 11 Z" fill="#FFFFFF"/>
-                  <path d="M12 4 L9 13 L12 11 Z" fill="#C9A800"/>
-                  <path d="M12 20 L15 13 L12 11 Z" fill="#FFFFFF" opacity="0.85"/>
-                  <path d="M12 20 L9 13 L12 11 Z" fill="#E6C200"/>
-                </g>
+                <defs>
+                  <linearGradient id="kakaoHexNav" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0" stop-color="#2D7DD2"/>
+                    <stop offset="1" stop-color="#7DC8E8"/>
+                  </linearGradient>
+                </defs>
+                <rect width="24" height="24" rx="5.5" fill="#FFE600"/>
+                <path d="M12 3.5 L19.5 7.75 L19.5 16.25 L12 20.5 L4.5 16.25 L4.5 7.75 Z" fill="url(#kakaoHexNav)"/>
+                <path d="M9 17 L9 11 L14 11 L14 9 L17 12.5 L14 16 L14 14 L12 14 L12 17 Z" fill="white"/>
               </svg>
               카카오내비
             </button>
@@ -932,7 +934,7 @@
             </dl>
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
-              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#FFE600"/><g transform="rotate(45 12 12)"><path d="M12 4 L15 13 L12 11 Z" fill="#FFFFFF"/><path d="M12 4 L9 13 L12 11 Z" fill="#C9A800"/><path d="M12 20 L15 13 L12 11 Z" fill="#FFFFFF" opacity="0.85"/><path d="M12 20 L9 13 L12 11 Z" fill="#E6C200"/></g></svg>카카오내비</button>
+              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><defs><linearGradient id="kakaoHex-${escapeHtml(lot._id)}" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#2D7DD2"/><stop offset="1" stop-color="#7DC8E8"/></linearGradient></defs><rect width="24" height="24" rx="5.5" fill="#FFE600"/><path d="M12 3.5 L19.5 7.75 L19.5 16.25 L12 20.5 L4.5 16.25 L4.5 7.75 Z" fill="url(#kakaoHex-${escapeHtml(lot._id)})"/><path d="M9 17 L9 11 L14 11 L14 9 L17 12.5 L14 16 L14 14 L12 14 L12 17 Z" fill="white"/></svg>카카오내비</button>
               <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><defs><linearGradient id="tmapTopBar-${escapeHtml(lot._id)}" x1="0" y1="0" x2="1" y2="0.2"><stop offset="0" stop-color="#E83BFF"/><stop offset="0.55" stop-color="#7B7DFF"/><stop offset="1" stop-color="#3FE3D8"/></linearGradient><linearGradient id="tmapStem-${escapeHtml(lot._id)}" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#7B7DFF"/><stop offset="1" stop-color="#3D6BFF"/></linearGradient></defs><rect width="24" height="24" rx="5.5" fill="white"/><path d="M5 6 H17 Q19 6 19 8 Q19 11.5 16 11.5 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 V10 H5 Q4.5 10 4.5 9.5 V6.5 Q4.5 6 5 6 Z" fill="url(#tmapTopBar-${escapeHtml(lot._id)})"/><path d="M10.2 10 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 Z" fill="url(#tmapStem-${escapeHtml(lot._id)})"/></svg>티맵</button>
             </div>
             <div class="card-actions">
