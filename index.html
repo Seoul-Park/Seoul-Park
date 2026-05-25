@@ -1834,18 +1834,22 @@
 
         loadDistrict(initialCode);
 
-        // 페이지 로드 직후 권한 동의 모달 → 동의 시 현재 위치 마커 + (hash 없으면) 자동 구 전환
+        // 페이지 로드 직후 권한 동의 모달 → 동의 시:
+        // ① 지도에 현재 위치 마커  ② 자동 구 전환  ③ 출발지에 현재 위치 주소 입력
         tryGeolocation((pos) => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
           showUserLocationMarker(lat, lng);
-          if (!hashCode) {
-            new kakao.maps.services.Geocoder().coord2Address(lng, lat, (result, status) => {
-              if (status !== kakao.maps.services.Status.OK || !result?.[0]) return;
-              const guName = result[0].address?.region_2depth_name;
+          new kakao.maps.services.Geocoder().coord2Address(lng, lat, (result, status) => {
+            const r = (status === kakao.maps.services.Status.OK && result?.[0]) ? result[0] : null;
+            const name = r ? (r.road_address?.address_name || r.address?.address_name || '현재 위치') : '현재 위치';
+            setOrigin({ name, lat, lng });  // 출발지 자동 입력
+            // 자치구 자동 전환 (hash 없을 때만)
+            if (!hashCode && r) {
+              const guName = r.address?.region_2depth_name;
               const found = districts.find(d => d.name === guName);
               if (found && found.code !== state.districtCode) loadDistrict(found.code);
-            });
-          }
+            }
+          });
         }, () => {}, { timeout: 10000, maximumAge: 300000 });
       });
     })();
