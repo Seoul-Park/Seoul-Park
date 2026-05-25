@@ -772,6 +772,59 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "인왕시장앞(구)",
+      "address": "서대문구 홍제동 295-3",
+      "lat": 37.5915470994381,
+      "lng": 126.943964709969,
+      "code": "1570296",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 250원 (1시간 3,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 10:00~19:00 / 주말 10:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "신촌역 동측 공영주차장(구)",
+      "address": "서대문구 대현동 121-7",
+      "lat": 37.5593188231715,
+      "lng": 126.943076969306,
+      "code": "2923585",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 30,
+      "grade": "-",
+      "hourly": "5분당 350원 (1시간 4,200원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 24시간",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

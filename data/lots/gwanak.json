@@ -1355,6 +1355,56 @@
       "source": "seoul-getparkinfo",
       "pkltKind": "노외 주차장",
       "realtimeKey": null
+    },
+    {
+      "name": "조원동 제2공영주차장(구)",
+      "address": "관악구 신림동 1675-5 조원로 4~37구간",
+      "lat": 37.4839833114527,
+      "lng": 126.907844072457,
+      "code": "1486995",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 250원 (1시간 3,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 10:00~20:00",
+      "tel": "02-2081-2600",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "신림동 제3공영주차장(구)",
+      "address": "관악구 신림동 1439-3",
+      "lat": 37.4874151960692,
+      "lng": 126.927115457172,
+      "code": "3249009",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 250원 (1시간 3,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 10:00~20:00",
+      "tel": "02-2081-2600",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
     }
   ],
   "sources": [

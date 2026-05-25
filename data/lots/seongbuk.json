@@ -292,6 +292,59 @@
       "category": "normal",
       "source": "data.go.kr-15012896",
       "realtimeKey": null
+    },
+    {
+      "name": "국민대앞북악주차(구)",
+      "address": "성북구 정릉동 880-1",
+      "lat": 37.6083969283376,
+      "lng": 126.997963248345,
+      "code": "1671497",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "100,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "경동고 공영주차장(구)",
+      "address": "성북구 삼선동3가 43-1",
+      "lat": 37.5857462013108,
+      "lng": 127.014617732702,
+      "code": "3061330",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 123,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "90,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-6925-0023",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
+  ],
+  "sources": [
+    "서울 GetParkInfo"
   ]
 }

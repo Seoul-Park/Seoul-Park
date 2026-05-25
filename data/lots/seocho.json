@@ -895,6 +895,31 @@
       "source": "seoul-getparkinfo",
       "pkltKind": "노외 주차장",
       "realtimeKey": null
+    },
+    {
+      "name": "구룡공영주차빌딩(구)",
+      "address": "서초구 양재동 301-6",
+      "lat": 37.4741927428358,
+      "lng": 127.045941665498,
+      "code": "173590",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 107,
+      "grade": "-",
+      "hourly": "10분당 300원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "120,000원"
+      },
+      "hours": "평일 24시간",
+      "tel": "02-573-2224",
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
   ],
   "sources": [

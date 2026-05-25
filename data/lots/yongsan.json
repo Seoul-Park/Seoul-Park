@@ -632,6 +632,31 @@
       "source": "seoul-getparkinfo",
       "pkltKind": "노외 주차장",
       "realtimeKey": null
+    },
+    {
+      "name": "용산구 이태원동 258-29(구)",
+      "address": "용산구 이태원동 258-29",
+      "lat": 37.5419074204268,
+      "lng": 126.995489273216,
+      "code": "3210859",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 30,
+      "grade": "-",
+      "hourly": "5분당 150원 (1시간 1,800원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~24:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
   ],
   "sources": [

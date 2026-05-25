@@ -559,6 +559,81 @@
       "source": "seoul-getparkinfo",
       "pkltKind": "노외 주차장",
       "realtimeKey": null
+    },
+    {
+      "name": "주양쇼핑앞 노상주차장(구)",
+      "address": "강동구 명일동 51-1",
+      "lat": 37.5517606054612,
+      "lng": 127.154475334581,
+      "code": "1522168",
+      "operationType": "시간제 + 거주자 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 250원 (1시간 3,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~18:00 / 주말 00:00~00:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "거주자우선주차장(구)",
+      "address": "강동구 성내동 540-0",
+      "lat": 37.5300981049478,
+      "lng": 127.123686336418,
+      "code": "1567464",
+      "operationType": "시간제 + 거주자 주차장",
+      "applyMethod": "노상 주차장",
+      "spaces": 1,
+      "grade": "-",
+      "hourly": "5분당 250원 (1시간 3,000원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "100,000원"
+      },
+      "hours": "평일 09:00~19:00 / 주말 09:00~15:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노상 주차장",
+      "realtimeKey": null
+    },
+    {
+      "name": "서울암사동유적 주차장(구)",
+      "address": "강동구 암사동 139-2",
+      "lat": 37.561270236355,
+      "lng": 127.130862435978,
+      "code": "3246676",
+      "operationType": "시간제 주차장",
+      "applyMethod": "노외 주차장",
+      "spaces": 108,
+      "grade": "-",
+      "hourly": "540분당 1,000원 (1시간 111원)",
+      "hourlyAvailable": true,
+      "monthly": {
+        "day": "-",
+        "night": "-",
+        "all": "-"
+      },
+      "hours": "평일 09:00~18:00",
+      "tel": null,
+      "mapLink": null,
+      "category": "normal",
+      "source": "seoul-getparkinfo",
+      "pkltKind": "노외 주차장",
+      "realtimeKey": null
     }
   ],
   "sources": [

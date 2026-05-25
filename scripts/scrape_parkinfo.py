@@ -15,10 +15,14 @@ import math
 import os
 import re
 import sys
+import time
+import urllib.parse
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
+
+KAKAO_REST_KEY = os.environ.get("KAKAO_REST_KEY", "e369007f7234d41ce977746bcd1fb224")
 
 ROOT = Path(__file__).resolve().parents[1]
 LOTS_DIR = ROOT / "data" / "lots"
@@ -97,6 +101,41 @@ def fetch_all_park_info(api_key):
     return all_rows
 
 
+def _kakao_get(url, retries=4):
+    """카카오 API 호출 + 429/5xx 시 지수 백오프 재시도"""
+    delay = 1.0
+    for attempt in range(retries):
+        try:
+            res = requests.get(url, headers={"Authorization": f"KakaoAK {KAKAO_REST_KEY}"}, timeout=10)
+        except Exception:
+            time.sleep(delay); delay *= 2
+            continue
+        if res.status_code == 200:
+            return res
+        if res.status_code in (429, 500, 502, 503, 504):
+            time.sleep(delay); delay *= 2
+            continue
+        return None  # 401/403 등 영구 실패
+    return None
+
+
+def geocode_kakao(query):
+    """카카오 주소 검색 → 실패 시 키워드 검색 fallback. 좌표 (lat, lng) 또는 None."""
+    base = "https://dapi.kakao.com/v2/local/search"
+    q = urllib.parse.quote(query)
+    res = _kakao_get(f"{base}/address.json?query={q}")
+    if res is not None:
+        docs = res.json().get("documents", [])
+        if docs:
+            return float(docs[0]["y"]), float(docs[0]["x"])
+    res = _kakao_get(f"{base}/keyword.json?query={q}")
+    if res is not None:
+        docs = res.json().get("documents", [])
+        if docs:
+            return float(docs[0]["y"]), float(docs[0]["x"])
+    return None
+
+
 def to_lot(r, district_name_ko):
     try:
         lat = float(r.get("LAT") or 0)
@@ -149,27 +188,49 @@ def main():
     rows = fetch_all_park_info(api_key)
     print(f"  {len(rows)}곳 받음")
 
-    # 구별 분류 + lot 변환 + 좌표 유효성 필터
+    # 1차: 좌표 있는 것만 추출
     by_district: dict[str, list[dict]] = {}
-    skipped_no_coord = 0
+    no_coord_rows: list[tuple[str, dict]] = []  # (gu_ko, raw_row)
     skipped_other = 0
     for r in rows:
         addr = r.get("ADDR") or ""
         m = re.search(r"(\S+구)", addr)
-        if not m:
+        if not m or m.group(1) not in DISTRICT_KO_TO_CODE:
             skipped_other += 1
             continue
         gu_ko = m.group(1)
-        if gu_ko not in DISTRICT_KO_TO_CODE:
-            skipped_other += 1
-            continue
         lot = to_lot(r, gu_ko)
-        if not lot:
-            skipped_no_coord += 1
-            continue
-        by_district.setdefault(DISTRICT_KO_TO_CODE[gu_ko], []).append(lot)
-    print(f"  좌표 누락 제외: {skipped_no_coord}곳 / 기타 제외: {skipped_other}곳")
-    print(f"  유효 매칭: {sum(len(v) for v in by_district.values())}곳, 구 수: {len(by_district)}")
+        if lot:
+            by_district.setdefault(DISTRICT_KO_TO_CODE[gu_ko], []).append(lot)
+        else:
+            no_coord_rows.append((gu_ko, r))
+    print(f"  좌표 있음: {sum(len(v) for v in by_district.values())}곳, 좌표 누락: {len(no_coord_rows)}곳, 기타 제외: {skipped_other}곳")
+
+    # 2차: 좌표 누락 → 카카오 지오코딩으로 보강
+    if no_coord_rows:
+        print(f"  좌표 누락 {len(no_coord_rows)}곳 카카오 지오코딩 시도…")
+        geo_ok = 0; geo_fail = 0
+        for i, (gu_ko, r) in enumerate(no_coord_rows):
+            addr = r.get("ADDR") or ""
+            # "성동구 마장동 463-2" → "서울특별시 성동구 마장동 463-2"
+            query = addr if addr.startswith("서울") else f"서울특별시 {addr}"
+            coords = geocode_kakao(query)
+            if coords:
+                lat, lng = coords
+                r2 = dict(r); r2["LAT"] = str(lat); r2["LOT"] = str(lng)
+                lot = to_lot(r2, gu_ko)
+                if lot:
+                    by_district.setdefault(DISTRICT_KO_TO_CODE[gu_ko], []).append(lot)
+                    geo_ok += 1
+                else:
+                    geo_fail += 1
+            else:
+                geo_fail += 1
+            if (i + 1) % 50 == 0:
+                print(f"    진행 {i+1}/{len(no_coord_rows)} (성공 {geo_ok})")
+            time.sleep(0.15)  # rate limit 안전 마진 (약 7 req/s)
+        print(f"  지오코딩 성공: {geo_ok}곳, 실패: {geo_fail}곳")
+    print(f"  최종 유효: {sum(len(v) for v in by_district.values())}곳, 구 수: {len(by_district)}")
 
     # 구별 기존 lots와 중복 제거 후 추가
     districts_data = json.loads(DISTRICTS_PATH.read_text(encoding="utf-8"))
