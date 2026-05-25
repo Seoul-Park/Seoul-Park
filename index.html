@@ -1244,8 +1244,8 @@
           const hasRoute = state.routePathCoords && state.routePathCoords.length >= 2;
           const ROUTE_RADIUS_M = 1000;
 
-          if (hasRoute && state.origin && state.destination) {
-            // 도착지 기준 직선 1km 이내 + 도착지 거리순
+          if (state.destination) {
+            // 도착지 있으면 무조건 도착지 기준 1km 필터 + 거리순
             const dest = state.destination;
             lots.forEach(l => {
               l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest);
@@ -1253,26 +1253,17 @@
             });
             lots = lots.filter(l => l._distance <= ROUTE_RADIUS_M);
             lots.sort((a, b) => a._distance - b._distance);
-            mode = 'route';
-          } else if (state.destination) {
-            const dest = state.destination;
-            lots.forEach(l => { l._distance = haversineMeters({ lat: l.lat, lng: l.lng }, dest); l._distToPath = null; });
-            lots.sort((a, b) => a._distance - b._distance);
             mode = 'destination';
           } else {
             lots.forEach(l => { l._distance = null; l._distToPath = null; });
           }
 
           // 지도 마커도 같은 필터 적용
-          applyMapVisibility(mode === 'route' ? lots.map(l => l._id) : null);
+          applyMapVisibility(mode === 'destination' ? lots.map(l => l._id) : null);
 
           // 헤더 표시
-          if (mode === 'route') {
+          if (mode === 'destination') {
             listCountEl.textContent = `도착지 1km 내 ${lots.length}곳`;
-            sortLabelEl.textContent = '도착지 가까운 순';
-            sortLabelEl.style.display = '';
-          } else if (mode === 'destination') {
-            listCountEl.textContent = `주차장 ${lots.length}곳`;
             sortLabelEl.textContent = '도착지 가까운 순';
             sortLabelEl.style.display = '';
           } else {
@@ -1282,7 +1273,7 @@
 
           listEl.innerHTML = lots.length
             ? lots.map(l => buildListItem(l, districtName)).join('')
-            : '<div class="list-empty">' + (mode === 'route' ? '도착지 1km 내 주차장이 없어요.' : '표시할 주차장이 없어요.') + '</div>';
+            : '<div class="list-empty">' + (mode === 'destination' ? '도착지 1km 내 주차장이 없어요.' : '표시할 주차장이 없어요.') + '</div>';
         }
 
         // ─── 자동완성 (카카오 Places) ───
@@ -1425,8 +1416,17 @@
           renderList(dist?.name || '');
           updateNavButtons();
           updateRoute();
-          // 경로가 양쪽 모두 있으면 bounds로 조정 (updateRoute가 처리); 도착지만 있으면 그 위치로 이동
           if (!state.origin) map.panTo(new kakao.maps.LatLng(p.lat, p.lng));
+
+          // 도착지 자치구 자동 전환 (현재 구와 다르면 그 구 데이터 로드)
+          new kakao.maps.services.Geocoder().coord2Address(p.lng, p.lat, (result, status) => {
+            if (status !== kakao.maps.services.Status.OK || !result?.[0]) return;
+            const guName = result[0].address?.region_2depth_name;
+            const found = districts.find(d => d.name === guName);
+            if (found && found.code !== state.districtCode) {
+              loadDistrict(found.code);  // 자치구 전환 → renderList가 1km 필터링
+            }
+          });
         }
 
         // ─── 경유지 ───
