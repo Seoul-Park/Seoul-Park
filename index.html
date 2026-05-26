@@ -1630,15 +1630,16 @@
             if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
           }
         });
-        // 리스트 영역 전체에서 마우스가 벗어나면 원위치 복귀
+        // 리스트 영역 전체에서 마우스가 벗어나면 원위치 복귀 (부드러운 이동)
         listEl.addEventListener('mouseleave', () => {
           if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
           if (state.savedView && !state.userMovedMap) {
             restoringView = true;
-            map.setCenter(state.savedView.center);
+            // 줌 레벨은 즉시(panTo는 줌 변경 안 됨), 중심은 부드럽게 panTo
             const lv = state.savedView.level;
             if (lv != null && map.getLevel() !== lv) map.setLevel(lv);
-            setTimeout(() => { restoringView = false; }, 600);
+            map.panTo(state.savedView.center);
+            setTimeout(() => { restoringView = false; }, 800);
           }
           state.savedView = null;
           state.userMovedMap = false;
