@@ -1244,12 +1244,7 @@
               <dt>주차면수</dt><dd>${spacesDisplay(lot)} ${lot.availableSpaces != null ? `<span style="color:var(--text-dim);font-size:11px">· 실시간</span>` : `<span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span>`}</dd>
               <dt>운영시간</dt><dd class="hours-multi">${escapeHtml(lot.hours).replace(/\s*\/\s*/g, '<br>')}</dd>
             </dl>
-            <!-- 1줄: 카카오내비 + 티맵 -->
-            <div class="card-actions">
-              <button class="card-kakao-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><defs><linearGradient id="kakaoHex-${escapeHtml(lot._id)}" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#2D7DD2"/><stop offset="1" stop-color="#7DC8E8"/></linearGradient></defs><rect width="24" height="24" rx="5.5" fill="#FFE600"/><path d="M12 3.5 L19.5 7.75 L19.5 16.25 L12 20.5 L4.5 16.25 L4.5 7.75 Z" fill="url(#kakaoHex-${escapeHtml(lot._id)})"/><path d="M9 17 L9 11 L14 11 L14 9 L17 12.5 L14 16 L14 14 L12 14 L12 17 Z" fill="white"/></svg>카카오내비</button>
-              <button class="card-tmap-nav" data-lot-id="${escapeHtml(lot._id)}"><svg class="app-ico" viewBox="0 0 24 24"><defs><linearGradient id="tmapTopBar-${escapeHtml(lot._id)}" x1="0" y1="0" x2="1" y2="0.2"><stop offset="0" stop-color="#E83BFF"/><stop offset="0.55" stop-color="#7B7DFF"/><stop offset="1" stop-color="#3FE3D8"/></linearGradient><linearGradient id="tmapStem-${escapeHtml(lot._id)}" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#7B7DFF"/><stop offset="1" stop-color="#3D6BFF"/></linearGradient></defs><rect width="24" height="24" rx="5.5" fill="white"/><path d="M5 6 H17 Q19 6 19 8 Q19 11.5 16 11.5 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 V10 H5 Q4.5 10 4.5 9.5 V6.5 Q4.5 6 5 6 Z" fill="url(#tmapTopBar-${escapeHtml(lot._id)})"/><path d="M10.2 10 H13.8 V18.5 Q13.8 19 13.3 19 H10.7 Q10.2 19 10.2 18.5 Z" fill="url(#tmapStem-${escapeHtml(lot._id)})"/></svg>티맵</button>
-            </div>
-            <!-- 2줄: 경로 검색 + 거리뷰 -->
+            <!-- 경로 검색 + 거리뷰 (카카오내비·티맵은 좌측 사이드바에 있음) -->
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
               <button class="card-roadview" data-lot-id="${escapeHtml(lot._id)}">거리뷰</button>
@@ -1822,13 +1817,14 @@
           // 카드(약 400~600px)가 마커 위에 표시되므로 마커가 화면 중심에 있으면 카드 상단이 잘림
           // → 주차장을 화면 중심보다 살짝 아래쪽으로 보내서 카드 공간 확보
           // (위도 + 값 = 지도 중심을 북쪽으로 이동 = 주차장이 상대적으로 남쪽=화면 아래쪽에 보임)
-          // 카드 높이는 카테고리마다 다름:
-          //  - 공영/공유: ~400px (기본)
-          //  - 거주자우선: ~600px (방문동 라벨 + 방문차량 시간요금 결제 영역 + 자치구 공단 버튼 추가)
+          // 카드 높이는 카테고리마다 다름 (카카오내비/티맵 버튼 제거 후):
+          //  - 공영: ~310px
+          //  - 공유: ~360px (공유누리 예약 버튼 추가)
+          //  - 거주자우선: ~470px (방문동 라벨 + 결제 영역 + 자치구공단·카카오T 두 버튼)
           const catGroup = lot._catGroup || getCategoryGroup(lot);
-          const baseOffset = catGroup === 'residential' ? 0.0032
-                           : catGroup === 'shared'      ? 0.0025
-                           : 0.0018;
+          const baseOffset = catGroup === 'residential' ? 0.0024
+                           : catGroup === 'shared'      ? 0.0018
+                           : 0.0013;
           const lv = map.getLevel();
           const offsetLat = baseOffset * Math.pow(2, lv - 4);
           const adjusted = new kakao.maps.LatLng(lot._coords.getLat() + offsetLat, lot._coords.getLng());
