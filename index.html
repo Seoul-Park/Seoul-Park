@@ -574,6 +574,20 @@
       background-size: contain; background-repeat: no-repeat;
     }
     /* 거주자우선주차 결제 버튼 */
+    .card-actions .card-resi-official {
+      background: linear-gradient(135deg, #34D399 0%, #10B981 55%, #047857 100%);
+      color: white;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      box-shadow: 0 2px 5px rgba(4, 120, 87, 0.35), inset 0 1px 0 rgba(255,255,255,0.22);
+      text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+      text-decoration: none;
+      font-size: 11px;
+    }
+    .card-actions .card-resi-official::before {
+      content: ''; display: inline-block; width: 13px; height: 13px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>');
+      background-size: contain; background-repeat: no-repeat;
+    }
     .card-actions .card-kakaot-pay {
       background: linear-gradient(180deg, #FFE600 0%, #FAE100 55%, #F5D300 100%);
       color: #3C1E1E;
@@ -968,6 +982,27 @@
     }
     const CATEGORY_LABEL = { public: '공영', shared: '공유', residential: '거주자우선' };
 
+    // 거주자우선주차 자치구별 공식 결제·신청 사이트
+    // (각 자치구시설관리공단/도시관리공단 운영, 16개 자치구)
+    const RESI_OFFICIAL_SITE = {
+      dongjak:      { url: 'https://park.idongjak.or.kr/',                                      label: '동작구도시관리공단' },
+      gangbuk:      { url: 'https://gangbuk.park119.com/',                                      label: '강북구도시관리공단' },
+      gangnam:      { url: 'https://gn.gncity.or.kr/',                                          label: '강남구도시관리공단' },
+      gangseo:      { url: 'https://parking.gssi.or.kr/',                                       label: '강서구시설관리공단' },
+      geumcheon:    { url: 'https://park.gfmc.kr/',                                             label: '금천구시설관리공단' },
+      guro:         { url: 'https://www.parkguro.or.kr/',                                       label: '구로구시설관리공단' },
+      gwanak:       { url: 'https://gwanak.parkinghome.com/',                                   label: '관악구시설관리공단' },
+      gwangjin:     { url: 'https://www.gwangjin.go.kr/portal/main/contents.do?menuNo=200619',  label: '광진구 공유주차 안내' },
+      jongno:       { url: 'https://jongno.park119.co.kr/',                                     label: '종로구시설관리공단' },
+      jungnang:     { url: 'https://jungnang.park119.co.kr/',                                   label: '중랑구시설관리공단' },
+      nowon:        { url: 'https://nowon.park119.or.kr/',                                      label: '노원구시설관리공단' },
+      seocho:       { url: 'https://seocho.park119.or.kr/',                                     label: '서초구시설관리공단' },
+      seongbuk:     { url: 'https://www.gongdan.go.kr/park/',                                   label: '성북구도시관리공단' },
+      songpa:       { url: 'https://songpa.park119.co.kr/',                                     label: '송파구도시관리공단' },
+      yangcheon:    { url: 'https://www.ycs.or.kr/',                                            label: '양천구시설관리공단' },
+      yeongdeungpo: { url: 'https://rparking.y-sisul.or.kr/',                                   label: '영등포구시설관리공단' },
+    };
+
     function isOperating(lot, now) {
       const hours = lot.hours || '';
       if (!hours || hours === '-') return true;
@@ -1046,11 +1081,18 @@
                 ${lot.hourly === '무료' ? '공유누리에서 상세 보기' : '공유누리에서 예약·결제'}
               </a>
             </div>` : ''}
-            ${catGroup === 'residential' ? `
-            <div class="resi-pay-label">방문차량 시간요금 결제</div>
-            <div class="card-actions">
-              <a class="card-kakaot-pay" href="https://map.kakao.com/?q=${encodeURIComponent(cleanLotName(lot.name) + ' ' + (lot.address || ''))}" target="_blank" rel="noopener noreferrer" title="카카오맵에서 검색 후 카카오T 주차로 결제">카카오T 주차</a>
-            </div>` : ''}
+            ${catGroup === 'residential' ? (() => {
+              const resi = RESI_OFFICIAL_SITE[lot._districtCode];
+              const kakaotBtn = `<a class="card-kakaot-pay" href="https://map.kakao.com/?q=${encodeURIComponent(cleanLotName(lot.name) + ' ' + (lot.address || ''))}" target="_blank" rel="noopener noreferrer" title="카카오맵에서 검색 후 카카오T 주차로 결제">카카오T 주차</a>`;
+              const officialBtn = resi
+                ? `<a class="card-resi-official" href="${escapeHtml(resi.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(resi.label)}">${escapeHtml(resi.label.replace(/시설관리공단|도시관리공단/, '공단').replace(' 공유주차 안내', ''))}</a>`
+                : '';
+              return `
+                <div class="resi-pay-label">방문차량 시간요금 결제</div>
+                <div class="card-actions" ${officialBtn ? 'style="grid-template-columns: 1fr 1fr"' : ''}>
+                  ${officialBtn}${kakaotBtn}
+                </div>`;
+            })() : ''}
           </div>
         </div>
       `;
@@ -2212,6 +2254,7 @@
               return {
                 ...l,
                 _id: `${code}-${cat}-${i}`,
+                _districtCode: l.districtCode || code,  // shared는 자체 districtCode, 그 외는 현재 구
                 availableSpaces: rt ? rt.available : null,
                 spaces: rt && rt.total > 0 ? rt.total : l.spaces,  // 실시간 총면수가 더 정확
                 realtimeUpdatedAt: rt ? rt.updatedAt : null,
