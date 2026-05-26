@@ -540,10 +540,15 @@
     }
     .chip .price { color: white; font-size: 12px; }
     .chip .spaces {
-      color: rgba(255,255,255,0.95);
-      font-weight: 500;
-      font-size: 10.5px;
+      color: white;
+      font-weight: 700;
+      font-size: 11.5px;
     }
+    /* chip 안에서는 spacesDisplay의 자식 색을 흰색 계열로 덮어쓰기 (배경에 묻히지 않게) */
+    .chip .spaces .avail         { color: #FFFFFF; }
+    .chip .spaces .avail.full    { color: #FFE066; }   /* 만차는 노란색 강조 */
+    .chip .spaces .avail.unknown { color: rgba(255,255,255,0.8); }
+    .chip .spaces .total         { color: rgba(255,255,255,0.85); }
     /* 핀의 꼬리 (위치를 가리키는 삼각형) */
     .chip-tail {
       position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
