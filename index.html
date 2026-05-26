@@ -97,11 +97,13 @@
     .card .fav-btn.on { color: #F59E0B; }
     .card .fav-btn svg { width: 22px; height: 22px; }
     /* 좌측 리스트 둘째 줄: 도로명(좌) | 면수(가운데) | 전화번호(우) */
+    /* 첫 줄의 별(20px) 너비만큼 들여쓰기 → 도로명이 주차장명 바로 아래로 정렬 */
     .list-item .li-row-detail {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       gap: 8px;
+      padding-left: 24px;
     }
     .li-row-detail .li-addr {
       justify-self: start;
