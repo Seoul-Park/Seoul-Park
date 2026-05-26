@@ -1013,24 +1013,30 @@
     }
     const CATEGORY_LABEL = { public: '공영', shared: '공유', residential: '거주자우선' };
 
-    // 거주자우선주차 자치구별 공식 결제·신청 사이트
+    // 거주자우선주차 자치구별 공식 결제·신청 사이트 + 방문주차 운영시간
     // (각 자치구시설관리공단/도시관리공단 운영, 16개 자치구)
+    // hours 필드는 검증된 자치구만 명시 (방문차량 시간권 기준)
     const RESI_OFFICIAL_SITE = {
       dongjak:      { url: 'https://park.idongjak.or.kr/',                                      label: '동작구도시관리공단' },
       gangbuk:      { url: 'https://gangbuk.park119.com/',                                      label: '강북구도시관리공단' },
       gangnam:      { url: 'https://gn.gncity.or.kr/',                                          label: '강남구도시관리공단' },
-      gangseo:      { url: 'https://parking.gssi.or.kr/',                                       label: '강서구시설관리공단' },
+      gangseo:      { url: 'https://parking.gssi.or.kr/',                                       label: '강서구시설관리공단',
+                      hours: '평일 09:00~18:00 / 공휴일 미운영' },
       geumcheon:    { url: 'https://park.gfmc.kr/',                                             label: '금천구시설관리공단' },
-      guro:         { url: 'https://www.parkguro.or.kr/userNew/bangmoon/bangmoon_create.aspx',  label: '구로구시설관리공단' },
-      gwanak:       { url: 'https://gwanak.parkinghome.com/',                                   label: '관악구시설관리공단' },
+      guro:         { url: 'https://www.parkguro.or.kr/userNew/bangmoon/bangmoon_create.aspx',  label: '구로구시설관리공단',
+                      hours: '평일 08:30~18:30 (3시간 이상 신청불가) / 공휴일 미운영' },
+      gwanak:       { url: 'https://gwanak.parkinghome.com/',                                   label: '관악구시설관리공단',
+                      hours: '평일 09:00~18:00 / 공휴일 미운영' },
       gwangjin:     { url: 'https://www.gwangjin.go.kr/portal/main/contents.do?menuNo=200619',  label: '광진구 공유주차 안내' },
       jongno:       { url: 'https://jongno.park119.co.kr/',                                     label: '종로구시설관리공단' },
       jungnang:     { url: 'https://jungnang.park119.co.kr/',                                   label: '중랑구시설관리공단' },
-      nowon:        { url: 'https://nowon.park119.or.kr/',                                      label: '노원구시설관리공단' },
+      nowon:        { url: 'https://nowon.park119.or.kr/',                                      label: '노원구시설관리공단',
+                      hours: '평일 09:00~18:00 (점심 12:00~13:00 제외) / 공휴일 미운영' },
       seocho:       { url: 'https://seocho.park119.or.kr/',                                     label: '서초구시설관리공단' },
       seongbuk:     { url: 'https://www.gongdan.go.kr/park/',                                   label: '성북구도시관리공단' },
       songpa:       { url: 'https://songpa.park119.co.kr/',                                     label: '송파구도시관리공단' },
-      yangcheon:    { url: 'https://www.ycs.or.kr/',                                            label: '양천구시설관리공단' },
+      yangcheon:    { url: 'https://www.ycs.or.kr/',                                            label: '양천구시설관리공단',
+                      hours: '평일 09:00~18:00 (시간외 주차불가) / 공휴일 미운영' },
       yeongdeungpo: { url: 'https://rparking.y-sisul.or.kr/',                                   label: '영등포구시설관리공단' },
     };
 
@@ -1080,12 +1086,12 @@
       const catGroup = getCategoryGroup(lot);
       const catLabel = CATEGORY_LABEL[catGroup];
 
-      // 거주자우선주차 + 구로구: 방문주차 신청 시 필요한 '방문동' 정보 표시
-      // (addressJibun에서 "OO동" 추출)
+      // 거주자우선주차: 방문주차 신청 시 필요한 '방문동' 정보 표시 (모든 자치구)
+      // (addressJibun에서 "OO동" 추출 — "OO구 OO동" 패턴)
       let dongLabel = '';
-      if (catGroup === 'residential' && lot._districtCode === 'guro') {
+      if (catGroup === 'residential') {
         const src = lot.addressJibun || lot.address || '';
-        const m = src.match(/구로구\s+([가-힣]+\d*동)/);
+        const m = src.match(/[가-힣]+구\s+([가-힣]+\d*동)/);
         if (m) dongLabel = m[1];
       }
 
@@ -2371,11 +2377,12 @@
               const rk = l.realtimeKey || (l.code ? String(l.code) : null);
               const rt = rk && realtimeLots[rk] ? realtimeLots[rk] : null;
               const lotDistrictCode = l.districtCode || code;
-              // 구로구 거주자우선주차: 방문주차 이용약관 기준 운영시간 일괄 override
-              //   (https://www.parkguro.or.kr 방문주차 이용약관 참고)
+              // 거주자우선주차: 각 자치구 방문주차 이용약관 기준 운영시간 override
+              // (RESI_OFFICIAL_SITE.hours가 있는 자치구만 적용, 없으면 원본 데이터 유지)
               let hours = l.hours;
-              if (l.category === 'residential' && lotDistrictCode === 'guro') {
-                hours = '평일 08:30~18:30 (3시간 이상 신청불가) / 공휴일 미운영';
+              if (l.category === 'residential') {
+                const resi = RESI_OFFICIAL_SITE[lotDistrictCode];
+                if (resi && resi.hours) hours = resi.hours;
               }
               return {
                 ...l,
