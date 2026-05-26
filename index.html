@@ -82,19 +82,36 @@
       padding-left: 24px;
     }
     .district-select.fav-select:hover { background-color: #FDE68A; }
-    /* 카드 안 즐겨찾기 별 버튼 */
+    /* 카드 안 즐겨찾기 별 버튼 (상단 좌측) */
     .card .fav-btn {
-      position: absolute; top: 12px; right: 44px;
+      position: absolute; top: 12px; left: 14px;
       width: 28px; height: 28px; padding: 0;
       border: 0; background: transparent;
       cursor: pointer; color: #D1D5DB;
       transition: color 0.15s, transform 0.1s;
       display: flex; align-items: center; justify-content: center;
+      z-index: 2;
     }
     .card .fav-btn:hover { color: #F59E0B; }
     .card .fav-btn:active { transform: scale(0.9); }
     .card .fav-btn.on { color: #F59E0B; }
     .card .fav-btn svg { width: 22px; height: 22px; }
+    /* 좌측 리스트 각 항목 별 토글 */
+    .list-item { display: flex; align-items: flex-start; gap: 4px; }
+    .list-item .li-content { flex: 1 1 auto; min-width: 0; }
+    .list-item .li-fav-btn {
+      width: 24px; height: 28px; padding: 0;
+      border: 0; background: transparent;
+      cursor: pointer; color: #D1D5DB;
+      transition: color 0.15s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .list-item .li-fav-btn:hover { color: #F59E0B; }
+    .list-item .li-fav-btn:active { transform: scale(0.85); }
+    .list-item .li-fav-btn.on { color: #F59E0B; }
+    .list-item .li-fav-btn svg { width: 17px; height: 17px; pointer-events: none; }
     .district-select:hover { background: #E0EAFF; }
     .district-select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
     .district-select-wrap::after {
@@ -528,8 +545,10 @@
     .card .close:hover { background: var(--border); color: var(--text); }
     .card .name {
       font-size: 16px; font-weight: 700;
-      letter-spacing: -0.01em; padding-right: 28px;
-      margin-top: 22px;  /* 카테고리 뱃지(absolute) 자리 확보 */
+      letter-spacing: -0.01em;
+      padding-right: 28px;
+      padding-left: 32px;   /* 좌상단 별 자리 확보 */
+      margin-top: 22px;     /* 카테고리 뱃지(absolute) 자리 확보 */
     }
     .card .addr { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .card .dong-label {
@@ -1263,18 +1282,27 @@
       const telHtml = lot.tel ? `<span class="li-tel">${formatTel(lot.tel)}</span>` : '';
       const catGroup = getCategoryGroup(lot);
       const catLabel = CATEGORY_LABEL[catGroup];
+      const isFav = Favorites.has(lot);
       return `
         <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
-          <div class="li-row">
-            <span class="li-name">${escapeHtml(cleanLotName(lot.name))}</span>
-            <span class="cat-badge ${catGroup}">${escapeHtml(catLabel)}</span>
-            <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
-            <span class="li-spaces">${spacesDisplay(lot)}</span>
-            ${distHtml}
-          </div>
-          <div class="li-row">
-            <span class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</span>
-            ${telHtml}
+          <button class="li-fav-btn ${isFav ? 'on' : ''}" data-lot-id="${escapeHtml(lot._id)}"
+                  aria-label="즐겨찾기" title="${isFav ? '즐겨찾기에서 삭제' : '즐겨찾기에 추가'}">
+            <svg viewBox="0 0 24 24" fill="${isFav ? '#F59E0B' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+            </svg>
+          </button>
+          <div class="li-content">
+            <div class="li-row">
+              <span class="li-name">${escapeHtml(cleanLotName(lot.name))}</span>
+              <span class="cat-badge ${catGroup}">${escapeHtml(catLabel)}</span>
+              <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
+              <span class="li-spaces">${spacesDisplay(lot)}</span>
+              ${distHtml}
+            </div>
+            <div class="li-row">
+              <span class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</span>
+              ${telHtml}
+            </div>
           </div>
         </div>
       `;
@@ -1744,16 +1772,17 @@
             const btn = t.closest('.fav-btn');
             const lot = state.lotById.get(btn.dataset.lotId);
             if (!lot) return;
-            if (Favorites.has(lot)) {
-              Favorites.remove(lot);
-              btn.classList.remove('on');
-              btn.querySelector('svg').setAttribute('fill', 'none');
-              btn.title = '즐겨찾기에 추가';
-            } else {
-              Favorites.add(lot);
-              btn.classList.add('on');
-              btn.querySelector('svg').setAttribute('fill', '#F59E0B');
-              btn.title = '즐겨찾기에서 삭제';
+            const adding = !Favorites.has(lot);
+            if (adding) Favorites.add(lot); else Favorites.remove(lot);
+            // 카드 별 UI 갱신
+            btn.classList.toggle('on', adding);
+            btn.querySelector('svg').setAttribute('fill', adding ? '#F59E0B' : 'none');
+            btn.title = adding ? '즐겨찾기에서 삭제' : '즐겨찾기에 추가';
+            // 좌측 리스트 별 UI 동기화
+            const listBtn = listEl.querySelector(`.li-fav-btn[data-lot-id="${btn.dataset.lotId}"]`);
+            if (listBtn) {
+              listBtn.classList.toggle('on', adding);
+              listBtn.querySelector('svg').setAttribute('fill', adding ? '#F59E0B' : 'none');
             }
             renderFavoriteSelect();
             return;
@@ -1791,6 +1820,40 @@
         });
         // 좌측 리스트 클릭 = 상세 카드 (정보 확인용)
         listEl.addEventListener('click', (e) => {
+          // 별 버튼 클릭 시 즐겨찾기 토글 (list-item 클릭으로 흘러가지 않게 차단)
+          const favBtn = e.target.closest('.li-fav-btn');
+          if (favBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const lot = state.lotById.get(favBtn.dataset.lotId);
+            if (!lot) return;
+            if (Favorites.has(lot)) {
+              Favorites.remove(lot);
+              favBtn.classList.remove('on');
+              favBtn.querySelector('svg').setAttribute('fill', 'none');
+              favBtn.title = '즐겨찾기에 추가';
+            } else {
+              Favorites.add(lot);
+              favBtn.classList.add('on');
+              favBtn.querySelector('svg').setAttribute('fill', '#F59E0B');
+              favBtn.title = '즐겨찾기에서 삭제';
+            }
+            renderFavoriteSelect();
+            // 카드가 열려 있고 같은 lot이면 카드 안 별 상태도 동기화
+            if (state.openCardOverlay) {
+              const cardFavBtn = document.querySelector('.card .fav-btn');
+              if (cardFavBtn && cardFavBtn.dataset.lotId === favBtn.dataset.lotId) {
+                if (Favorites.has(lot)) {
+                  cardFavBtn.classList.add('on');
+                  cardFavBtn.querySelector('svg').setAttribute('fill', '#F59E0B');
+                } else {
+                  cardFavBtn.classList.remove('on');
+                  cardFavBtn.querySelector('svg').setAttribute('fill', 'none');
+                }
+              }
+            }
+            return;
+          }
           const item = e.target.closest('.list-item');
           if (!item) return;
           const lot = state.lotById.get(item.dataset.lotId);
