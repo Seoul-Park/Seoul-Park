@@ -1319,6 +1319,7 @@
 
         // 공용: "내 위치로 이동" 효과 (지도를 GPS 위치 중심 + 줌 4로 부드럽게)
         function applyLocateView(lat, lng) {
+          state.userLocation = { lat, lng };  // 마지막 GPS 위치 보존
           showUserLocationMarker(lat, lng);
           if (map.getLevel() !== 4) map.setLevel(4);
           map.panTo(new kakao.maps.LatLng(lat, lng));
@@ -2416,9 +2417,16 @@
         }
 
         selectEl.addEventListener('change', e => loadDistrict(e.target.value));
-        document.getElementById('categorySelect').addEventListener('change', e => {
+        document.getElementById('categorySelect').addEventListener('change', async e => {
           state.category = e.target.value;
-          loadDistrict(state.districtCode || initialCode);
+          try { await loadDistrict(state.districtCode || initialCode); } catch {}
+          // 카테고리 전환 후에도 '내 위치로 이동' 효과 적용 (위치 권한 있을 때)
+          if (state.userLocation) {
+            applyLocateView(state.userLocation.lat, state.userLocation.lng);
+            setTimeout(() => {
+              if (state.userLocation) applyLocateView(state.userLocation.lat, state.userLocation.lng);
+            }, 800);
+          }
         });
         window.addEventListener('hashchange', () => {
           const code = location.hash.replace('#', '');
