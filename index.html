@@ -534,12 +534,15 @@
       font-weight: 900; font-size: 12px;
       flex-shrink: 0;
     }
-    .chip .price { color: white; }
+    .chip .chip-info {
+      display: inline-flex; flex-direction: column;
+      gap: 1px; line-height: 1.15;
+    }
+    .chip .price { color: white; font-size: 12px; }
     .chip .spaces {
-      color: rgba(255,255,255,0.92); font-weight: 500;
-      padding-left: 6px; margin-left: 2px;
-      border-left: 1px solid rgba(255,255,255,0.35);
-      font-size: 11px;
+      color: rgba(255,255,255,0.95);
+      font-weight: 500;
+      font-size: 10.5px;
     }
     /* 핀의 꼬리 (위치를 가리키는 삼각형) */
     .chip-tail {
@@ -1233,8 +1236,10 @@
         <div class="chip-wrap" data-lot-id="${escapeHtml(lot._id)}">
           <div class="chip${closedCls}">
             <span class="pin-letter">P</span>
-            <span class="price">${escapeHtml(shortHourly(lot.hourly))}</span>
-            ${spacesHtml}
+            <span class="chip-info">
+              <span class="price">${escapeHtml(shortHourly(lot.hourly))}</span>
+              ${spacesHtml}
+            </span>
           </div>
           <div class="chip-tail"></div>
         </div>
