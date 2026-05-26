@@ -1380,8 +1380,10 @@
         }
 
         // 지도 이동/줌 끝나면 마커 이미지 다시 업데이트 (drag·zoom 완료 시점)
+        // 단, 우리가 부드러운 보간 중이거나 위치 복귀 중이면 마커 swap 차단 (시각 jolt 방지)
         let visualsTimer = null;
         const scheduleVisualsUpdate = () => {
+          if (_smoothActive || restoringView) return;
           if (visualsTimer) clearTimeout(visualsTimer);
           visualsTimer = setTimeout(updateMarkerVisuals, 150);
         };
@@ -1674,16 +1676,12 @@
         let hoverTimer = null;
         let restoringView = false;  // 우리가 복귀 중일 때 dragstart 무시용
 
-        // 줌 레벨 변경 없이 (현재 시각 그대로) 부드럽게 위치 이동
+        // 현재 줌 그대로 유지하면서 부드럽게 위치 이동
         // 카카오 panTo는 거리가 멀면 점프하므로 LatLng을 직접 보간해서 setCenter 호출
-        let _smoothAnim = null;  // 진행 중 애니메이션 핸들 (취소용)
-        function smoothPanTo(targetCoords, finalLevel = 4) {
-          // 진행 중 애니메이션 취소
+        let _smoothAnim = null;        // 진행 중 애니메이션 핸들 (취소용)
+        let _smoothActive = false;     // 보간 진행 중 플래그 (idle 이벤트의 마커 swap 차단)
+        function smoothPanTo(targetCoords /* finalLevel 인자는 더 이상 사용 안 함 */) {
           if (_smoothAnim != null) cancelAnimationFrame(_smoothAnim);
-          // 줌이 다르면 먼저 맞춰주기 (보간 시작 전에)
-          if (finalLevel != null && map.getLevel() !== finalLevel) {
-            map.setLevel(finalLevel);
-          }
           const startCenter = map.getCenter();
           const startLat = startCenter.getLat();
           const startLng = startCenter.getLng();
@@ -1692,13 +1690,13 @@
           // 같은 위치면 스킵
           if (Math.abs(startLat - endLat) < 1e-6 && Math.abs(startLng - endLng) < 1e-6) return;
           const startTime = performance.now();
-          // 거리에 비례한 duration (가까우면 짧게, 멀면 살짝 길게)
           const distM = new kakao.maps.Polyline({ path: [startCenter, targetCoords] }).getLength();
-          const duration = Math.min(900, Math.max(400, distM / 20));  // 400~900ms
+          const duration = Math.min(900, Math.max(400, distM / 20));
 
+          _smoothActive = true;
           function step(now) {
             const t = Math.min((now - startTime) / duration, 1);
-            const eased = 1 - Math.pow(1 - t, 3);  // ease-out cubic
+            const eased = 1 - Math.pow(1 - t, 3);
             const curLat = startLat + (endLat - startLat) * eased;
             const curLng = startLng + (endLng - startLng) * eased;
             map.setCenter(new kakao.maps.LatLng(curLat, curLng));
@@ -1706,6 +1704,8 @@
               _smoothAnim = requestAnimationFrame(step);
             } else {
               _smoothAnim = null;
+              // 보간 끝나도 살짝 더 대기 후 마커 업데이트 허용 (전환 효과 방지)
+              setTimeout(() => { _smoothActive = false; }, 200);
             }
           }
           _smoothAnim = requestAnimationFrame(step);
