@@ -508,26 +508,47 @@
     .route-label .est { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
 
     /* Always-visible label chip */
-    .chip-wrap { position: relative; cursor: pointer; user-select: none; }
+    /* 칩 = P 핀과 가격이 하나로 통합된 마커 */
+    .chip-wrap { position: relative; cursor: pointer; user-select: none; line-height: 0; }
     .chip {
-      background: white; padding: 6px 10px; border-radius: 18px;
-      box-shadow: var(--shadow); font-size: 12px; font-weight: 700;
-      color: var(--text); white-space: nowrap;
-      border: 1px solid var(--border-soft);
+      --pin: #3182F6;
+      background: var(--pin); color: white;
+      padding: 4px 11px 4px 4px;
+      border-radius: 22px;
       display: inline-flex; align-items: center; gap: 6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.28), 0 0 0 2px white;
+      font-size: 12px; font-weight: 700;
+      white-space: nowrap;
+      line-height: 1;
       transition: transform 0.15s, box-shadow 0.15s;
     }
-    .chip-wrap:hover .chip { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(17,24,39,0.15); }
-    .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
-    .chip .price { color: var(--brand); }
-    .chip .spaces {
-      color: var(--text-muted); font-weight: 500;
-      padding-left: 6px; margin-left: 2px;
-      border-left: 1px solid var(--border);
+    .chip.closed { --pin: #9CA3AF; }
+    .chip-wrap:hover .chip {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 5px 14px rgba(0,0,0,0.32), 0 0 0 2px white;
     }
+    .chip .pin-letter {
+      background: white; color: var(--pin);
+      width: 22px; height: 22px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 12px;
+      flex-shrink: 0;
+    }
+    .chip .price { color: white; }
+    .chip .spaces {
+      color: rgba(255,255,255,0.92); font-weight: 500;
+      padding-left: 6px; margin-left: 2px;
+      border-left: 1px solid rgba(255,255,255,0.35);
+      font-size: 11px;
+    }
+    /* 핀의 꼬리 (위치를 가리키는 삼각형) */
     .chip-tail {
       position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-      width: 1px; height: 4px; background: var(--border);
+      width: 0; height: 0; margin-top: -1px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--pin, #3182F6);
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
     }
 
     /* Card */
@@ -1186,10 +1207,11 @@
 
     function buildChip(lot) {
       const spacesHtml = lot.spaces != null ? `<span class="spaces">${spacesDisplay(lot)}</span>` : '';
+      const closedCls = lot._isOpen === false ? ' closed' : '';
       return `
         <div class="chip-wrap" data-lot-id="${escapeHtml(lot._id)}">
-          <div class="chip">
-            <span class="dot"></span>
+          <div class="chip${closedCls}">
+            <span class="pin-letter">P</span>
             <span class="price">${escapeHtml(shortHourly(lot.hourly))}</span>
             ${spacesHtml}
           </div>
@@ -1445,10 +1467,13 @@
         let _locationPromise = null;
         let _locationResolve = null;
 
-        // 모달 떠있는 동안 칩 숨기고 마커는 작은 점으로 통일
+        // 모달 떠있는 동안 칩 숨기고 마커는 작은 점으로 통일 (칩이 있는 마커도 점으로 보임)
         function shrinkToDotsAndHideChips() {
           if (state.chipOverlays) state.chipOverlays.forEach(o => o.setMap(null));
-          if (state.markers) state.markers.forEach(m => { if (m._smallImg) m.setImage(m._smallImg); });
+          if (state.markers) state.markers.forEach(m => {
+            m.setMap(map);  // 칩 때문에 숨겨졌던 마커도 다시 보이게
+            if (m._smallImg) m.setImage(m._smallImg);
+          });
         }
 
         function showLocationConsent() {
@@ -1513,28 +1538,46 @@
           showUserLocationMarker(lat, lng);
           if (map.getLevel() !== 4) map.setLevel(4);
           map.panTo(new kakao.maps.LatLng(lat, lng));
-          // 첫 동의일 땐 숨겨놨던 칩들 화면에 띄우기
+          // 첫 동의일 땐 숨겨놨던 칩들 화면에 띄우기 + 그 마커는 숨김 (칩이 P 역할)
           if (wasFirst && state.chipOverlays) {
             state.chipOverlays.forEach(o => o.setMap(map));
+            state.markers.forEach(m => { if (m._chipOverlay) m.setMap(null); });
           }
           // 이동 끝난 직후 마커 이미지 업데이트 (panTo 약 500ms)
           setTimeout(updateMarkerVisuals, 600);
         }
 
         // 현재 뷰포트 기준으로 마커 이미지를 큰핀/작은점으로 동적 변경
-        // (보이는 화면 안 주차장: 큰 P 핀 상시표시 / 바깥: 작은 동그라미)
-        // 단, 위치 동의 전(state.userLocation 없음)이면 전부 작은 점으로 요약 표시
+        // 칩이 있는 마커는: 안=칩(P+가격 통합) 보임/마커 숨김, 밖=칩 숨김/마커는 점
+        // 위치 동의 전(state.userLocation 없음)이면 전부 작은 점으로 요약 표시 (칩 숨김)
         function updateMarkerVisuals() {
           if (!state.markers || state.markers.length === 0) return;
           if (!state.userLocation) {
-            state.markers.forEach(m => { if (m._smallImg) m.setImage(m._smallImg); });
+            state.markers.forEach(m => {
+              if (m._chipOverlay) m._chipOverlay.setMap(null);
+              m.setMap(map);
+              if (m._smallImg) m.setImage(m._smallImg);
+            });
             return;
           }
           const bounds = map.getBounds();
           state.markers.forEach(marker => {
             if (!marker._bigImg || !marker._smallImg) return;
             const inside = bounds.contain(marker.getPosition());
-            marker.setImage(inside ? marker._bigImg : marker._smallImg);
+            if (marker._chipOverlay) {
+              // 통합 칩 마커: 화면 안엔 칩 한 덩어리, 밖엔 작은 점
+              if (inside) {
+                marker._chipOverlay.setMap(map);
+                marker.setMap(null);
+              } else {
+                marker._chipOverlay.setMap(null);
+                marker.setMap(map);
+                marker.setImage(marker._smallImg);
+              }
+            } else {
+              marker.setMap(map);
+              marker.setImage(inside ? marker._bigImg : marker._smallImg);
+            }
           });
         }
 
@@ -2743,14 +2786,20 @@
             kakao.maps.event.addListener(marker, 'click', () => focusLot(lot));
 
             // 칩은 공영(public)이면서 데이터가 적을 때만 + 위치 동의 후에만 표시
+            // 칩 자체가 P 핀 모양이라 표시될 땐 일반 마커 숨김(setMap(null)) → 한 덩어리처럼
             marker._lotId = lot._id;
             if (catGroup === 'public' && showChips) {
               const chipOverlay = new kakao.maps.CustomOverlay({
                 content: buildChip(lot), position: lot._coords,
-                yAnchor: 2.6, zIndex: 3
+                yAnchor: 1.0, xAnchor: 0.5, zIndex: 3,
+                clickable: true,
               });
+              marker._chipOverlay = chipOverlay;  // 마커-칩 연결 (마커 swap 시 활용)
               // 위치 동의 전엔 칩 숨김 (점만 보이게)
-              if (state.userLocation) chipOverlay.setMap(map);
+              if (state.userLocation) {
+                chipOverlay.setMap(map);
+                marker.setMap(null);  // 칩이 P 핀 역할 → 마커 숨김
+              }
               chipOverlay._lotId = lot._id;
               state.chipOverlays.push(chipOverlay);
             }
