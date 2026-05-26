@@ -64,13 +64,22 @@
       letter-spacing: -0.01em;
     }
     /* 즐겨찾기 드롭다운 — 노란 톤으로 시각 구분 */
+    .fav-wrap { position: relative; display: inline-block; }
+    .fav-wrap::before {
+      content: '★';
+      position: absolute;
+      left: 8px; top: 50%;
+      transform: translateY(-50%);
+      color: #F59E0B;
+      font-size: 13px;
+      font-weight: 900;
+      pointer-events: none;
+      z-index: 1;
+      text-shadow: 0 0 1px rgba(146, 64, 14, 0.4);
+    }
     .district-select.fav-select {
       background: #FEF3C7; color: #92400E;
-      padding-left: 26px;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23F59E0B" stroke="%2392400E" stroke-width="1"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>');
-      background-repeat: no-repeat;
-      background-position: 7px center;
-      background-size: 14px 14px;
+      padding-left: 24px;
     }
     .district-select.fav-select:hover { background-color: #FDE68A; }
     /* 카드 안 즐겨찾기 별 버튼 */
@@ -752,7 +761,7 @@
               <option value="all">전체</option>
             </select>
           </span>
-          <span class="district-select-wrap">
+          <span class="district-select-wrap fav-wrap">
             <select id="favoriteSelect" class="district-select fav-select" aria-label="즐겨찾기"></select>
           </span>
         </div>
@@ -2669,7 +2678,7 @@
           favSelectEl.innerHTML = '';
           const placeholder = document.createElement('option');
           placeholder.value = '';
-          placeholder.textContent = favs.length === 0 ? '⭐ 즐겨찾기 (비어있음)' : `⭐ 즐겨찾기 (${favs.length})`;
+          placeholder.textContent = favs.length === 0 ? '즐겨찾기 (비어있음)' : `즐겨찾기 (${favs.length})`;
           favSelectEl.appendChild(placeholder);
           favs.forEach(f => {
             const opt = document.createElement('option');
