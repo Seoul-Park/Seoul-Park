@@ -1317,6 +1317,13 @@
           state.userLocOverlay.setMap(map);
         }
 
+        // 공용: "내 위치로 이동" 효과 (지도를 GPS 위치 중심 + 줌 4로 부드럽게)
+        function applyLocateView(lat, lng) {
+          showUserLocationMarker(lat, lng);
+          if (map.getLevel() !== 4) map.setLevel(4);
+          map.panTo(new kakao.maps.LatLng(lat, lng));
+        }
+
         // 지도 우하단 "내 위치로 이동" 버튼
         const mapLocateBtn = document.getElementById('mapLocateBtn');
         if (mapLocateBtn) {
@@ -1325,11 +1332,7 @@
             tryGeolocation(
               (pos) => {
                 mapLocateBtn.classList.remove('locating');
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                showUserLocationMarker(lat, lng);
-                map.setCenter(new kakao.maps.LatLng(lat, lng));
-                map.setLevel(4);  // 줌인
+                applyLocateView(pos.coords.latitude, pos.coords.longitude);
               },
               (err) => {
                 mapLocateBtn.classList.remove('locating');
@@ -2387,33 +2390,23 @@
         // ① 지도에 현재 위치 마커  ② 자동 구 전환  ③ 출발지에 현재 위치 주소 입력
         tryGeolocation((pos) => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          showUserLocationMarker(lat, lng);
-          new kakao.maps.services.Geocoder().coord2Address(lng, lat, (result, status) => {
+          showUserLocationMarker(lat, lng);  // 즉시 펄스 마커 표시
+          new kakao.maps.services.Geocoder().coord2Address(lng, lat, async (result, status) => {
             const r = (status === kakao.maps.services.Status.OK && result?.[0]) ? result[0] : null;
             const name = r ? (r.road_address?.address_name || r.address?.address_name || '현재 위치') : '현재 위치';
             setOrigin({ name, lat, lng });  // 출발지 자동 입력
-            // 자치구 자동 전환 (hash 없을 때만)
-            let districtSwitched = false;
+            // 자치구 자동 전환 (hash 없을 때만) — await로 데이터 로드까지 정확히 기다림
             if (!hashCode && r) {
               const guName = r.address?.region_2depth_name;
               const found = districts.find(d => d.name === guName);
               if (found && found.code !== state.districtCode) {
-                districtSwitched = true;
-                loadDistrict(found.code);
+                try { await loadDistrict(found.code); } catch {}
               }
             }
-            // 첫 진입 시 자동으로 "내 위치로 이동" 효과:
-            // 지도 중심을 GPS 위치로, 줌 레벨 4(가까이)로
-            // (자치구가 전환되면 그 데이터 로드 후 setBounds가 호출되므로 그 뒤에 덮어쓰도록 1.5초 대기)
-            const applyLocateView = () => {
-              map.setCenter(new kakao.maps.LatLng(lat, lng));
-              map.setLevel(4);
-            };
-            if (districtSwitched) {
-              setTimeout(applyLocateView, 1500);
-            } else {
-              setTimeout(applyLocateView, 600);  // loadDistrict의 setBounds 끝난 직후
-            }
+            // 첫 진입 시 자동으로 "내 위치로 이동" 효과 (panTo + setLevel 4)
+            // loadDistrict의 setBounds가 끝난 직후 한 번 더 안전하게 덮어씀
+            applyLocateView(lat, lng);
+            setTimeout(() => applyLocateView(lat, lng), 800);
           });
         }, () => {}, { timeout: 10000, maximumAge: 300000 });
       });
