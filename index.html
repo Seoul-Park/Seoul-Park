@@ -1157,6 +1157,9 @@
           routeLabel: null,
           routePathCoords: null,   // [[lat,lng], ...] 경로 좌표 캐시
           districtName: '',        // renderList 재호출용
+          // 리스트 hover로 이동했을 때 마우스가 벗어나면 복귀할 위치
+          savedView: null,         // { center: LatLng, level: number }
+          userMovedMap: false,     // 사용자가 hover 중 지도를 직접 움직였는지
         };
         const MAX_WAYPOINTS = 3;
 
@@ -1554,7 +1557,10 @@
           if (lot) focusLot(lot);
         });
         // 좌측 리스트 호버 = 지도 이동 + 적당히 확대 (디바운스 200ms)
+        // 마우스가 리스트 영역에서 벗어나면 호버 직전 위치로 복귀
+        // 단, 호버 도중 사용자가 지도를 직접 움직였다면 복귀 안 함
         let hoverTimer = null;
+        let restoringView = false;  // 우리가 복귀 중일 때 dragstart 무시용
         listEl.addEventListener('mouseover', (e) => {
           const item = e.target.closest('.list-item');
           if (!item) return;
@@ -1562,8 +1568,15 @@
           hoverTimer = setTimeout(() => {
             const lot = state.lotById.get(item.dataset.lotId);
             if (!lot || !lot._coords) return;
+            // 첫 호버 직전 지도 상태를 저장 (이미 저장돼 있으면 유지)
+            if (!state.savedView) {
+              state.savedView = { center: map.getCenter(), level: map.getLevel() };
+              state.userMovedMap = false;
+            }
+            restoringView = true;
             map.panTo(lot._coords);
             if (map.getLevel() > 4) map.setLevel(4, { anchor: lot._coords });
+            setTimeout(() => { restoringView = false; }, 600);
           }, 200);
         });
         listEl.addEventListener('mouseout', (e) => {
@@ -1571,6 +1584,24 @@
           if (e.target.closest('.list-item') && !e.relatedTarget?.closest('.list-item')) {
             if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
           }
+        });
+        // 리스트 영역 전체에서 마우스가 벗어나면 원위치 복귀
+        listEl.addEventListener('mouseleave', () => {
+          if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+          if (state.savedView && !state.userMovedMap) {
+            restoringView = true;
+            map.setCenter(state.savedView.center);
+            const lv = state.savedView.level;
+            if (lv != null && map.getLevel() !== lv) map.setLevel(lv);
+            setTimeout(() => { restoringView = false; }, 600);
+          }
+          state.savedView = null;
+          state.userMovedMap = false;
+        });
+        // 사용자가 지도를 직접 드래그하면 → 복귀 안 함
+        kakao.maps.event.addListener(map, 'dragstart', () => {
+          if (restoringView) return;  // 우리가 복귀 중일 때는 무시
+          if (state.savedView) state.userMovedMap = true;
         });
 
         // ─── 거리 / 정렬 / 리스트 ───
