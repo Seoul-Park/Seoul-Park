@@ -2363,10 +2363,18 @@
               // realtimeKey 우선, 없으면 lot.code(=PKLT_CD)도 매칭 시도
               const rk = l.realtimeKey || (l.code ? String(l.code) : null);
               const rt = rk && realtimeLots[rk] ? realtimeLots[rk] : null;
+              const lotDistrictCode = l.districtCode || code;
+              // 구로구 거주자우선주차: 방문주차 이용약관 기준 운영시간 일괄 override
+              //   (https://www.parkguro.or.kr 방문주차 이용약관 참고)
+              let hours = l.hours;
+              if (l.category === 'residential' && lotDistrictCode === 'guro') {
+                hours = '평일 08:30~18:30 (3시간 이상 신청불가) / 공휴일 미운영';
+              }
               return {
                 ...l,
+                hours,
                 _id: `${code}-${cat}-${i}`,
-                _districtCode: l.districtCode || code,  // shared는 자체 districtCode, 그 외는 현재 구
+                _districtCode: lotDistrictCode,  // shared는 자체 districtCode, 그 외는 현재 구
                 availableSpaces: rt ? rt.available : null,
                 spaces: rt && rt.total > 0 ? rt.total : l.spaces,  // 실시간 총면수가 더 정확
                 realtimeUpdatedAt: rt ? rt.updatedAt : null,
