@@ -1501,10 +1501,15 @@
 
         // 공용: "내 위치로 이동" 효과 (지도를 GPS 위치 중심 + 줌 4로 부드럽게)
         function applyLocateView(lat, lng) {
+          const wasFirst = !state.userLocation;
           state.userLocation = { lat, lng };  // 마지막 GPS 위치 보존
           showUserLocationMarker(lat, lng);
           if (map.getLevel() !== 4) map.setLevel(4);
           map.panTo(new kakao.maps.LatLng(lat, lng));
+          // 첫 동의일 땐 숨겨놨던 칩들 화면에 띄우기
+          if (wasFirst && state.chipOverlays) {
+            state.chipOverlays.forEach(o => o.setMap(map));
+          }
           // 이동 끝난 직후 마커 이미지 업데이트 (panTo 약 500ms)
           setTimeout(updateMarkerVisuals, 600);
         }
@@ -2722,14 +2727,15 @@
             }
             kakao.maps.event.addListener(marker, 'click', () => focusLot(lot));
 
-            // 칩은 공영(public)이면서 데이터가 적을 때만
+            // 칩은 공영(public)이면서 데이터가 적을 때만 + 위치 동의 후에만 표시
             marker._lotId = lot._id;
             if (catGroup === 'public' && showChips) {
               const chipOverlay = new kakao.maps.CustomOverlay({
                 content: buildChip(lot), position: lot._coords,
                 yAnchor: 2.6, zIndex: 3
               });
-              chipOverlay.setMap(map);
+              // 위치 동의 전엔 칩 숨김 (점만 보이게)
+              if (state.userLocation) chipOverlay.setMap(map);
               chipOverlay._lotId = lot._id;
               state.chipOverlays.push(chipOverlay);
             }
