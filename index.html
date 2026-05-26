@@ -63,6 +63,29 @@
       cursor: pointer; font-family: inherit;
       letter-spacing: -0.01em;
     }
+    /* 즐겨찾기 드롭다운 — 노란 톤으로 시각 구분 */
+    .district-select.fav-select {
+      background: #FEF3C7; color: #92400E;
+      padding-left: 26px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23F59E0B" stroke="%2392400E" stroke-width="1"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>');
+      background-repeat: no-repeat;
+      background-position: 7px center;
+      background-size: 14px 14px;
+    }
+    .district-select.fav-select:hover { background-color: #FDE68A; }
+    /* 카드 안 즐겨찾기 별 버튼 */
+    .card .fav-btn {
+      position: absolute; top: 12px; right: 44px;
+      width: 28px; height: 28px; padding: 0;
+      border: 0; background: transparent;
+      cursor: pointer; color: #D1D5DB;
+      transition: color 0.15s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card .fav-btn:hover { color: #F59E0B; }
+    .card .fav-btn:active { transform: scale(0.9); }
+    .card .fav-btn.on { color: #F59E0B; }
+    .card .fav-btn svg { width: 22px; height: 22px; }
     .district-select:hover { background: #E0EAFF; }
     .district-select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
     .district-select-wrap::after {
@@ -729,6 +752,9 @@
               <option value="all">전체</option>
             </select>
           </span>
+          <span class="district-select-wrap">
+            <select id="favoriteSelect" class="district-select fav-select" aria-label="즐겨찾기"></select>
+          </span>
         </div>
         <div class="sub" id="subText">데이터를 불러오는 중…</div>
       </div>
@@ -1019,6 +1045,45 @@
       return null;
     }
 
+    // ─── 즐겨찾기 (localStorage 영구 저장) ───
+    const FAV_KEY = 'seoul-park.favorites.v1';
+    const Favorites = {
+      load() {
+        try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }
+        catch { return []; }
+      },
+      save(list) {
+        try { localStorage.setItem(FAV_KEY, JSON.stringify(list)); } catch {}
+      },
+      makeKey(lot) {
+        // 영구 안정적인 식별자 (좌표+이름)
+        return `${(lot.lat||0).toFixed(5)},${(lot.lng||0).toFixed(5)}|${(lot.name||'').trim()}`;
+      },
+      has(lot) {
+        const k = Favorites.makeKey(lot);
+        return Favorites.load().some(f => f.key === k);
+      },
+      add(lot) {
+        const list = Favorites.load();
+        const k = Favorites.makeKey(lot);
+        if (list.some(f => f.key === k)) return;
+        list.unshift({
+          key: k,
+          name: (lot.name || '').trim(),
+          address: (lot.address || '').trim(),
+          lat: lot.lat, lng: lot.lng,
+          districtCode: lot._districtCode || lot.districtCode || '',
+          category: lot.category || '',
+          addedAt: Date.now(),
+        });
+        Favorites.save(list.slice(0, 50));  // 최대 50개
+      },
+      remove(lot) {
+        const k = Favorites.makeKey(lot);
+        Favorites.save(Favorites.load().filter(f => f.key !== k));
+      },
+    };
+
     // 모든 lot을 공영/공유/거주자우선 3가지로 분류
     // - 'shared' (eshare 공유누리) → 공유
     // - 'residential' (거주자우선) → 거주자우선
@@ -1116,6 +1181,11 @@
         <div class="card-wrap">
           <div class="card">
             <button class="close" aria-label="닫기">×</button>
+            <button class="fav-btn ${Favorites.has(lot) ? 'on' : ''}" data-lot-id="${escapeHtml(lot._id)}" aria-label="즐겨찾기" title="즐겨찾기에 ${Favorites.has(lot) ? '삭제' : '추가'}">
+              <svg viewBox="0 0 24 24" fill="${Favorites.has(lot) ? '#F59E0B' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+              </svg>
+            </button>
             <span class="cat-badge-lg ${catGroup}">${escapeHtml(catLabel)}</span>
             <div class="name">${escapeHtml(lot.name)}</div>
             ${dongLabel ? `<div class="dong-label" title="방문주차 신청 시 선택할 동">📍 방문동: <b>${escapeHtml(dongLabel)}</b></div>` : ''}
@@ -1659,6 +1729,24 @@
           if (t.closest('.card-roadview')) {
             const lot = state.lotById.get(t.closest('.card-roadview').dataset.lotId);
             if (lot) openRoadview(lot.lat, lot.lng, cleanLotName(lot.name));
+            return;
+          }
+          if (t.closest('.fav-btn')) {
+            const btn = t.closest('.fav-btn');
+            const lot = state.lotById.get(btn.dataset.lotId);
+            if (!lot) return;
+            if (Favorites.has(lot)) {
+              Favorites.remove(lot);
+              btn.classList.remove('on');
+              btn.querySelector('svg').setAttribute('fill', 'none');
+              btn.title = '즐겨찾기에 추가';
+            } else {
+              Favorites.add(lot);
+              btn.classList.add('on');
+              btn.querySelector('svg').setAttribute('fill', '#F59E0B');
+              btn.title = '즐겨찾기에서 삭제';
+            }
+            renderFavoriteSelect();
             return;
           }
           if (t.closest('.card .close')) {
@@ -2567,6 +2655,58 @@
             statusEl.style.display = 'none';
           }
         }
+
+        // ─── 즐겨찾기 드롭다운 렌더링 + 선택 핸들러 ───
+        const favSelectEl = document.getElementById('favoriteSelect');
+        function renderFavoriteSelect() {
+          const favs = Favorites.load();
+          favSelectEl.innerHTML = '';
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.textContent = favs.length === 0 ? '⭐ 즐겨찾기 (비어있음)' : `⭐ 즐겨찾기 (${favs.length})`;
+          favSelectEl.appendChild(placeholder);
+          favs.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.key;
+            opt.textContent = cleanLotName(f.name);
+            opt.title = f.address;
+            favSelectEl.appendChild(opt);
+          });
+        }
+        renderFavoriteSelect();
+        favSelectEl.addEventListener('change', async e => {
+          const key = e.target.value;
+          e.target.value = '';  // 즉시 placeholder로 복귀
+          if (!key) return;
+          const fav = Favorites.load().find(f => f.key === key);
+          if (!fav) return;
+          // 카테고리·자치구 자동 전환 후 해당 위치로 이동, 카드 열기
+          const targetCat = fav.category === 'residential' ? 'residential'
+                          : fav.category === 'shared'      ? 'shared'
+                          : 'public';
+          state.category = targetCat;
+          document.getElementById('categorySelect').value = targetCat;
+          if (fav.districtCode && fav.districtCode !== state.districtCode) {
+            try { await loadDistrict(fav.districtCode); } catch {}
+          } else {
+            try { await loadDistrict(state.districtCode || initialCode); } catch {}
+          }
+          // 부드럽게 이동 + 카드 열기 (좌표 기반 lot 찾기)
+          const target = new kakao.maps.LatLng(fav.lat, fav.lng);
+          if (map.getLevel() !== 4) map.setLevel(4);
+          map.panTo(target);
+          // lot 찾기 (좌표 ~1e-5 정밀도로 매칭)
+          const matchedLot = state.lots.find(l =>
+            Math.abs(l.lat - fav.lat) < 1e-4 && Math.abs(l.lng - fav.lng) < 1e-4
+            && (l.name || '').trim() === fav.name);
+          setTimeout(() => {
+            if (matchedLot) {
+              focusLot(matchedLot);
+            } else {
+              alert('해당 주차장 데이터를 찾을 수 없습니다.\n(주소가 바뀌었거나 데이터에서 제외되었을 수 있어요)');
+            }
+          }, 500);
+        });
 
         selectEl.addEventListener('change', e => loadDistrict(e.target.value));
         document.getElementById('categorySelect').addEventListener('change', async e => {
