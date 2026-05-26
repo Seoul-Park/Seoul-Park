@@ -1445,12 +1445,20 @@
         let _locationPromise = null;
         let _locationResolve = null;
 
+        // 모달 떠있는 동안 칩 숨기고 마커는 작은 점으로 통일
+        function shrinkToDotsAndHideChips() {
+          if (state.chipOverlays) state.chipOverlays.forEach(o => o.setMap(null));
+          if (state.markers) state.markers.forEach(m => { if (m._smallImg) m.setImage(m._smallImg); });
+        }
+
         function showLocationConsent() {
           // 한 번만 결정. 이미 결정됐으면 그 값 반환.
           if (locationConsent !== null) return Promise.resolve(locationConsent);
           if (_locationPromise) return _locationPromise;
           _locationPromise = new Promise((res) => { _locationResolve = res; });
           document.getElementById('locModal').classList.add('show');
+          // 모달 떠있는 동안: 칩 숨김 + 마커는 작은 점으로
+          shrinkToDotsAndHideChips();
           return _locationPromise;
         }
 
@@ -1459,7 +1467,9 @@
           locationConsent = null;
           _locationPromise = null;
           _locationResolve = null;
+          state.userLocation = null;  // 위치 초기화 (모달 떠있는 동안 점 + 칩 숨김 적용)
           document.getElementById('locModal').classList.add('show');
+          shrinkToDotsAndHideChips();
         });
 
         document.getElementById('locAllow').addEventListener('click', () => {
