@@ -2346,7 +2346,8 @@
 
           const valid = results.filter(r => r !== null);
           const bounds = new kakao.maps.LatLngBounds();
-          const useClusterer = valid.length > 80;
+          // 거주자우선주차는 클러스터러 없이 개별 마커로 상시 표시 (공영주차장처럼)
+          const useClusterer = valid.length > 80 && cat !== 'residential';
           const showChips = valid.length <= 50;
 
           if (useClusterer) {
