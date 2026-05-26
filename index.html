@@ -319,6 +319,33 @@
     .card .cat-badge-lg.residential { background: rgba(16, 185, 129, 0.14); color: #047857; }
     .card .cat-badge-lg.residential::before { background: #10B981; }
 
+    /* 지도 우하단 "내 위치로 이동" 버튼 */
+    .map-locate-btn {
+      position: absolute; right: 14px; z-index: 10;
+      bottom: 130px;  /* 범례 위쪽 */
+      width: 44px; height: 44px;
+      border: 0; border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: box-shadow 0.15s, transform 0.1s, background 0.2s;
+    }
+    .map-locate-btn:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); background: #F8FAFC; }
+    .map-locate-btn:active { transform: scale(0.94); }
+    .map-locate-btn svg { width: 22px; height: 22px; }
+    .map-locate-btn.locating svg { animation: locating-spin 1.2s linear infinite; }
+    .map-locate-btn.locating { background: #EFF6FF; }
+    @keyframes locating-spin {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+    @media (max-width: 640px) {
+      .map-locate-btn { bottom: 110px; right: 10px; width: 40px; height: 40px; }
+      .map-locate-btn svg { width: 20px; height: 20px; }
+    }
+
     /* 지도 우하단 범례 */
     .map-legend {
       position: absolute; bottom: 14px; right: 14px; z-index: 10;
@@ -734,6 +761,16 @@
 
       <div id="map">
         <div id="status">데이터를 불러오는 중…</div>
+        <button class="map-locate-btn" id="mapLocateBtn" type="button" title="내 위치로 이동" aria-label="내 위치로 이동">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" fill="#3182F6"/>
+            <circle cx="12" cy="12" r="7" fill="none" stroke="#3182F6" stroke-width="2"/>
+            <line x1="12" y1="2" x2="12" y2="5" stroke="#3182F6" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="19" x2="12" y2="22" stroke="#3182F6" stroke-width="2" stroke-linecap="round"/>
+            <line x1="2" y1="12" x2="5" y2="12" stroke="#3182F6" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19" y1="12" x2="22" y2="12" stroke="#3182F6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
         <div class="map-legend" aria-label="마커 범례">
           <div class="lg-title">마커 분류</div>
           <div class="lg-row">
@@ -1230,6 +1267,32 @@
             yAnchor: 0.5, xAnchor: 0.5, zIndex: 65,
           });
           state.userLocOverlay.setMap(map);
+        }
+
+        // 지도 우하단 "내 위치로 이동" 버튼
+        const mapLocateBtn = document.getElementById('mapLocateBtn');
+        if (mapLocateBtn) {
+          mapLocateBtn.addEventListener('click', () => {
+            mapLocateBtn.classList.add('locating');
+            tryGeolocation(
+              (pos) => {
+                mapLocateBtn.classList.remove('locating');
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                showUserLocationMarker(lat, lng);
+                map.setCenter(new kakao.maps.LatLng(lat, lng));
+                map.setLevel(4);  // 줌인
+              },
+              (err) => {
+                mapLocateBtn.classList.remove('locating');
+                if (err && err.code !== 1) {
+                  alert('현재 위치를 가져올 수 없습니다.\n잠시 후 다시 시도해주세요.');
+                }
+                // code 1 (denied) 는 동의 모달에서 이미 안내했으므로 조용히 종료
+              },
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+            );
+          });
         }
 
         // ─── 거리뷰 모달 ───
