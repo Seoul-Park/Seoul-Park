@@ -2389,10 +2389,26 @@
             const name = r ? (r.road_address?.address_name || r.address?.address_name || '현재 위치') : '현재 위치';
             setOrigin({ name, lat, lng });  // 출발지 자동 입력
             // 자치구 자동 전환 (hash 없을 때만)
+            let districtSwitched = false;
             if (!hashCode && r) {
               const guName = r.address?.region_2depth_name;
               const found = districts.find(d => d.name === guName);
-              if (found && found.code !== state.districtCode) loadDistrict(found.code);
+              if (found && found.code !== state.districtCode) {
+                districtSwitched = true;
+                loadDistrict(found.code);
+              }
+            }
+            // 첫 진입 시 자동으로 "내 위치로 이동" 효과:
+            // 지도 중심을 GPS 위치로, 줌 레벨 4(가까이)로
+            // (자치구가 전환되면 그 데이터 로드 후 setBounds가 호출되므로 그 뒤에 덮어쓰도록 1.5초 대기)
+            const applyLocateView = () => {
+              map.setCenter(new kakao.maps.LatLng(lat, lng));
+              map.setLevel(4);
+            };
+            if (districtSwitched) {
+              setTimeout(applyLocateView, 1500);
+            } else {
+              setTimeout(applyLocateView, 600);  // loadDistrict의 setBounds 끝난 직후
             }
           });
         }, () => {}, { timeout: 10000, maximumAge: 300000 });
