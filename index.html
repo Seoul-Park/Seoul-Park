@@ -547,15 +547,6 @@
       background-size: contain; background-repeat: no-repeat;
     }
     /* 거주자우선주차 결제 버튼 */
-    .card-actions .card-modu-pay {
-      background: linear-gradient(135deg, #00C9A7 0%, #00897B 100%);
-      color: white;
-      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-      box-shadow: 0 2px 5px rgba(0, 137, 123, 0.35), inset 0 1px 0 rgba(255,255,255,0.25);
-      text-shadow: 0 1px 1px rgba(0,0,0,0.18);
-      text-decoration: none;
-      font-size: 11px;
-    }
     .card-actions .card-kakaot-pay {
       background: linear-gradient(180deg, #FFE600 0%, #FAE100 55%, #F5D300 100%);
       color: #3C1E1E;
@@ -1020,8 +1011,7 @@
             </div>` : ''}
             ${catGroup === 'residential' ? `
             <div class="resi-pay-label">방문차량 시간요금 결제</div>
-            <div class="card-actions" style="grid-template-columns: 1fr 1fr">
-              <a class="card-modu-pay" href="https://www.moduparking.com/" target="_blank" rel="noopener noreferrer" title="모두의주차장에서 ${escapeHtml(cleanLotName(lot.name))} 검색">모두의주차장</a>
+            <div class="card-actions">
               <a class="card-kakaot-pay" href="https://map.kakao.com/?q=${encodeURIComponent(cleanLotName(lot.name) + ' ' + (lot.address || ''))}" target="_blank" rel="noopener noreferrer" title="카카오맵에서 검색 후 카카오T 주차로 결제">카카오T 주차</a>
             </div>` : ''}
           </div>
