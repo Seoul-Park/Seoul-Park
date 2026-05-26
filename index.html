@@ -500,6 +500,8 @@
     }
     .card .meta dt { color: var(--text-muted); }
     .card .meta dd { color: var(--text); font-weight: 500; }
+    .card .meta dd.hours-multi { line-height: 1.65; }
+    .card .meta dd.hours-multi br + * { color: var(--text); }
     .card-actions {
       display: grid; grid-template-columns: 1fr 1fr 1fr;
       gap: 6px; margin-top: 14px;
@@ -1000,7 +1002,7 @@
             </div>
             <dl class="meta">
               <dt>주차면수</dt><dd>${spacesDisplay(lot)} ${lot.availableSpaces != null ? `<span style="color:var(--text-dim);font-size:11px">· 실시간</span>` : `<span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span>`}</dd>
-              <dt>운영시간</dt><dd>${escapeHtml(lot.hours)}</dd>
+              <dt>운영시간</dt><dd class="hours-multi">${escapeHtml(lot.hours).replace(/\s*\/\s*/g, '<br>')}</dd>
             </dl>
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
