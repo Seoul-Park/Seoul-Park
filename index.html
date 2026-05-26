@@ -1499,8 +1499,13 @@
 
         // 현재 뷰포트 기준으로 마커 이미지를 큰핀/작은점으로 동적 변경
         // (보이는 화면 안 주차장: 큰 P 핀 상시표시 / 바깥: 작은 동그라미)
+        // 단, 위치 동의 전(state.userLocation 없음)이면 전부 작은 점으로 요약 표시
         function updateMarkerVisuals() {
           if (!state.markers || state.markers.length === 0) return;
+          if (!state.userLocation) {
+            state.markers.forEach(m => { if (m._smallImg) m.setImage(m._smallImg); });
+            return;
+          }
           const bounds = map.getBounds();
           state.markers.forEach(marker => {
             if (!marker._bigImg || !marker._smallImg) return;
@@ -2692,7 +2697,8 @@
             const marker = new kakao.maps.Marker({
               position: lot._coords,
               title: `${lot.name} [${CATEGORY_LABEL[catGroup]}]` + (isOpen ? '' : ' (운영시간 외)'),
-              image: bigImg
+              // 위치 동의 전엔 작은 점으로 시작 (요약 표시), 동의 후엔 큰 핀
+              image: state.userLocation ? bigImg : smallImg
             });
             marker._bigImg = bigImg;
             marker._smallImg = smallImg;
