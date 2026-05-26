@@ -622,7 +622,18 @@
       background: linear-gradient(135deg, #F0FDF4 0%, #ECFEFF 100%);
       border-radius: 12px; padding: 10px 14px; margin-top: 8px;
     }
+    .card .hours-box .hours-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 8px;
+    }
     .card .hours-box .label { font-size: 11px; color: #047857; font-weight: 700; }
+    .card .hours-box .spaces-info {
+      font-size: 12px; color: var(--text); font-weight: 700;
+      white-space: nowrap;
+    }
+    .card .hours-box .spaces-info .rt-tag {
+      color: var(--text-dim); font-size: 10.5px; font-weight: 500; margin-left: 2px;
+    }
     .card .hours-box .value {
       font-size: 13px; color: var(--text); font-weight: 600;
       margin-top: 3px; line-height: 1.55;
@@ -1273,12 +1284,15 @@
               ${holidayNote ? `<div class="note">${escapeHtml(holidayNote)}</div>` : ''}
             </div>
             <div class="hours-box">
-              <div class="label">운영시간</div>
+              <div class="hours-top">
+                <span class="label">운영시간</span>
+                <span class="spaces-info">
+                  ${spacesDisplay(lot)}
+                  <span class="rt-tag">${lot.availableSpaces != null ? '· 실시간' : '· 실시간 미제공'}</span>
+                </span>
+              </div>
               <div class="value hours-multi">${escapeHtml(lot.hours || '-').replace(/\s*\/\s*/g, '<br>')}</div>
             </div>
-            <dl class="meta">
-              <dt>주차면수</dt><dd>${spacesDisplay(lot)} ${lot.availableSpaces != null ? `<span style="color:var(--text-dim);font-size:11px">· 실시간</span>` : `<span style="color:var(--text-dim);font-size:11px">· 실시간 잔여 미제공</span>`}</dd>
-            </dl>
             <!-- 경로 검색 + 거리뷰 (카카오내비·티맵은 좌측 사이드바에 있음) -->
             <div class="card-actions">
               <button class="set-dest" data-lot-id="${escapeHtml(lot._id)}">경로 검색</button>
