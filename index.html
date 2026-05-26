@@ -500,6 +500,15 @@
       margin-top: 22px;  /* 카테고리 뱃지(absolute) 자리 확보 */
     }
     .card .addr { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .card .dong-label {
+      margin-top: 6px; padding: 4px 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid #10B981;
+      border-radius: 0 4px 4px 0;
+      font-size: 11.5px; color: #047857;
+      line-height: 1.4;
+    }
+    .card .dong-label b { font-weight: 800; color: #065F46; }
     .card .tag {
       display: inline-block; padding: 2px 8px;
       background: var(--warn-bg); color: var(--warn-text);
@@ -1071,12 +1080,22 @@
       const catGroup = getCategoryGroup(lot);
       const catLabel = CATEGORY_LABEL[catGroup];
 
+      // 거주자우선주차 + 구로구: 방문주차 신청 시 필요한 '방문동' 정보 표시
+      // (addressJibun에서 "OO동" 추출)
+      let dongLabel = '';
+      if (catGroup === 'residential' && lot._districtCode === 'guro') {
+        const src = lot.addressJibun || lot.address || '';
+        const m = src.match(/구로구\s+([가-힣]+\d*동)/);
+        if (m) dongLabel = m[1];
+      }
+
       return `
         <div class="card-wrap">
           <div class="card">
             <button class="close" aria-label="닫기">×</button>
             <span class="cat-badge-lg ${catGroup}">${escapeHtml(catLabel)}</span>
             <div class="name">${escapeHtml(lot.name)}</div>
+            ${dongLabel ? `<div class="dong-label" title="방문주차 신청 시 선택할 동">📍 방문동: <b>${escapeHtml(dongLabel)}</b></div>` : ''}
             <div class="addr">${escapeHtml(lot.address)}</div>
             ${tag ? `<div class="tag">${escapeHtml(tag)}</div>` : ''}
             <div class="price-box">
