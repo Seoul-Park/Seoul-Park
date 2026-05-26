@@ -96,22 +96,20 @@
     .card .fav-btn:active { transform: scale(0.9); }
     .card .fav-btn.on { color: #F59E0B; }
     .card .fav-btn svg { width: 22px; height: 22px; }
-    /* 좌측 리스트 각 항목 별 토글 */
-    .list-item { display: flex; align-items: flex-start; gap: 4px; }
-    .list-item .li-content { flex: 1 1 auto; min-width: 0; }
+    /* 좌측 리스트 각 항목 별 토글 — 첫 줄 이름 왼쪽에 인라인 배치 */
     .list-item .li-fav-btn {
-      width: 24px; height: 28px; padding: 0;
+      width: 20px; height: 20px; padding: 0;
       border: 0; background: transparent;
       cursor: pointer; color: #D1D5DB;
       transition: color 0.15s, transform 0.1s;
-      display: flex; align-items: center; justify-content: center;
+      display: inline-flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      margin-top: 2px;
+      vertical-align: middle;
     }
     .list-item .li-fav-btn:hover { color: #F59E0B; }
     .list-item .li-fav-btn:active { transform: scale(0.85); }
     .list-item .li-fav-btn.on { color: #F59E0B; }
-    .list-item .li-fav-btn svg { width: 17px; height: 17px; pointer-events: none; }
+    .list-item .li-fav-btn svg { width: 15px; height: 15px; pointer-events: none; display: block; }
     .district-select:hover { background: #E0EAFF; }
     .district-select:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
     .district-select-wrap::after {
@@ -1283,26 +1281,25 @@
       const catGroup = getCategoryGroup(lot);
       const catLabel = CATEGORY_LABEL[catGroup];
       const isFav = Favorites.has(lot);
-      return `
-        <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
-          <button class="li-fav-btn ${isFav ? 'on' : ''}" data-lot-id="${escapeHtml(lot._id)}"
+      const favBtn = `<button class="li-fav-btn ${isFav ? 'on' : ''}" data-lot-id="${escapeHtml(lot._id)}"
                   aria-label="즐겨찾기" title="${isFav ? '즐겨찾기에서 삭제' : '즐겨찾기에 추가'}">
             <svg viewBox="0 0 24 24" fill="${isFav ? '#F59E0B' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
               <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
             </svg>
-          </button>
-          <div class="li-content">
-            <div class="li-row">
-              <span class="li-name">${escapeHtml(cleanLotName(lot.name))}</span>
-              <span class="cat-badge ${catGroup}">${escapeHtml(catLabel)}</span>
-              <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
-              <span class="li-spaces">${spacesDisplay(lot)}</span>
-              ${distHtml}
-            </div>
-            <div class="li-row">
-              <span class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</span>
-              ${telHtml}
-            </div>
+          </button>`;
+      return `
+        <div class="list-item" data-lot-id="${escapeHtml(lot._id)}">
+          <div class="li-row">
+            ${favBtn}
+            <span class="li-name">${escapeHtml(cleanLotName(lot.name))}</span>
+            <span class="cat-badge ${catGroup}">${escapeHtml(catLabel)}</span>
+            <span class="li-chip">${escapeHtml(shortHourly(lot.hourly))}</span>
+            ${distHtml}
+          </div>
+          <div class="li-row">
+            <span class="li-spaces">${spacesDisplay(lot)}</span>
+            <span class="li-addr">${escapeHtml(lot.address.replace(stripPrefix, ''))}</span>
+            ${telHtml}
           </div>
         </div>
       `;
