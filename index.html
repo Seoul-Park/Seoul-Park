@@ -929,13 +929,19 @@
 
     function makeMarkerImage(category, isOpen) {
       if (category === 'residential') {
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-          <circle cx="9" cy="9" r="6" fill="#10B981" stroke="white" stroke-width="2.5"/>
+        // 큰 녹색 P 핀 (화면 안에 들어왔을 때 표시)
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+          <defs><filter id="sr" x="-30%" y="-10%" width="160%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.3"/></filter></defs>
+          <g filter="url(#sr)">
+            <path d="M16 1C7.7 1 1 7.7 1 16c0 11 15 22 15 22s15-11 15-22C31 7.7 24.3 1 16 1z" fill="#10B981"/>
+            <circle cx="16" cy="16" r="10" fill="white"/>
+            <text x="16" y="21" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="800" fill="#10B981">P</text>
+          </g>
         </svg>`;
         return new kakao.maps.MarkerImage(
           'data:image/svg+xml;base64,' + btoa(svg),
-          new kakao.maps.Size(18, 18),
-          { offset: new kakao.maps.Point(9, 9) }
+          new kakao.maps.Size(32, 40),
+          { offset: new kakao.maps.Point(16, 40) }
         );
       }
       if (category === 'shared') {
@@ -2365,6 +2371,7 @@
           const publicOpenDot = makeSmallDotImage('public', true);
           const publicClosedDot = makeSmallDotImage('public', false);
           const sharedDot = makeSmallDotImage('shared');
+          const residentialDot = makeSmallDotImage('residential');
           const _now = new Date();
           // 위경도가 데이터에 있으면 지오코딩 스킵
           const lookups = visibleLots.map(lot => {
@@ -2416,12 +2423,11 @@
             const isOpen = isOperating(lot, _now);
             lot._isOpen = isOpen;
             lot._catGroup = catGroup;
-            // 카테고리별 큰 이미지 / 작은 동그라미 이미지 결정
-            // 거주자우선은 항상 작은 동그라미 (기존 디자인 유지)
+            // 카테고리별 큰 이미지(화면 안) / 작은 동그라미(화면 밖) 결정
             const bigImg = catGroup === 'residential' ? residentialMarkerImg
                          : catGroup === 'shared' ? sharedMarkerImg
                          : (isOpen ? publicOpenImg : publicClosedImg);
-            const smallImg = catGroup === 'residential' ? residentialMarkerImg
+            const smallImg = catGroup === 'residential' ? residentialDot
                            : catGroup === 'shared' ? sharedDot
                            : (isOpen ? publicOpenDot : publicClosedDot);
             const marker = new kakao.maps.Marker({
