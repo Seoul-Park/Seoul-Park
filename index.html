@@ -1757,7 +1757,13 @@
 
         function focusLot(lot) {
           if (!lot._coords) return;
-          map.panTo(lot._coords);
+          // 카드(약 400~450px)가 마커 위에 표시되므로 마커가 화면 중심에 있으면 카드 상단이 잘림
+          // → 주차장을 화면 중심보다 살짝 아래쪽으로 보내서 카드 공간 확보
+          // (위도 + 값 = 지도 중심을 북쪽으로 이동 = 주차장이 상대적으로 남쪽=화면 아래쪽에 보임)
+          const lv = map.getLevel();
+          const offsetLat = 0.0018 * Math.pow(2, lv - 4);  // 줌 레벨 따라 자동 조정
+          const adjusted = new kakao.maps.LatLng(lot._coords.getLat() + offsetLat, lot._coords.getLng());
+          map.panTo(adjusted);
           setActiveItem(lot._id);
           openCard(lot);
         }
