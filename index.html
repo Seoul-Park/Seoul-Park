@@ -1609,6 +1609,37 @@
         // 단, 호버 도중 사용자가 지도를 직접 움직였다면 복귀 안 함
         let hoverTimer = null;
         let restoringView = false;  // 우리가 복귀 중일 때 dragstart 무시용
+
+        // 카카오맵 panTo는 거리가 한 화면 분량 이상이면 즉시 전환됨.
+        // 항상 부드럽게 이동시키기 위해 거리에 따라 줌아웃 → panTo → 줌인 시퀀스 적용
+        function smoothPanTo(targetCoords, finalLevel = 4) {
+          const currentCenter = map.getCenter();
+          // 두 점 사이 거리(m) 측정
+          const distM = new kakao.maps.Polyline({ path: [currentCenter, targetCoords] }).getLength();
+          // 거리별 적정 중간 줌 (값이 클수록 더 넓게 보임)
+          let interLv = finalLevel;
+          if (distM > 8000)      interLv = 9;
+          else if (distM > 4000) interLv = 8;
+          else if (distM > 2000) interLv = 7;
+          else if (distM > 1000) interLv = 6;
+          else if (distM > 500)  interLv = 5;
+
+          if (interLv > map.getLevel()) {
+            // 줌아웃 → panTo → 줌인
+            map.setLevel(interLv);
+            map.panTo(targetCoords);
+            setTimeout(() => {
+              if (map.getLevel() !== finalLevel) map.setLevel(finalLevel, { anchor: targetCoords });
+            }, 500);
+          } else {
+            // 이미 충분히 줌아웃 상태 → 바로 panTo + 줌인
+            map.panTo(targetCoords);
+            setTimeout(() => {
+              if (map.getLevel() !== finalLevel) map.setLevel(finalLevel, { anchor: targetCoords });
+            }, 500);
+          }
+        }
+
         listEl.addEventListener('mouseover', (e) => {
           const item = e.target.closest('.list-item');
           if (!item) return;
@@ -1622,9 +1653,8 @@
               state.userMovedMap = false;
             }
             restoringView = true;
-            map.panTo(lot._coords);
-            if (map.getLevel() > 4) map.setLevel(4, { anchor: lot._coords });
-            setTimeout(() => { restoringView = false; }, 600);
+            smoothPanTo(lot._coords, 4);
+            setTimeout(() => { restoringView = false; }, 1000);
           }, 200);
         });
         listEl.addEventListener('mouseout', (e) => {
@@ -1638,11 +1668,9 @@
           if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
           if (state.savedView && !state.userMovedMap) {
             restoringView = true;
-            // 줌 레벨은 즉시(panTo는 줌 변경 안 됨), 중심은 부드럽게 panTo
-            const lv = state.savedView.level;
-            if (lv != null && map.getLevel() !== lv) map.setLevel(lv);
-            map.panTo(state.savedView.center);
-            setTimeout(() => { restoringView = false; }, 800);
+            // smoothPanTo로 부드럽게 복귀 (거리 멀어도 화면전환 없이)
+            smoothPanTo(state.savedView.center, state.savedView.level ?? map.getLevel());
+            setTimeout(() => { restoringView = false; }, 1000);
           }
           state.savedView = null;
           state.userMovedMap = false;
