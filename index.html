@@ -616,10 +616,10 @@
           </span>
           <span class="district-select-wrap">
             <select id="categorySelect" class="district-select" aria-label="주차장 종류">
-              <option value="all">전체</option>
-              <option value="public">공영주차장</option>
+              <option value="public" selected>공영주차장</option>
               <option value="shared">공유주차장</option>
               <option value="residential">거주자우선주차장</option>
+              <option value="all">전체</option>
             </select>
           </span>
         </div>
@@ -1061,7 +1061,7 @@
           lotById: new Map(),
           lots: [],
           districtCode: null,
-          category: 'all',
+          category: 'public',  // 첫 진입은 공영주차장
           mapEmptyEl: null,
           origin: null,         // { name, lat, lng, overlay }
           destination: null,    // { name, lat, lng, overlay }
