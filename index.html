@@ -1819,11 +1819,18 @@
 
         function focusLot(lot) {
           if (!lot._coords) return;
-          // 카드(약 400~450px)가 마커 위에 표시되므로 마커가 화면 중심에 있으면 카드 상단이 잘림
+          // 카드(약 400~600px)가 마커 위에 표시되므로 마커가 화면 중심에 있으면 카드 상단이 잘림
           // → 주차장을 화면 중심보다 살짝 아래쪽으로 보내서 카드 공간 확보
           // (위도 + 값 = 지도 중심을 북쪽으로 이동 = 주차장이 상대적으로 남쪽=화면 아래쪽에 보임)
+          // 카드 높이는 카테고리마다 다름:
+          //  - 공영/공유: ~400px (기본)
+          //  - 거주자우선: ~600px (방문동 라벨 + 방문차량 시간요금 결제 영역 + 자치구 공단 버튼 추가)
+          const catGroup = lot._catGroup || getCategoryGroup(lot);
+          const baseOffset = catGroup === 'residential' ? 0.0032
+                           : catGroup === 'shared'      ? 0.0025
+                           : 0.0018;
           const lv = map.getLevel();
-          const offsetLat = 0.0018 * Math.pow(2, lv - 4);  // 줌 레벨 따라 자동 조정
+          const offsetLat = baseOffset * Math.pow(2, lv - 4);
           const adjusted = new kakao.maps.LatLng(lot._coords.getLat() + offsetLat, lot._coords.getLng());
           map.panTo(adjusted);
           setActiveItem(lot._id);
