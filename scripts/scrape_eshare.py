@@ -1,19 +1,22 @@
 """
 공유누리 (eshare.go.kr) 공공개방 주차장 — 서울특별시
 
-엔드포인트 (인증키 불필요, 지도 페이지가 사용하는 내부 API):
-    POST https://www.eshare.go.kr/UserPortal/Upc/UpcMapSrch/selectUpcParkingMap.do
-    POST https://www.eshare.go.kr/UserPortal/Upc/UpcMapSrch/selectUpdParkingSvcMapTotalCount.do
+하이브리드 데이터 수집:
+  ① 정식 OPEN API 시도 (환경변수 ESHARE_API_KEY 사용)
+     GET https://www.eshare.go.kr/eshare-openapi/rsrc/list/010700/{apikey}
+         ?ctpvCd=11&pageNo=N&numOfRows=100
+  ② 실패 시(키 없음·INVALID·timeout) 지도 페이지 내부 API로 fallback
+     POST https://www.eshare.go.kr/UserPortal/Upc/UpcMapSrch/selectUpcParkingMap.do
+     POST https://www.eshare.go.kr/UserPortal/Upc/UpcMapSrch/selectUpdParkingSvcMapTotalCount.do
 
-서울 좌표 박스(swLat,swLng,neLat,neLng)로 한 번에 받아와서
-data/lots/shared_seoul.json 으로 저장.
-
-(필요시 300건 초과 대비 박스를 4분할하도록 fallback 포함)
+서울 시도 코드: 11
+data/lots/shared_seoul.json 로 저장.
 """
 from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import sys
 from datetime import datetime, timezone, timedelta
@@ -27,6 +30,13 @@ OUT_PATH = LOTS_DIR / "shared_seoul.json"
 KST = timezone(timedelta(hours=9))
 
 BASE = "https://www.eshare.go.kr"
+
+# ── 정식 OPEN API (인증키 필요)
+ESHARE_API_KEY = os.environ.get("ESHARE_API_KEY", "").strip()
+OFFICIAL_URL_TMPL = f"{BASE}/eshare-openapi/rsrc/list/010700/{{apikey}}"
+SEOUL_SIDO_CODE = "11"  # 서울특별시
+
+# ── 내부 API (fallback, 인증키 불필요)
 COUNT_URL = f"{BASE}/UserPortal/Upc/UpcMapSrch/selectUpdParkingSvcMapTotalCount.do"
 LIST_URL = f"{BASE}/UserPortal/Upc/UpcMapSrch/selectUpcParkingMap.do"
 
@@ -115,16 +125,18 @@ def fmt_fee(fee_raw) -> str:
 
 
 def to_lot(r: dict) -> dict | None:
+    # 위경도: 내부 API는 laVal/loVal, 정식 API는 lat/lot
     try:
-        lat = float(r.get("laVal") or 0)
-        lng = float(r.get("loVal") or 0)
+        lat = float(r.get("laVal") or r.get("lat") or 0)
+        lng = float(r.get("loVal") or r.get("lot") or 0)
     except (ValueError, TypeError):
         return None
     if lat < 33 or lng < 124:
         return None
 
+    # 주소: 내부 API는 addr/dtlAddr, 정식 API는 addr/daddr
     addr_main = (r.get("addr") or "").strip()
-    addr_dtl = (r.get("dtlAddr") or "").strip()
+    addr_dtl = (r.get("dtlAddr") or r.get("daddr") or "").strip()
     addr = re.sub(r"\s+", " ", f"{addr_main} {addr_dtl}").strip()
     name = (r.get("rsrcNm") or "").strip()
 
@@ -159,10 +171,56 @@ def to_lot(r: dict) -> dict | None:
     }
 
 
+def fetch_official_api():
+    """정식 OPEN API로 서울(시도 11) 공유주차장 전체 수집.
+    성공 시 raw list 반환, 실패 시 None."""
+    if not ESHARE_API_KEY:
+        print("[eshare-official] ESHARE_API_KEY 환경변수 없음 → 정식 API 스킵, fallback 사용")
+        return None
+    url = OFFICIAL_URL_TMPL.format(apikey=ESHARE_API_KEY)
+    all_items = []
+    page = 1
+    rows_per_page = 100
+    while True:
+        params = {"ctpvCd": SEOUL_SIDO_CODE, "pageNo": page, "numOfRows": rows_per_page}
+        try:
+            res = requests.get(url, params=params, timeout=20)
+            res.raise_for_status()
+            data = res.json()
+        except Exception as e:
+            print(f"[eshare-official] page {page} 호출 실패: {e}")
+            return None
+        # API 표준 응답: { resultCode, resultMsg, items: [...], totalCount }
+        rc = (data.get("resultCode") or "").upper()
+        if rc and rc not in ("00", "SUCCESS", "0"):
+            print(f"[eshare-official] resultCode={rc} ({data.get('resultMsg')}) → fallback")
+            return None
+        items = data.get("items") or data.get("rsrcList") or data.get("body") or []
+        if isinstance(items, dict):
+            items = items.get("item") or items.get("rsrcList") or []
+        if not items:
+            break
+        all_items.extend(items)
+        print(f"[eshare-official] page {page}: +{len(items)} (누적 {len(all_items)})")
+        if len(items) < rows_per_page:
+            break
+        page += 1
+        if page > 100:  # 안전장치
+            break
+    print(f"[eshare-official] ✅ 정식 API 수집 완료: {len(all_items)}건")
+    return all_items
+
+
 def main():
-    print(f"[eshare] fetching Seoul shared parking from {LIST_URL}")
-    raw_list = fetch_bbox(**SEOUL_BBOX)
-    print(f"[eshare] raw fetched: {len(raw_list)} 건")
+    # ── ① 정식 OPEN API 시도
+    raw_list = fetch_official_api()
+    source = "eshare-official-api"
+    if raw_list is None:
+        # ── ② 내부 API fallback
+        print(f"[eshare] fallback: 지도 페이지 내부 API ({LIST_URL})")
+        raw_list = fetch_bbox(**SEOUL_BBOX)
+        source = "eshare-internal-map"
+    print(f"[eshare] raw fetched: {len(raw_list)} 건 (source={source})")
 
     # rsrcNo 기준 중복 제거 (4분할 박스에서 겹칠 수 있음)
     seen = set()
@@ -190,6 +248,7 @@ def main():
         "districtCode": "shared_seoul",
         "operator": "공유누리(행정안전부)",
         "source": "https://www.eshare.go.kr",
+        "sourceType": source,
         "updatedAt": datetime.now(KST).date().isoformat(),
         "lots": lots,
     }

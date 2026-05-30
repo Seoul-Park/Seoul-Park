@@ -43,6 +43,8 @@ jobs:
         run: python scripts/scrape_seongdong.py
 
       - name: Sync 공유누리 공유주차장 (서울)
+        env:
+          ESHARE_API_KEY: ${{ secrets.ESHARE_API_KEY }}
         run: python scripts/scrape_eshare.py
 
       - name: Sync 거주자우선주차 (16개 구)
