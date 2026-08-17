@@ -1,146 +1,146 @@
 {
-  "updatedAt": "2026-08-17T08:57:35+09:00",
+  "updatedAt": "2026-08-17T10:14:14+09:00",
   "source": "서울 열린데이터 GetParkingInfo",
   "lots": {
     "171721": {
       "total": 1260,
-      "available": 1124,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 1044,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "171730": {
       "total": 1312,
-      "available": 1067,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 978,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "171900": {
       "total": 873,
-      "available": 526,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 491,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "172051": {
       "total": 174,
-      "available": 135,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 124,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "172065": {
       "total": 559,
       "available": 467,
-      "updatedAt": "2026-08-17 08:56:53"
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "172935": {
       "total": 79,
-      "available": 20,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 19,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "172937": {
       "total": 55,
-      "available": 21,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 3,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "172970": {
       "total": 69,
-      "available": 58,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 53,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "172971": {
       "total": 67,
       "available": 0,
-      "updatedAt": "2026-08-17 08:56:54"
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "172979": {
       "total": 320,
-      "available": 157,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 154,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "173005": {
       "total": 56,
       "available": 0,
-      "updatedAt": "2026-08-17 08:56:54"
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "173047": {
       "total": 79,
-      "available": 33,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 30,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "173424": {
       "total": 67,
-      "available": 20,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 18,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "173452": {
       "total": 183,
-      "available": 117,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 111,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "173553": {
       "total": 561,
-      "available": 343,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 344,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "173646": {
       "total": 192,
-      "available": 138,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 139,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "173752": {
       "total": 362,
-      "available": 334,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 328,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "173828": {
       "total": 16,
-      "available": 15,
-      "updatedAt": "2026-08-17 08:56:56"
+      "available": 14,
+      "updatedAt": "2026-08-17 10:13:36"
     },
     "173831": {
       "total": 142,
-      "available": 62,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 50,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "173840": {
       "total": 96,
-      "available": 0,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 1,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "173867": {
       "total": 1431,
-      "available": 888,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 827,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1037932": {
       "total": 91,
-      "available": 80,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 76,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1051043": {
       "total": 399,
-      "available": 297,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 275,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1163833": {
       "total": 59,
       "available": 29,
-      "updatedAt": "2026-08-17 08:56:22"
+      "updatedAt": "2026-08-17 10:13:42"
     },
     "1167546": {
       "total": 21,
       "available": 11,
-      "updatedAt": "2026-08-17 08:56:59"
+      "updatedAt": "2026-08-17 10:13:39"
     },
     "1208601": {
       "total": 9,
       "available": 5,
-      "updatedAt": "2026-08-17 08:56:57"
+      "updatedAt": "2026-08-17 10:13:37"
     },
     "1210657": {
       "total": 19,
       "available": 17,
-      "updatedAt": "2026-08-17 08:56:57"
+      "updatedAt": "2026-08-17 10:13:37"
     },
     "1234305": {
       "total": 18,
       "available": 8,
-      "updatedAt": "2026-08-17 08:56:59"
+      "updatedAt": "2026-08-17 10:13:39"
     },
     "1235522": {
       "total": 20,
@@ -150,7 +150,7 @@
     "1235665": {
       "total": 5,
       "available": 2,
-      "updatedAt": "2026-08-17 08:56:24"
+      "updatedAt": "2026-08-17 10:13:44"
     },
     "1236612": {
       "total": 9,
@@ -159,58 +159,58 @@
     },
     "1247636": {
       "total": 79,
-      "available": 40,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 24,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1277144": {
       "total": 137,
-      "available": 86,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 82,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1277145": {
       "total": 357,
-      "available": 271,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 219,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1277146": {
       "total": 80,
-      "available": 32,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 36,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1277160": {
       "total": 236,
-      "available": 211,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 206,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1277163": {
       "total": 12,
       "available": 7,
-      "updatedAt": "2026-08-17 08:56:23"
+      "updatedAt": "2026-08-17 10:13:43"
     },
     "1366527": {
       "total": 88,
       "available": 0,
-      "updatedAt": "2026-08-17 08:56:54"
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1366576": {
       "total": 483,
-      "available": 111,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 104,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1366590": {
       "total": 60,
-      "available": 20,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 22,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1366593": {
       "total": 31,
       "available": 28,
-      "updatedAt": "2026-08-17 08:56:54"
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1366600": {
       "total": 180,
       "available": 93,
-      "updatedAt": "2026-08-17 08:56:53"
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1366602": {
       "total": 11,
@@ -219,123 +219,123 @@
     },
     "1366624": {
       "total": 106,
-      "available": 88,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 80,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1366903": {
       "total": 70,
-      "available": 43,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 39,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1367120": {
       "total": 70,
-      "available": 45,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 44,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1367564": {
       "total": 20,
       "available": 15,
-      "updatedAt": "2026-08-17 08:56:21"
+      "updatedAt": "2026-08-17 10:13:41"
     },
     "1367773": {
       "total": 37,
-      "available": 24,
-      "updatedAt": "2026-08-17 08:56:59"
+      "available": 23,
+      "updatedAt": "2026-08-17 10:13:39"
     },
     "1367792": {
       "total": 23,
       "available": 23,
-      "updatedAt": "2026-08-17 08:56:21"
+      "updatedAt": "2026-08-17 10:13:41"
     },
     "1367804": {
       "total": 81,
-      "available": 28,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 27,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1368955": {
       "total": 12,
       "available": 9,
-      "updatedAt": "2026-08-17 08:56:25"
+      "updatedAt": "2026-08-17 10:13:45"
     },
     "1369476": {
       "total": 2,
-      "available": 0,
-      "updatedAt": "2026-08-17 08:56:26"
+      "available": 1,
+      "updatedAt": "2026-08-17 10:13:46"
     },
     "1372454": {
       "total": 93,
       "available": 56,
-      "updatedAt": "2026-08-17 08:56:20"
+      "updatedAt": "2026-08-17 10:13:40"
     },
     "1372873": {
       "total": 358,
-      "available": 257,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 237,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1384198": {
       "total": 1090,
-      "available": 995,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 972,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1386536": {
       "total": 44,
       "available": 42,
-      "updatedAt": "2026-08-17 08:56:53"
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1404936": {
       "total": 327,
-      "available": 278,
-      "updatedAt": "2026-08-17 08:56:53"
+      "available": 276,
+      "updatedAt": "2026-08-17 10:13:33"
     },
     "1425816": {
       "total": 13,
       "available": 10,
-      "updatedAt": "2026-08-17 08:56:59"
+      "updatedAt": "2026-08-17 10:13:39"
     },
     "1430035": {
       "total": 3,
       "available": 1,
-      "updatedAt": "2026-08-17 08:56:25"
+      "updatedAt": "2026-08-17 10:13:45"
     },
     "1430042": {
       "total": 2,
       "available": 0,
-      "updatedAt": "2026-08-17 08:56:25"
+      "updatedAt": "2026-08-17 10:13:45"
     },
     "1437917": {
       "total": 570,
-      "available": 399,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 345,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1451364": {
       "total": 39,
       "available": 32,
-      "updatedAt": "2026-08-17 08:56:55"
+      "updatedAt": "2026-08-17 10:13:35"
     },
     "1451370": {
       "total": 5,
-      "available": 1,
-      "updatedAt": "2026-08-17 08:56:25"
+      "available": 0,
+      "updatedAt": "2026-08-17 10:13:45"
     },
     "1451938": {
       "total": 12,
       "available": 8,
-      "updatedAt": "2026-08-17 08:56:55"
+      "updatedAt": "2026-08-17 10:13:35"
     },
     "1452019": {
       "total": 25,
       "available": 19,
-      "updatedAt": "2026-08-17 08:56:58"
+      "updatedAt": "2026-08-17 10:13:38"
     },
     "1452024": {
       "total": 6,
       "available": 1,
-      "updatedAt": "2026-08-17 08:56:58"
+      "updatedAt": "2026-08-17 10:13:38"
     },
     "1452025": {
       "total": 6,
       "available": 2,
-      "updatedAt": "2026-08-17 08:56:57"
+      "updatedAt": "2026-08-17 10:13:37"
     },
     "1452219": {
       "total": 10,
@@ -345,67 +345,67 @@
     "1452337": {
       "total": 7,
       "available": 7,
-      "updatedAt": "2026-08-17 08:56:20"
+      "updatedAt": "2026-08-17 10:13:40"
     },
     "1452441": {
       "total": 28,
       "available": 24,
-      "updatedAt": "2026-08-17 08:56:58"
+      "updatedAt": "2026-08-17 10:13:38"
     },
     "1452721": {
       "total": 12,
       "available": 7,
-      "updatedAt": "2026-08-17 08:56:56"
+      "updatedAt": "2026-08-17 10:13:36"
     },
     "1453742": {
       "total": 22,
-      "available": 20,
-      "updatedAt": "2026-08-17 08:56:55"
+      "available": 19,
+      "updatedAt": "2026-08-17 10:13:35"
     },
     "1475224": {
       "total": 28,
       "available": 13,
-      "updatedAt": "2026-08-17 08:56:23"
+      "updatedAt": "2026-08-17 10:13:43"
     },
     "1477337": {
       "total": 47,
       "available": 38,
-      "updatedAt": "2026-08-17 08:56:21"
+      "updatedAt": "2026-08-17 10:13:41"
     },
     "1496216": {
       "total": 19,
       "available": 18,
-      "updatedAt": "2026-08-17 08:56:22"
+      "updatedAt": "2026-08-17 10:13:42"
     },
     "1496233": {
       "total": 18,
       "available": 3,
-      "updatedAt": "2026-08-17 08:56:23"
+      "updatedAt": "2026-08-17 10:13:43"
     },
     "1496449": {
       "total": 19,
       "available": 18,
-      "updatedAt": "2026-08-17 08:56:22"
+      "updatedAt": "2026-08-17 10:13:42"
     },
     "1499707": {
       "total": 31,
-      "available": 19,
-      "updatedAt": "2026-08-17 08:57:00"
+      "available": 20,
+      "updatedAt": "2026-08-17 10:13:40"
     },
     "1509186": {
       "total": 16,
       "available": 10,
-      "updatedAt": "2026-08-17 08:56:24"
+      "updatedAt": "2026-08-17 10:13:44"
     },
     "1509662": {
       "total": 11,
-      "available": 9,
-      "updatedAt": "2026-08-17 08:56:58"
+      "available": 10,
+      "updatedAt": "2026-08-17 10:13:38"
     },
     "1509853": {
       "total": 12,
       "available": 4,
-      "updatedAt": "2026-08-17 08:56:57"
+      "updatedAt": "2026-08-17 10:13:37"
     },
     "1510016": {
       "total": 5,
@@ -420,12 +420,12 @@
     "1510350": {
       "total": 7,
       "available": 4,
-      "updatedAt": "2026-08-17 08:56:57"
+      "updatedAt": "2026-08-17 10:13:37"
     },
     "1510496": {
       "total": 6,
       "available": 4,
-      "updatedAt": "2026-08-17 08:56:24"
+      "updatedAt": "2026-08-17 10:13:44"
     },
     "1510632": {
       "total": 36,
@@ -439,8 +439,8 @@
     },
     "1511816": {
       "total": 33,
-      "available": 14,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 13,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1511971": {
       "total": 13,
@@ -449,133 +449,133 @@
     },
     "1512095": {
       "total": 21,
-      "available": 12,
-      "updatedAt": "2026-08-17 08:56:25"
+      "available": 11,
+      "updatedAt": "2026-08-17 10:13:45"
     },
     "1512125": {
       "total": 9,
-      "available": 1,
-      "updatedAt": "2026-08-17 08:56:26"
+      "available": 2,
+      "updatedAt": "2026-08-17 10:13:46"
     },
     "1512129": {
       "total": 12,
-      "available": 8,
-      "updatedAt": "2026-08-17 08:56:58"
+      "available": 9,
+      "updatedAt": "2026-08-17 10:13:38"
     },
     "1512161": {
       "total": 2,
       "available": 0,
-      "updatedAt": "2026-08-17 08:56:26"
+      "updatedAt": "2026-08-17 10:13:46"
     },
     "1540689": {
       "total": 68,
       "available": 33,
-      "updatedAt": "2026-08-17 08:56:24"
+      "updatedAt": "2026-08-17 10:13:44"
     },
     "1545252": {
       "total": 11,
       "available": 10,
-      "updatedAt": "2026-08-17 08:56:20"
+      "updatedAt": "2026-08-17 10:13:40"
     },
     "1549662": {
       "total": 5,
       "available": 2,
-      "updatedAt": "2026-08-17 08:56:26"
+      "updatedAt": "2026-08-17 10:13:46"
     },
     "1562029": {
       "total": 18,
       "available": 16,
-      "updatedAt": "2026-08-17 08:56:20"
+      "updatedAt": "2026-08-17 10:13:40"
     },
     "1563914": {
       "total": 84,
       "available": 46,
-      "updatedAt": "2026-08-17 08:56:21"
+      "updatedAt": "2026-08-17 10:13:41"
     },
     "1575315": {
       "total": 128,
-      "available": 22,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 28,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1575751": {
       "total": 198,
-      "available": 78,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 62,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1576126": {
       "total": 14,
       "available": 5,
-      "updatedAt": "2026-08-17 08:56:56"
+      "updatedAt": "2026-08-17 10:13:36"
     },
     "1576208": {
       "total": 41,
       "available": 32,
-      "updatedAt": "2026-08-17 08:56:59"
+      "updatedAt": "2026-08-17 10:13:39"
     },
     "1576313": {
       "total": 31,
       "available": 30,
-      "updatedAt": "2026-08-17 08:56:23"
+      "updatedAt": "2026-08-17 10:13:43"
     },
     "1576347": {
       "total": 47,
-      "available": 27,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 23,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1576514": {
       "total": 16,
       "available": 6,
-      "updatedAt": "2026-08-17 08:56:55"
+      "updatedAt": "2026-08-17 10:13:35"
     },
     "1576530": {
       "total": 13,
-      "available": 11,
-      "updatedAt": "2026-08-17 08:56:21"
+      "available": 10,
+      "updatedAt": "2026-08-17 10:13:41"
     },
     "1576703": {
       "total": 38,
-      "available": 33,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 31,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1577094": {
       "total": 12,
       "available": 3,
-      "updatedAt": "2026-08-17 08:56:23"
+      "updatedAt": "2026-08-17 10:13:43"
     },
     "1583447": {
       "total": 38,
-      "available": 21,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 20,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1583862": {
       "total": 61,
-      "available": 13,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 12,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1585237": {
       "total": 39,
       "available": 19,
-      "updatedAt": "2026-08-17 08:56:22"
+      "updatedAt": "2026-08-17 10:13:42"
     },
     "1586294": {
       "total": 10,
       "available": 2,
-      "updatedAt": "2026-08-17 08:56:54"
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1588341": {
       "total": 46,
-      "available": 29,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 30,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1913385": {
       "total": 39,
-      "available": 24,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 25,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1913393": {
       "total": 71,
-      "available": 19,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 18,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "1913415": {
       "total": 567,
@@ -604,13 +604,13 @@
     },
     "3187200": {
       "total": 1186,
-      "available": 1054,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 941,
+      "updatedAt": "2026-08-17 10:13:34"
     },
     "3246959": {
       "total": 130,
-      "available": 32,
-      "updatedAt": "2026-08-17 08:56:54"
+      "available": 27,
+      "updatedAt": "2026-08-17 10:13:34"
     }
   }
 }
